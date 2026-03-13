@@ -1,4 +1,6 @@
-package org.example;
+package models.osm;
+
+import models.geometry.Coordinate;
 
 /**
  * A point on the earth's surface defined by its latitude and longitude.

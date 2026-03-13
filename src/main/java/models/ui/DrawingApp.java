@@ -1,4 +1,4 @@
-package org.example;
+package models.ui;
 
 import javafx.application.Application;
 import javafx.scene.image.ImageView;
@@ -57,4 +57,3 @@ public abstract class DrawingApp extends Application {
         this.imageView.setImage(new WritableImage(this.pixelBuffer));
     }
 }
-

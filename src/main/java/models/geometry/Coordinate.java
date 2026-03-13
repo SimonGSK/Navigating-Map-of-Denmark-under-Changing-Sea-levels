@@ -1,4 +1,4 @@
-package org.example;
+package models.geometry;
 
 /**
  * Represents a geographic coordinate on the earth's surface.

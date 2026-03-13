@@ -1,4 +1,4 @@
-package org.example;
+package models.osm;
 
 /**
  * Represents a member of a relation.

@@ -1,4 +1,7 @@
-package org.example;
+package models.parser;
+
+import Interfaces.IParser;
+import models.osm.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,9 +11,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class Parser implements IParser{
+public class Parser implements IParser {
 
     private final String fileName;
     private final List<Double> boundingBox = new ArrayList<>();

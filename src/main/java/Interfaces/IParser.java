@@ -1,4 +1,8 @@
-package org.example;
+package Interfaces;
+
+import models.osm.Node;
+import models.osm.Relation;
+import models.osm.Way;
 
 import java.util.HashMap;
 import java.util.List;
