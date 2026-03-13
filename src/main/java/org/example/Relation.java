@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -19,9 +20,12 @@ import java.util.List;
  */
 public class Relation extends Element {
     private List<Member> members;
+    private HashMap<String, String> tags;
 
-    public Relation(long id) {
+    public Relation(long id,List<Member> members, HashMap<String, String> tags) {
         super(id);
+        this.members = members;
+        this.tags = tags;
     }
 
     /**
@@ -63,5 +67,13 @@ public class Relation extends Element {
         }
 
         return new ArrayList<>(members);
+    }
+
+    public void setMembers(List<Member> members){
+        this.members = members;
+    }
+
+    public void setTags (HashMap<String, String> tags){
+        this.tags = tags;
     }
 }

@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -15,10 +16,13 @@ import java.util.List;
  * <a href="https://wiki.openstreetmap.org/wiki/Elements#Elements"><i>Source: OpenStreetMap Wiki; Elements</i></a>
  */
 public class Way extends Element {
-    private List<Node> nodes;
+    private final List<Node> nodes;
+    private final HashMap<String, String> tags;
 
-    public Way(long id) {
+    public Way(long id, List<Node> nodes, HashMap<String, String> tags) {
         super(id);
+        this.nodes = nodes;
+        this.tags = tags;
     }
 
     /**
