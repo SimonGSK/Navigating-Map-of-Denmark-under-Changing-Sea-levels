@@ -1,5 +1,7 @@
 package models.osm;
 
+import models.Element;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

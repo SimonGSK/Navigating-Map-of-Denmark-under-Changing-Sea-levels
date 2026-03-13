@@ -1,5 +1,6 @@
 package models.osm;
 
+import models.Element;
 import models.geometry.Coordinate;
 
 /**

@@ -1,4 +1,4 @@
-package models;
+package models.osm;
 
 import java.util.HashMap;
 
