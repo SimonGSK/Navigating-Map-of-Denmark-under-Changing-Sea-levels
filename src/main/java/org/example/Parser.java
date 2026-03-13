@@ -10,9 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.management.relation.Relation;
-
-public class Parser{
+public class Parser implements IParser{
 
     private final String fileName;
     private final List<Double> boundingBox = new ArrayList<>();
@@ -175,4 +173,3 @@ public class Parser{
         return osmRelationMap;
     }
 }
-

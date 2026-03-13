@@ -16,7 +16,7 @@ import java.util.List;
  * <a href="https://wiki.openstreetmap.org/wiki/Elements#Elements"><i>Source: OpenStreetMap Wiki; Elements</i></a>
  */
 public class Way extends Element {
-    private final List<Node> nodes;
+    private List<Node> nodes;
     private final HashMap<String, String> tags;
 
     public Way(long id, List<Node> nodes, HashMap<String, String> tags) {
@@ -35,11 +35,7 @@ public class Way extends Element {
      * @param node the {@link Node} to be added to this way. Must not be {@code null}.
      * @return {@code true} if the node was added successfully, {@code false} otherwise.
      */
-    public boolean addNote(Node node) {
-        if (nodes == null) {
-            nodes = new ArrayList<>();
-        }
-
+    public boolean addNode(Node node) {
         return nodes.add(node);
     }
 
@@ -47,16 +43,12 @@ public class Way extends Element {
      * Returns a copy of this way's ordered list of nodes.
      * <p>
      * The returned list is a defensive copy, so modifications to it will not
-     * affect this way's nodes. To add nodes to this way, use {@link #addNote(Node)}.
+     * affect this way's nodes. To add nodes to this way, use {@link #addNode(Node)}.
      *
      * @return a copy of the list containing all nodes in this way, or {@code null}
      * if no nodes have been added to this way.
      */
     public List<Node> getNodes() {
-        if (nodes == null) {
-            return null;
-        }
-
         return new ArrayList<>(nodes);
     }
 }
