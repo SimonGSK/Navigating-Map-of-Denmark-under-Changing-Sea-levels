@@ -58,6 +58,7 @@ public class App extends DrawingApp {
      */
     private void draw() {
         Graphics2D gc = getNewGraphicsContext();
+        DrawingUtils.applyTransformation(gc);
 
         // Clear background
         gc.setBackground(Color.decode("#a9d3de")); // Blue
