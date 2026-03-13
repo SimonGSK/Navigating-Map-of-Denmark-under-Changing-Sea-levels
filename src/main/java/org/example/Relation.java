@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -20,8 +21,9 @@ import java.util.List;
 public class Relation extends Element {
     private List<Member> members;
 
-    public Relation(long id) {
-        super(id);
+    public Relation(long id, HashMap<String, String> tags, List<Member> members) {
+        super(id, tags);
+        this.members = members;
     }
 
     /**
