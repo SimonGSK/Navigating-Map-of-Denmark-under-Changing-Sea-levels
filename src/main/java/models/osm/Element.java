@@ -15,6 +15,7 @@ import java.util.HashMap;
 public abstract class Element {
     final private long id;
     private HashMap<String, String> tags;
+    private double area;
 
     public Element(long id) {
         this.id = id;
@@ -119,5 +120,13 @@ public abstract class Element {
             return null;
         }
         return new HashMap<>(tags);
+    }
+
+    public double getArea() {
+        return this.area;
+    }
+
+    protected void setArea(double area) {
+        this.area = area;
     }
 }
