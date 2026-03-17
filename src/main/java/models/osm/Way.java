@@ -1,20 +1,12 @@
 package models.osm;
 
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.awt.*;
 
-/**
- * A way is an ordered list of between 1 and 2,000 nodes that define a polyline. Ways are used to represent linear features such as rivers and roads.
- * <p>
- * Ways can also represent the boundaries of areas (solid polygons) such as buildings or forests. In this case, the way's first and last node will be the same. This is called a "closed way".
- * <p>
- * Note that closed ways occasionally represent loops, such as roundabouts on highways, rather than solid areas. This is usually inferred from tags on the way, for example landuse=* can never pertain to a linear feature. However, some real-life objects (such as man_made=pier) can have both a linear closed way or an areal representation area, and the tag area=yes or area=no can be used to avoid ambiguity or misinterpretation. See also: Way#Differences between linear and area representation of features.
- * <p>
- * Areas with holes, or with boundaries of more than 2,000 nodes, cannot be represented by a single way. Instead, the feature will require a more complex multipolygon relation data structure.
- * <p>
- * <a href="https://wiki.openstreetmap.org/wiki/Elements#Elements"><i>Source: OpenStreetMap Wiki; Elements</i></a>
- */
 public class Way extends Element {
     private List<Node> nodes;
     private final HashMap<String, String> tags;
@@ -23,32 +15,74 @@ public class Way extends Element {
         super(id);
         this.nodes = nodes;
         this.tags = tags;
+        double maxLon = 0;
+        double maxLat = 0;
+        double minLon = 0;
+        double minLat = 0;
+        for (Node node : nodes) {
+            if (maxLon > node.getLon()) {
+                maxLon = node.getLon();
+            } else if (minLon < node.getLon()) {
+                minLon = node.getLon();
+            }
+            if (maxLat > node.getLat()) {
+                maxLat = node.getLat();
+            } else if (minLat < node.getLat()) {
+                minLat = node.getLat();
+            }
+        }
+        this.setArea((maxLat - minLat) * (maxLon - minLon));
+    }
+    public List<Node>getNodes(){
+        return nodes;
+    }
+    public HashMap<String, String> getTags() {
+        return tags;
     }
 
-    /**
-     * Adds a node to this way's ordered list of nodes.
-     * <p>
-     * Note that it's possible to have the same node appear multiple times, such as a way in the shape of a figure-8.
-     * <p>
-     * This method lazily initializes the nodes list on first use.
-     *
-     * @param node the {@link Node} to be added to this way. Must not be {@code null}.
-     * @return {@code true} if the node was added successfully, {@code false} otherwise.
-     */
-    public boolean addNode(Node node) {
-        return nodes.add(node);
-    }
+    @Override
+    public void drawForTest(Graphics2D gc,Color color, Integer strokeWidth) {
+          if (nodes.isEmpty()) {
+               return;
+          }
+          gc.setColor(color);
+          if (strokeWidth != null) {
+              gc.setStroke(new BasicStroke(strokeWidth));
+          }
+            Path2D.Double path = new Path2D.Double();
 
-    /**
-     * Returns a copy of this way's ordered list of nodes.
-     * <p>
-     * The returned list is a defensive copy, so modifications to it will not
-     * affect this way's nodes. To add nodes to this way, use {@link #addNode(Node)}.
-     *
-     * @return a copy of the list containing all nodes in this way, or {@code null}
-     * if no nodes have been added to this way.
-     */
-    public List<Node> getNodes() {
-        return new ArrayList<>(nodes);
+          if (nodes.size() == 2) {
+              Node node1 = nodes.get(0);
+              Node node2 = nodes.get(1);
+
+              double x1 = node1.getLon();
+              double y1 = node1.getLat();
+
+              double x2 = node2.getLon();
+              double y2 = node2.getLat();
+
+              path.moveTo(x1, y1);
+              path.lineTo(x2, y2);
+              gc.draw(path);
+          } else if (nodes.size() > 2) {
+             Node node1 = nodes.getFirst();
+              double x1 = node1.getLon();
+              double y1 = node1.getLat();
+              path.moveTo(x1, y1);
+
+              for (int i = 1; i < nodes.size(); i++) {
+                  Node node2 = nodes.get(i);
+                    double x2 = node2.getLon();
+                    double y2 = node2.getLat();
+                    path.lineTo(x2, y2);
+              }
+              if (nodes.getFirst().getId() == nodes.getLast().getId()) {
+                  gc.setStroke(new BasicStroke(0));
+                  path.closePath();
+                  gc.fill(path);
+                  return;
+              }
+              gc.draw(path);
+          }
     }
 }

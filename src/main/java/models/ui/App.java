@@ -1,6 +1,7 @@
 package models.ui;
 
 import Interfaces.Drawable;
+import javafx.application.Application;
 import models.geometry.SuperAffine;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
