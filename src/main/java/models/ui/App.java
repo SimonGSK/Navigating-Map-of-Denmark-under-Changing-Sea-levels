@@ -26,6 +26,8 @@ public class App extends DrawingApp {
     public void start(Stage stage) {
         stage.setTitle("Drawing App");
         stage.setResizable(false);
+        stage.setWidth(getWIDTH());
+        stage.setHeight(getHEIGHT());
 
         BorderPane mouseEventComponent = new BorderPane();
         mouseEventComponent.setOnMousePressed(this::handleMousePressed);
