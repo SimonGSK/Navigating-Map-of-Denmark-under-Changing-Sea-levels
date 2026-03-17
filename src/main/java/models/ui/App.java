@@ -38,7 +38,7 @@ public class App extends DrawingApp {
         // reCenter(new double[]{10, 50, 15, 55}); // Centers around the bounds given
 
         // Initial draw and render
-        drawSquare();
+        draw();
         render();
     }
 
@@ -69,66 +69,11 @@ public class App extends DrawingApp {
      * Runs both draw and render functions.
      */
     private void drawAndRender() {
-        drawSquare();
+        draw();
         render();
     }
 
-    private void drawSquare() {
-        Graphics2D g = getNewGraphicsContext();
-        try {
-            // Background
-            g.setBackground(Color.decode("#a9d3de")); // Blue
-            g.clearRect(0, 0, getWIDTH(), getHEIGHT());
-            g.setTransform(superAffine);
 
-            // Define square corners using Point2D
-            Point2D p1 = new Point2D.Double(200, 200);
-            Point2D p2 = new Point2D.Double(400, 200);
-            Point2D p3 = new Point2D.Double(400, 400);
-            Point2D p4 = new Point2D.Double(200, 400);
-            Point2D q1 = new Point2D.Double(210, 210);
-            Point2D q2 = new Point2D.Double(260, 210);
-            Point2D q3 = new Point2D.Double(260, 230);
-            Point2D q4 = new Point2D.Double(210, 230);
-
-
-            // Build path using moveTo / lineTo
-            Path2D square = new Path2D.Double(Path2D.WIND_EVEN_ODD);
-            Path2D rectangle = new Path2D.Double(Path2D.WIND_EVEN_ODD);
-            square.moveTo(p1.getX(), p1.getY());
-            square.lineTo(p2.getX(), p2.getY());
-            square.lineTo(p3.getX(), p3.getY());
-            square.lineTo(p4.getX(), p4.getY());
-            square.closePath();
-            rectangle.moveTo(q1.getX(), q1.getY());
-            rectangle.lineTo(q2.getX(), q2.getY());
-            rectangle.lineTo(q3.getX(), q3.getY());
-            rectangle.lineTo(q4.getX(), q4.getY());
-            rectangle.closePath();
-
-
-
-
-
-
-            // Fill
-            g.setColor(new Color(100, 150, 255, 180)); // light blue
-            g.fill(square);
-
-            g.setColor(new Color(100, 150, 150, 180));
-            g.fill(rectangle);
-
-            // Stroke
-            g.setColor(Color.BLACK);
-            g.setStroke(new BasicStroke(2.0f));
-            g.draw(rectangle);
-
-            g.draw(square);
-
-        } finally {
-            g.dispose();
-        }
-    }
 
     /**
      * Keeps track of the first mouse press in when panning.
