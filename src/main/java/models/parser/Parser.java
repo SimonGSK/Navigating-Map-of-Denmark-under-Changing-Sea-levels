@@ -16,9 +16,9 @@ public class Parser implements IParser {
 
     private final String fileName;
     private final List<Double> boundingBox = new ArrayList<>();
-    private final HashMap<Long, Node> osmNodeMap = new HashMap<>();
-    private final HashMap<Long, Way> osmWayMap = new HashMap<>();
-    private final HashMap<Long, Relation> osmRelationMap = new HashMap<>();
+    private final HashMap<Long, Node> nodeMap = new HashMap<>();
+    private final HashMap<Long, Way> wayMap = new HashMap<>();
+    private final HashMap<Long, Relation> relationMap = new HashMap<>();
 
     public Parser(String filename) {
         this.fileName = filename;
@@ -48,7 +48,7 @@ public class Parser implements IParser {
                     double lon = getAttributeDouble(line, "lon");
                     long id = getAttributeLong(line, "id");
                     Node node = new Node (id, lat, lon);
-                    osmNodeMap.put(id, node);
+                    nodeMap.put(id, node);
 
                 } else if (line.contains("<way")) {
                     List<Node> nodes = new ArrayList<>();
@@ -69,7 +69,7 @@ public class Parser implements IParser {
                         }
                     }
                     Way way = new Way(wayID, nodes, tags);
-                    osmWayMap.put(wayID, way);
+                    wayMap.put(wayID, way);
 
                 } else if (line.contains("<relation ") || line.contains("<relation>")) {
                     List<Member> members = new ArrayList<>();
@@ -86,24 +86,24 @@ public class Parser implements IParser {
                             String role = getAttribute(line, "role");
 
                             if (type.equals("node")) {
-                                if(osmNodeMap.containsKey(ref)){
-                                    Member member = new Member(osmNodeMap.get(ref), role);
+                                if(nodeMap.containsKey(ref)){
+                                    Member member = new Member(nodeMap.get(ref), role);
                                     members.add(member);
                                 }
                             } else if (type.equals("way")) {
-                                if(osmWayMap.containsKey(ref)){
-                                    Member member = new Member(osmWayMap.get(ref), role);
+                                if(wayMap.containsKey(ref)){
+                                    Member member = new Member(wayMap.get(ref), role);
                                     members.add(member);
                                 }
                             } else if (type.equals("relation")) {
 
-                                if (!osmRelationMap.containsKey(ref)) {
+                                if (!relationMap.containsKey(ref)) {
                                     List<Member> newMembers = new ArrayList<>();
                                     HashMap<String, String> newTags = new HashMap<>();
                                     Relation newRelation = new Relation(ref, newMembers, newTags);
-                                    osmRelationMap.put(ref, newRelation);
+                                    relationMap.put(ref, newRelation);
                                 }
-                                Member member = new Member(osmRelationMap.get(ref), role);
+                                Member member = new Member(relationMap.get(ref), role);
                                 members.add(member);
                             }
                         } else if (line.contains("<tag")) {
@@ -112,13 +112,13 @@ public class Parser implements IParser {
                             tags.put(k, v);
                         }
                     }
-                    if (osmRelationMap.containsKey(relationID)){
-                        Relation existing = osmRelationMap.get(relationID);
+                    if (relationMap.containsKey(relationID)){
+                        Relation existing = relationMap.get(relationID);
                         existing.setMembers(members);
                         existing.setTags(tags);
                     } else {
                         Relation relation = new Relation(relationID, members, tags);
-                        osmRelationMap.put(relationID, relation);
+                        relationMap.put(relationID, relation);
                     }
                 }
             }
@@ -162,16 +162,16 @@ public class Parser implements IParser {
 
     @Override
     public HashMap<Long, Node> getOsmNodeMap() {
-        return osmNodeMap;
+        return nodeMap;
     }
 
     @Override
     public HashMap<Long, Way> getOsmWayMap() {
-        return osmWayMap;
+        return wayMap;
     }
 
     @Override
     public HashMap<Long, Relation> getOsmRelationMap() {
-        return osmRelationMap;
+        return relationMap;
     }
 }

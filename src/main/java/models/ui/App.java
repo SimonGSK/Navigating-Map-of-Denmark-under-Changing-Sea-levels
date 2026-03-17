@@ -31,15 +31,7 @@ public class App extends DrawingApp {
         mouseEventComponent.setOnMouseDragged(this::handleMouseDragged);
         mouseEventComponent.setOnScroll(this::handleScroll);
 
-        stage.setScene(
-                new Scene(
-                        new StackPane(
-                                this.imageView,
-                                mouseEventComponent
-                        ),
-                        getWIDTH(), getHEIGHT()
-                )
-        );
+        stage.setScene(new Scene(new StackPane(this.imageView, mouseEventComponent), getWIDTH(), getHEIGHT()));
         stage.show();
 
         // Setup
