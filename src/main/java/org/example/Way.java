@@ -19,33 +19,8 @@ public class Way extends Element {
     private final List<Node> nodes;
 
     public Way(long id, HashMap<String, String> tags, List<Node> nodes) {
-        super(id, tags);
+        super(id, tags, calcMBR(nodes));
         this.nodes = nodes;
-    }
-
-    protected MBR calcMBR(List<Node> nodes) {
-        if (nodes == null || nodes.isEmpty()) {
-            throw new RuntimeException("nodes is empty or null");
-        }
-
-        double minLat = nodes.getFirst().getCoord().lat();
-        double minLon = nodes.getFirst().getCoord().lon();
-        double maxLat = nodes.getFirst().getCoord().lat();
-        double maxLon = nodes.getFirst().getCoord().lon();
-
-        if (nodes.size() == 1) {
-            return new MBR(minLat, minLon, maxLat, maxLon);
-        }
-
-        for (Node n : nodes) {
-            Coordinate c = n.getCoord();
-            if (c.lat() < minLat) minLat = c.lat();
-            if (c.lon() < minLon) minLon = c.lon();
-            if (c.lat() > maxLat) maxLat = c.lat();
-            if (c.lon() > maxLon) maxLon = c.lon();
-        }
-
-        return new MBR(minLat, minLon, maxLat, maxLon);
     }
 
     /**

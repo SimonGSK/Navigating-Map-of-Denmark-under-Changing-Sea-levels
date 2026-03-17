@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Elements are the basic components of OpenStreetMap's conceptual data model of the physical world.
@@ -17,9 +18,35 @@ public abstract class Element {
     private final HashMap<String, String> tags;
     protected MBR mbr;
 
-    public Element(long id, HashMap<String, String> tags) {
+    public Element(long id, HashMap<String, String> tags, MBR mbr) {
         this.id = id;
         this.tags = tags;
+        this.mbr = mbr;
+    }
+
+    static protected MBR calcMBR(List<Node> nodes) {
+        if (nodes == null || nodes.isEmpty()) {
+            throw new RuntimeException("nodes is empty or null");
+        }
+
+        double minLat = nodes.getFirst().getCoord().lat();
+        double minLon = nodes.getFirst().getCoord().lon();
+        double maxLat = nodes.getFirst().getCoord().lat();
+        double maxLon = nodes.getFirst().getCoord().lon();
+
+        if (nodes.size() == 1) {
+            return new MBR(minLat, minLon, maxLat, maxLon);
+        }
+
+        for (Node n : nodes) {
+            Coordinate c = n.getCoord();
+            if (c.lat() < minLat) minLat = c.lat();
+            if (c.lon() < minLon) minLon = c.lon();
+            if (c.lat() > maxLat) maxLat = c.lat();
+            if (c.lon() > maxLon) maxLon = c.lon();
+        }
+
+        return new MBR(minLat, minLon, maxLat, maxLon);
     }
 
     public long getId() {

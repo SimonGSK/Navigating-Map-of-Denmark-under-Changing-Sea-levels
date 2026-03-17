@@ -35,9 +35,8 @@ public class Node extends Element {
      * @param lon the longitude of this node in degrees, ranging from -180° to +180°.
      */
     public Node(long id, HashMap<String, String> tags, double lat, double lon) {
-        super(id, tags);
+        super(id, tags, new MBR(lat, lon, lat, lon));
         this.coord = new Coordinate(lat, lon);
-        this.mbr = new MBR(lat, lon, lat, lon);
     }
 
     /**

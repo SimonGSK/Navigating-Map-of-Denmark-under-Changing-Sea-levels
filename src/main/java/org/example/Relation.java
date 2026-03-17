@@ -22,8 +22,15 @@ public class Relation extends Element {
     private List<Member> members;
 
     public Relation(long id, HashMap<String, String> tags, List<Member> members) {
-        super(id, tags);
+        super(id, tags, calcMBR(membersToNodes(members)));
         this.members = members;
+    }
+
+    static private List<Node> membersToNodes(List<Member> members) {
+        List<Node> nodes = new ArrayList<>();
+        for (Member m : members) {
+            nodes.add(m.element());
+        }
     }
 
     /**
