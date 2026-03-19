@@ -3,5 +3,5 @@ package Interfaces;
 import java.awt.*;
 
 public interface Drawable {
-    void draw(Graphics2D gc);
+    void drawForTest(Graphics2D gc, Color color, Integer strokeWidth);
 }
