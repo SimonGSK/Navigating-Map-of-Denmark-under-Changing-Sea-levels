@@ -26,8 +26,8 @@ public class Node extends Element {
         return lon;
     }
 
-@Override
+    @Override
     public void drawForTest(Graphics2D gc, Color color, Integer strokeWidth) {
 
-}
+    }
 }

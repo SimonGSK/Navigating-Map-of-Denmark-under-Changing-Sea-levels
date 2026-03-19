@@ -38,7 +38,9 @@ public class App extends DrawingApp {
         List<Double> bb = parser.getBoundingBox();
 
         // reCenter(new double[]{10, 50, 15, 55}); // Centers around the bounds given
-        reCenter(new double[]{bb.get(1), bb.get(0), bb.get(3), bb.get(2)});
+        if(bb.size() == 4){
+            reCenter(new double[]{bb.get(1), bb.get(0), bb.get(3), bb.get(2)});
+        }
 
         BorderPane mouseEventComponent = new BorderPane();
         mouseEventComponent.setOnMousePressed(this::handleMousePressed);
@@ -47,6 +49,11 @@ public class App extends DrawingApp {
 
         stage.setScene(new Scene(new StackPane(this.imageView, mouseEventComponent), getWIDTH(), getHEIGHT()));
         stage.show();
+
+        System.out.println("Nodes: " + parser.getOsmNodeMap().size());
+        System.out.println("Ways: " + parser.getOsmWayMap().size());
+        System.out.println("Relations: " + parser.getOsmRelationMap().size());
+        System.out.println("Bounding box: " + parser.getBoundingBox());
 
         // Initial draw and render
         draw();

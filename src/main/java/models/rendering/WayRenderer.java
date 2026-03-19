@@ -17,11 +17,12 @@ public class WayRenderer implements Drawable {
 
     @Override
     public void drawForTest(Graphics2D gc, Color color, Integer strokeWidth) {
+        gc.setColor(color);
+        gc.setStroke(new BasicStroke(strokeWidth));
+
         for(Way way : ways){
             Path2D path = buildPath(way);
-
-            gc.setColor(color);
-            gc.setStroke(new BasicStroke(strokeWidth));
+            if (path == null) continue;
             gc.draw(path);
         }
     }
