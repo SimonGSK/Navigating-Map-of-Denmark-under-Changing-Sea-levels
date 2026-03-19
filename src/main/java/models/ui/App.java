@@ -9,6 +9,8 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import models.parser.Parser;
+import models.rendering.WayRenderer;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
@@ -29,6 +31,11 @@ public class App extends DrawingApp {
         stage.setWidth(getWIDTH());
         stage.setHeight(getHEIGHT());
 
+        Parser parser = new Parser("Bornholm.osm");
+        parser.parse();
+        drawables.add(new WayRenderer(parser.getOsmWayMap().values()));
+        reCenter(parser.getBoundingBox().stream()...);
+
         BorderPane mouseEventComponent = new BorderPane();
         mouseEventComponent.setOnMousePressed(this::handleMousePressed);
         mouseEventComponent.setOnMouseDragged(this::handleMouseDragged);
@@ -39,6 +46,8 @@ public class App extends DrawingApp {
 
         // Setup
         // reCenter(new double[]{10, 50, 15, 55}); // Centers around the bounds given
+
+
 
         // Initial draw and render
         draw();

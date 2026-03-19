@@ -1,0 +1,51 @@
+package models.rendering;
+import Interfaces.Drawable;
+import models.osm.Node;
+import models.osm.Way;
+
+import java.awt.geom.Path2D;
+import java.util.*;
+
+import java.awt.*;
+
+public class WayRenderer implements Drawable {
+    private final Collection<Way> ways;
+
+    public WayRenderer(Collection<Way> ways){
+        this.ways = ways;
+    }
+
+    @Override
+    public void draw(Graphics2D gc) {
+        for(Way way : ways){
+            Path2D path = buildPath(way);
+
+            gc.setColor(Color.darkGray);
+            gc.setStroke(new BasicStroke(0.00002f));
+            gc.draw(path);
+        }
+    }
+
+    private Path2D buildPath(Way way) {
+        if (way.getNodes() == null || way.getNodes().isEmpty()) return null;
+
+        Path2D path = new Path2D.Double();
+        boolean first = true;
+
+        for (Node node : way.getNodes()) {
+            if (node == null) continue;
+
+            // Lon = x, Lat = y (men inverteret fordi y-aksen peger nedad)
+            double x = node.getCoordinate().getLon();
+            double y = -node.getCoordinate().getLat(); // negativ fordi skærm-y er omvendt
+
+            if (first) {
+                path.moveTo(x, y);
+                first = false;
+            } else {
+                path.lineTo(x, y);
+            }
+        }
+        return path;
+    }
+}

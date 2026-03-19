@@ -20,7 +20,7 @@ public class DrawingUtils {
 
         //TODO: Find the left bound of Bornholm and insert instead of 10.
         //TODO: FInd the max latitude of Bornholm and insert instead of 0
-        AffineTransform transform = AffineTransform.getTranslateInstance(-0.56 * 10., 0);
+        AffineTransform transform = AffineTransform.getTranslateInstance(-0.56 * 14.68, 55.31);
 
         transform.preConcatenate(AffineTransform.getScaleInstance(sf, sf));
         gc.setTransform(transform);
