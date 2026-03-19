@@ -34,7 +34,9 @@ public class App extends DrawingApp {
         Parser parser = new Parser("Bornholm.osm");
         parser.parse();
         drawables.add(new WayRenderer(parser.getOsmWayMap().values()));
-        reCenter(parser.getBoundingBox().stream()...);
+
+        List<Double> bb = parser.getBoundingBox();
+        reCenter(new double[]{bb.get(1), bb.get(0), bb.get(3), bb.get(2)});
 
         BorderPane mouseEventComponent = new BorderPane();
         mouseEventComponent.setOnMousePressed(this::handleMousePressed);
@@ -68,7 +70,7 @@ public class App extends DrawingApp {
 
         // Draw
         for (Drawable drawable : drawables) {
-            drawable.draw(gc);
+            drawable.drawForTest(gc);
         }
     }
 
