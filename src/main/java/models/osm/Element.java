@@ -53,7 +53,7 @@ public abstract class Element {
         return tags.containsKey(key);
     }
 
-   
+
     protected HashMap<String, String> getTags() {
         if (tags == null) {
             return null;
