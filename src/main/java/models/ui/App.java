@@ -36,6 +36,8 @@ public class App extends DrawingApp {
         drawables.add(new WayRenderer(parser.getOsmWayMap().values()));
 
         List<Double> bb = parser.getBoundingBox();
+
+        // reCenter(new double[]{10, 50, 15, 55}); // Centers around the bounds given
         reCenter(new double[]{bb.get(1), bb.get(0), bb.get(3), bb.get(2)});
 
         BorderPane mouseEventComponent = new BorderPane();
@@ -45,11 +47,6 @@ public class App extends DrawingApp {
 
         stage.setScene(new Scene(new StackPane(this.imageView, mouseEventComponent), getWIDTH(), getHEIGHT()));
         stage.show();
-
-        // Setup
-        // reCenter(new double[]{10, 50, 15, 55}); // Centers around the bounds given
-
-
 
         // Initial draw and render
         draw();
@@ -70,24 +67,19 @@ public class App extends DrawingApp {
 
         // Draw
         for (Drawable drawable : drawables) {
-            drawable.drawForTest(gc);
+            drawable.drawForTest(gc, Color.DARK_GRAY, 2);
         }
     }
-
 
     private void drawAndRender() {
         draw();
         render();
     }
 
-
-
-
     private void handleMousePressed(MouseEvent event) {
         this.screenX = event.getX();
         this.screenY = event.getY();
     }
-
 
     private void handleMouseDragged(MouseEvent event) {
         double dx = event.getX() - this.screenX, dy = event.getY() - this.screenY;
@@ -96,7 +88,6 @@ public class App extends DrawingApp {
 
         drawAndRender();
     }
-
 
     private void handleScroll(ScrollEvent event) {
         double zoom = event.getDeltaY() > 0 ? 1.05 : 1/1.05;
@@ -108,18 +99,8 @@ public class App extends DrawingApp {
         drawAndRender();
     }
 
-
     public void reCenter(double[] bounds) {
         double scale = getHEIGHT() / (bounds[3] - bounds[1]);
-        superAffine
-                .reset()
-                .prependTranslation(
-                        -0.56 * bounds[0],
-                        bounds[3]
-                )
-                .prependScale(
-                        scale,
-                        scale
-                );
+        superAffine.reset().prependTranslation(-0.56 * bounds[0], bounds[3]).prependScale(scale, scale);
     }
 }

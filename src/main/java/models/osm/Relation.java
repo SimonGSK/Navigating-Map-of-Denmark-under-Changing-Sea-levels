@@ -1,5 +1,6 @@
 package models.osm;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,5 +40,10 @@ public class Relation extends Element {
 
     public void setTags (HashMap<String, String> tags){
         this.tags = tags;
+    }
+
+    @Override
+    public void drawForTest(Graphics2D gc, Color color, Integer strokeWidth){
+
     }
 }
