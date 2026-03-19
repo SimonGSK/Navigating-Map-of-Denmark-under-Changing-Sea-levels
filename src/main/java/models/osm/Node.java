@@ -2,6 +2,8 @@ package models.osm;
 
 import models.geometry.Coordinate;
 
+import java.awt.*;
+
 public class Node extends Element {
     private final double lat;
     private final double lon;
@@ -23,4 +25,9 @@ public class Node extends Element {
     public double getLon() {
         return lon;
     }
+
+@Override
+    public void drawForTest(Graphics2D gc, Color color, Integer strokeWidth) {
+
+}
 }
