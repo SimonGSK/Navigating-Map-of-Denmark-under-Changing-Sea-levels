@@ -54,12 +54,7 @@ public class App extends DrawingApp {
         render();
     }
 
-    /**
-     * Creates a new correctly configured Graphics Context and resets the screen,
-     * sets the background color to an ocean blue,
-     * set the transform (which triggers the screen update)
-     * and draws the contents in the drawables list.
-     */
+
     private void draw() {
         Graphics2D gc = getNewGraphicsContext();
         DrawingUtils.applyTransformation(gc);
@@ -77,9 +72,7 @@ public class App extends DrawingApp {
         }
     }
 
-    /**
-     * Runs both draw and render functions.
-     */
+
     private void drawAndRender() {
         draw();
         render();
@@ -87,19 +80,13 @@ public class App extends DrawingApp {
 
 
 
-    /**
-     * Keeps track of the first mouse press in when panning.
-     * @param event The screen mouse press event that was triggered.
-     */
+
     private void handleMousePressed(MouseEvent event) {
         this.screenX = event.getX();
         this.screenY = event.getY();
     }
 
-    /**
-     * Pans by following the mouse.
-     * @param event The screen mouse drag event that was triggered.
-     */
+
     private void handleMouseDragged(MouseEvent event) {
         double dx = event.getX() - this.screenX, dy = event.getY() - this.screenY;
         superAffine.prependTranslation(dx, dy);
@@ -108,10 +95,7 @@ public class App extends DrawingApp {
         drawAndRender();
     }
 
-    /**
-     * Zooms in-and-out around the mouse.
-     * @param event The screen scroll event that was triggered.
-     */
+
     private void handleScroll(ScrollEvent event) {
         double zoom = event.getDeltaY() > 0 ? 1.05 : 1/1.05;
         superAffine
@@ -122,11 +106,7 @@ public class App extends DrawingApp {
         drawAndRender();
     }
 
-    /**
-     * Re-centers the screen against some world lat/lon bounds.
-     * The function will add the projection transformation of 0.56 to the bounds.
-     * @param bounds An array in the format {minLon, minLat, maxLon, maxLat}.
-     */
+
     public void reCenter(double[] bounds) {
         double scale = getHEIGHT() / (bounds[3] - bounds[1]);
         superAffine

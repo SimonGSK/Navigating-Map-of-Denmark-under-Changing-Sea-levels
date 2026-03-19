@@ -1,9 +1,11 @@
 package models.osm;
 
+import Interfaces.Drawable;
+
 import java.util.HashMap;
 
 
-public abstract class Element {
+public abstract class Element implements Drawable {
     final private long id;
     private HashMap<String, String> tags;
     private double area;
@@ -53,7 +55,7 @@ public abstract class Element {
         return tags.containsKey(key);
     }
 
-   
+
     protected HashMap<String, String> getTags() {
         if (tags == null) {
             return null;
