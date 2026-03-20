@@ -23,6 +23,34 @@ public class Way extends Element {
         this.nodes = nodes;
     }
 
+    static MBR calcMBR(List<Node> nodes) {
+        if (nodes == null || nodes.isEmpty()) {
+            throw new RuntimeException("nodes is empty or null");
+        }
+
+        double minLat = nodes.getFirst().getCoord().lat();
+        double minLon = nodes.getFirst().getCoord().lon();
+        double maxLat = nodes.getFirst().getCoord().lat();
+        double maxLon = nodes.getFirst().getCoord().lon();
+
+        if (nodes.size() == 1) {
+            return new MBR(new BoundingBox(minLat, minLon, maxLat, maxLon), 0);
+        }
+
+        for (Node n : nodes) {
+            Coordinate c = n.getCoord();
+            if (c.lat() < minLat) minLat = c.lat();
+            if (c.lon() < minLon) minLon = c.lon();
+            if (c.lat() > maxLat) maxLat = c.lat();
+            if (c.lon() > maxLon) maxLon = c.lon();
+        }
+
+        double deltaLat = maxLat - minLat;
+        double deltaLon = maxLon - minLon;
+
+        return new MBR(new BoundingBox(minLat, minLon, maxLat, maxLon), deltaLat * deltaLon);
+    }
+
     /**
      * Returns a copy of this way's ordered list of nodes.
      * <p>
