@@ -122,6 +122,25 @@ public class Parser implements IParser {
                     }
                 }
             }
+
+            if(boundingBox.isEmpty()){
+                double minlat = Double.MAX_VALUE;
+                double minlon = Double.MAX_VALUE;
+                double maxlat = Double.MIN_VALUE;
+                double maxlon = Double.MIN_VALUE;
+
+                for(Node node : nodeMap.values()){
+                    if(node.getLat() < minlat){minlat = node.getLat();}
+                    if(node.getLat() > maxlat){maxlat = node.getLat();}
+                    if(node.getLon() < minlon){minlon = node.getLon();}
+                    if(node.getLon() > maxlon){maxlon = node.getLon();}
+                }
+                boundingBox.add(minlat);
+                boundingBox.add(minlon);
+                boundingBox.add(maxlat);
+                boundingBox.add(maxlon);
+            }
+
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
