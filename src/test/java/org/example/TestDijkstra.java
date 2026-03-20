@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.*;
 
 
-public class TestDijkstra {
+public class Testdijkstra {
 
     @Test
     void shortestPathSimpleGraph() {
@@ -19,7 +19,7 @@ public class TestDijkstra {
         graph.put(b, List.of(new Path(c, 2)));
         graph.put(c, List.of());
 
-        double result = Pathfinding.shortestDistance(a, c, graph);
+        double result = Dijkstra.shortestDistance(a, c, graph);
 
         assertEquals(3.0, result);
     }
@@ -32,5 +32,35 @@ public class TestDijkstra {
         Node d = new Node(4, 0, 3);
         Node e = new Node(5, 2, 4);
         Node f = new Node(6, 2, 5);
+// Ulubulu.....
     }
 }
+
+
+
+
+
+
+    /* public Node(long id, double lat, double lon) {
+        super(id);
+        this.coord = new Coordinate(lat, lon);
+    }
+
+    public record Coordinate(double lat, double lon) {
+    }
+
+    private List<Member> members;
+
+    public Relation(long id) {
+        super(id);
+    }
+
+
+    1. Vertices / nodes
+    2. edges / del af en way
+    3. weights / afstand mellem nodes
+
+     */
+
+
+
