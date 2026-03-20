@@ -16,9 +16,9 @@ public class WayRenderer implements Drawable {
     }
 
     @Override
-    public void drawForTest(Graphics2D gc, Color color, Integer strokeWidth) {
+    public void drawForTest(Graphics2D gc, Color color, float strokeWidth) {
         gc.setColor(color);
-        if (strokeWidth != null) {
+        if (strokeWidth != 0.0f) {
             gc.setStroke(new BasicStroke(strokeWidth));
         }
 

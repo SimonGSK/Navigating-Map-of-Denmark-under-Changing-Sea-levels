@@ -41,8 +41,9 @@ public class Way extends Element {
     }
 
     @Override
-    public void drawForTest(Graphics2D gc,Color color, Integer strokeWidth) {
-          if (nodes.isEmpty()) {
+    public void drawForTest(Graphics2D gc,Color color, float strokeWidth) {
+        /*
+        if (nodes.isEmpty()) {
                return;
           }
           gc.setColor(color);
@@ -84,5 +85,8 @@ public class Way extends Element {
               }
               gc.draw(path);
           }
+
+         */
+        
     }
 }

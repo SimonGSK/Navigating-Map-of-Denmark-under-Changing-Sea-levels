@@ -41,10 +41,10 @@ public class Parser implements IParser {
                     double minlon = getAttributeDouble(line, "minlon");
                     double maxlat = getAttributeDouble(line, "maxlat");
                     double maxlon = getAttributeDouble(line, "maxlon");
-                    boundingBox.add(minlat);
                     boundingBox.add(minlon);
-                    boundingBox.add(maxlat);
+                    boundingBox.add(minlat);
                     boundingBox.add(maxlon);
+                    boundingBox.add(maxlat);
 
                 } else if (line.contains("<node") && !line.contains("</node")) {
                     double lat = getAttributeDouble(line, "lat");
@@ -127,10 +127,10 @@ public class Parser implements IParser {
             }
 
             if(boundingBox.isEmpty()){
-                double minlat = Double.MAX_VALUE;
                 double minlon = Double.MAX_VALUE;
-                double maxlat = Double.MIN_VALUE;
+                double minlat = Double.MAX_VALUE;
                 double maxlon = Double.MIN_VALUE;
+                double maxlat = Double.MIN_VALUE;
 
                 for(Node node : nodeMap.values()){
                     if(node.getLat() < minlat){minlat = node.getLat();}
@@ -138,10 +138,10 @@ public class Parser implements IParser {
                     if(node.getLon() < minlon){minlon = node.getLon();}
                     if(node.getLon() > maxlon){maxlon = node.getLon();}
                 }
-                boundingBox.add(minlat);
                 boundingBox.add(minlon);
-                boundingBox.add(maxlat);
+                boundingBox.add(minlat);
                 boundingBox.add(maxlon);
+                boundingBox.add(maxlat);
             }
 
         } catch (IOException e) {

@@ -15,7 +15,7 @@ public class Node extends Element {
     }
 
     public Coordinate getCoordinate() {
-        return new Coordinate(lon, lat);
+        return new Coordinate(lat, lon);
     }
 
     public double getLat() {
@@ -27,7 +27,7 @@ public class Node extends Element {
     }
 
     @Override
-    public void drawForTest(Graphics2D gc, Color color, Integer strokeWidth) {
+    public void drawForTest(Graphics2D gc, Color color, float strokeWidth) {
 
     }
 }

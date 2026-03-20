@@ -42,7 +42,7 @@ public class App extends DrawingApp {
 
         // reCenter(new double[]{10, 50, 15, 55}); // Centers around the bounds given
         if(bb.size() == 4){
-            reCenter(new double[]{bb.get(1), bb.get(0), bb.get(3), bb.get(2)});
+            reCenter(new double[]{bb.get(0), bb.get(1), bb.get(2), bb.get(3)});
         }
 
         BorderPane mouseEventComponent = new BorderPane();
@@ -83,7 +83,7 @@ public class App extends DrawingApp {
         System.out.println("Drawing " + drawables.size() + " drawables with transform " + superAffine);
 
         for (Drawable drawable : drawables) {
-            drawable.drawForTest(gc, Color.BLACK, 4);
+            drawable.drawForTest(gc, Color.BLACK, 0.0002f);
         }
     }
 
