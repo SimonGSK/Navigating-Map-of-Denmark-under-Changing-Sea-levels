@@ -33,16 +33,18 @@ public class App extends DrawingApp {
 
         Parser parser = new Parser("Bornholm.osm");
         parser.parse();
-        drawables.add(new WayRenderer(parser.getOsmWayMap().values()));
+
+        List<Double> bb = parser.getBoundingBox();
+        double meanLat = (bb.get(1) + bb.get(3)) / 2.0; // (minLat + maxLat) / 2
+
+        drawables.add(new WayRenderer(parser.getOsmWayMap().values(), meanLat));
 
         long nonemptyWays = parser.getOsmWayMap().values().stream().filter(w -> w.getNodes() != null && !w.getNodes().isEmpty()).count();
         System.out.println("Non-empty ways in parser map=" + nonemptyWays);
 
-        List<Double> bb = parser.getBoundingBox();
-
         // reCenter(new double[]{10, 50, 15, 55}); // Centers around the bounds given
         if(bb.size() == 4){
-            reCenter(new double[]{bb.get(0), bb.get(1), bb.get(2), bb.get(3)});
+            reCenter(new double[]{bb.get(0), bb.get(1), bb.get(2), bb.get(3)}, meanLat);
         }
 
         BorderPane mouseEventComponent = new BorderPane();
@@ -115,13 +117,14 @@ public class App extends DrawingApp {
         drawAndRender();
     }
 
-    public void reCenter(double[] bounds) {
+    public void reCenter(double[] bounds, double meanLat) {
         double minLon = bounds[0];
         double minLat = bounds[1];
         double maxLon = bounds[2];
         double maxLat = bounds[3];
 
-        double dataWidth = maxLon - minLon;
+        double cosMeanLat = Math.cos(Math.toRadians(meanLat));
+        double dataWidth = (maxLon - minLon) * cosMeanLat;
         double dataHeight = maxLat - minLat;
         if (dataWidth <= 0 || dataHeight <= 0) {
             return;
@@ -138,7 +141,7 @@ public class App extends DrawingApp {
 
         // WayRenderer y is -latitude, so after translating by maxLat it becomes 0..dataHeight
         superAffine.reset()
-                .prependTranslation(-minLon, maxLat)
+                .prependTranslation(-minLon * cosMeanLat, maxLat)
                 .prependScale(scale, scale)
                 .prependTranslation(offsetX, offsetY);
     }

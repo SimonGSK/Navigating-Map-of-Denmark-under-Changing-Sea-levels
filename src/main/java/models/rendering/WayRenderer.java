@@ -10,9 +10,13 @@ import java.awt.*;
 
 public class WayRenderer implements Drawable {
     private final Collection<Way> ways;
+    private final double meanLat;
+    private final double cosMeanLat;
 
-    public WayRenderer(Collection<Way> ways){
+    public WayRenderer(Collection<Way> ways, double meanLat){
         this.ways = ways;
+        this.meanLat = meanLat;
+        this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
     }
 
     @Override
@@ -46,7 +50,7 @@ public class WayRenderer implements Drawable {
             if (node == null) continue;
 
             // Lon = x, Lat = y (men inverteret fordi y-aksen peger nedad)
-            double x = node.getCoordinate().getLon();
+            double x = node.getLon() * cosMeanLat;
             double y = -node.getCoordinate().getLat(); // negativ fordi skærm-y er omvendt
 
             if (first) {
