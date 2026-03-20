@@ -35,6 +35,9 @@ public class App extends DrawingApp {
         parser.parse();
         drawables.add(new WayRenderer(parser.getOsmWayMap().values()));
 
+        long nonemptyWays = parser.getOsmWayMap().values().stream().filter(w -> w.getNodes() != null && !w.getNodes().isEmpty()).count();
+        System.out.println("Non-empty ways in parser map=" + nonemptyWays);
+
         List<Double> bb = parser.getBoundingBox();
 
         // reCenter(new double[]{10, 50, 15, 55}); // Centers around the bounds given
@@ -47,7 +50,12 @@ public class App extends DrawingApp {
         mouseEventComponent.setOnMouseDragged(this::handleMouseDragged);
         mouseEventComponent.setOnScroll(this::handleScroll);
 
-        stage.setScene(new Scene(new StackPane(this.imageView, mouseEventComponent), getWIDTH(), getHEIGHT()));
+        imageView.setFitWidth(getWIDTH());
+        imageView.setFitHeight(getHEIGHT());
+        imageView.setPreserveRatio(false);
+
+        StackPane root = new StackPane(this.imageView, mouseEventComponent);
+        stage.setScene(new Scene(root, getWIDTH(), getHEIGHT()));
         stage.show();
 
         System.out.println("Nodes: " + parser.getOsmNodeMap().size());
@@ -63,18 +71,19 @@ public class App extends DrawingApp {
 
     private void draw() {
         Graphics2D gc = getNewGraphicsContext();
-        DrawingUtils.applyTransformation(gc);
 
-        // Clear background
+        // Clear background in device space first.
+        gc.setTransform(new java.awt.geom.AffineTransform());
         gc.setBackground(Color.decode("#a9d3de")); // Blue
         gc.clearRect(0, 0, getWIDTH(), getHEIGHT());
 
-        // Transform
+        // Apply world transform for drawing map geometry.
         gc.setTransform(superAffine);
 
-        // Draw
+        System.out.println("Drawing " + drawables.size() + " drawables with transform " + superAffine);
+
         for (Drawable drawable : drawables) {
-            drawable.drawForTest(gc, Color.DARK_GRAY, 2);
+            drawable.drawForTest(gc, Color.BLACK, 4);
         }
     }
 
@@ -107,7 +116,30 @@ public class App extends DrawingApp {
     }
 
     public void reCenter(double[] bounds) {
-        double scale = getHEIGHT() / (bounds[3] - bounds[1]);
-        superAffine.reset().prependTranslation(-0.56 * bounds[0], bounds[3]).prependScale(scale, scale);
+        double minLon = bounds[0];
+        double minLat = bounds[1];
+        double maxLon = bounds[2];
+        double maxLat = bounds[3];
+
+        double dataWidth = maxLon - minLon;
+        double dataHeight = maxLat - minLat;
+        if (dataWidth <= 0 || dataHeight <= 0) {
+            return;
+        }
+
+        double scaleX = getWIDTH() / dataWidth;
+        double scaleY = getHEIGHT() / dataHeight;
+        double scale = Math.min(scaleX, scaleY);
+
+        double mapWidth = dataWidth * scale;
+        double mapHeight = dataHeight * scale;
+        double offsetX = (getWIDTH() - mapWidth) / 2.0;
+        double offsetY = (getHEIGHT() - mapHeight) / 2.0;
+
+        // WayRenderer y is -latitude, so after translating by maxLat it becomes 0..dataHeight
+        superAffine.reset()
+                .prependTranslation(-minLon, maxLat)
+                .prependScale(scale, scale)
+                .prependTranslation(offsetX, offsetY);
     }
 }

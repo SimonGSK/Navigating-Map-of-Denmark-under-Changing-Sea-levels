@@ -28,6 +28,9 @@ public class Parser implements IParser {
     public void parse(){
         try {
             InputStream is = Parser.class.getResourceAsStream("/data/" + fileName);
+            if (is == null) {
+                throw new IOException("OSM resource not found: /data/" + fileName + " (check src/main/resources path)");
+            }
             BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
 
             String line;

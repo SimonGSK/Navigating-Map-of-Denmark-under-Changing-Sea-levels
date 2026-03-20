@@ -18,13 +18,22 @@ public class WayRenderer implements Drawable {
     @Override
     public void drawForTest(Graphics2D gc, Color color, Integer strokeWidth) {
         gc.setColor(color);
-        gc.setStroke(new BasicStroke(strokeWidth));
+        if (strokeWidth != null) {
+            gc.setStroke(new BasicStroke(strokeWidth));
+        }
+
+        int drawnWays = 0;
+        int totalWays = 0;
 
         for(Way way : ways){
+            totalWays++;
             Path2D path = buildPath(way);
             if (path == null) continue;
+            drawnWays++;
             gc.draw(path);
         }
+
+        System.out.println("WayRenderer: total ways=" + totalWays + ", drawn ways=" + drawnWays);
     }
 
     private Path2D buildPath(Way way) {
