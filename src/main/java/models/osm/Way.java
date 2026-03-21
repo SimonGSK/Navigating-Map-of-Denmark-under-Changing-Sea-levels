@@ -10,6 +10,10 @@ import java.awt.*;
 public class Way extends Element {
     private List<Node> nodes;
     private final HashMap<String, String> tags;
+    //TODO: Måske lave et felt: boolean toFill som afgør om der skal kaldes .fill() når den tegnes
+    //f.eks. kan man kalde fill på buildings, landuse og leisure, men highway og waterway skal ikke fyldes
+    //Feltet kan initialiseres når farven også bestemmes
+    //Ved dog ikke om man kommer til at tegne nogle element oven på andre
 
     public Way(long id, List<Node> nodes, HashMap<String, String> tags) {
         super(id);
