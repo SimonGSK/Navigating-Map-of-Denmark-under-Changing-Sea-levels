@@ -102,5 +102,21 @@ public class Way extends Element {
         }else{
             return Color.BLACK;
         }
+
+        //TODO: Lav forskellige farver til hver key afhængigt at deres value (highway, landuse, surface, natural)
+        //TODO: Tænker alle leisures skal have samme farve, uanset value, ved ikke med amenity
+
+        //Tags:
+        //Key: highway - Values: service, path, track, residential, footway, cycleway, ...
+        //Key: landuse - Values: forest, grass, industrial, farmyard, recreation_ground, cemetery, allotments, residential, ...
+        //Key: surface - Values: gravel, grass, asphalt, compacted, paved, paving_stones, ...
+        //Key: natural - Values: scrub, water, coastline, rock, hill, peak, stone, spring, tree,
+        //Key: amenity - Values: parking, grave_yard, shelter, school, ice_cream, bench, ...
+        //Key: leisure - Values: park, golf_course, pitch, playground, ...
+        //Key: building - Values: yes
+
+        //More keys:
+        // parking, barrier, oneway, historic, ...
+
     }
 }
