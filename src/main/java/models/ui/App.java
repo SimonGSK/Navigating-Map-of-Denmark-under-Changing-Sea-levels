@@ -85,7 +85,7 @@ public class App extends DrawingApp {
         System.out.println("Drawing " + drawables.size() + " drawables with transform " + superAffine);
 
         for (Drawable drawable : drawables) {
-            drawable.drawForTest(gc, Color.BLACK, 0.0002f);
+            drawable.drawForTest(gc);
         }
     }
 

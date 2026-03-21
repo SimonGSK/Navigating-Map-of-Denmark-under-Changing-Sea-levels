@@ -43,7 +43,7 @@ public class Relation extends Element {
     }
 
     @Override
-    public void drawForTest(Graphics2D gc, Color color, float strokeWidth){
+    public void drawForTest(Graphics2D gc){
 
     }
 }

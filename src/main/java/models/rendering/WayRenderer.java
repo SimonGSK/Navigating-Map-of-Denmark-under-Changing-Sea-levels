@@ -20,11 +20,9 @@ public class WayRenderer implements Drawable {
     }
 
     @Override
-    public void drawForTest(Graphics2D gc, Color color, float strokeWidth) {
-        gc.setColor(color);
-        if (strokeWidth != 0.0f) {
-            gc.setStroke(new BasicStroke(strokeWidth));
-        }
+    public void drawForTest(Graphics2D gc) {
+
+        gc.setStroke(new BasicStroke(0.0002f));
 
         int drawnWays = 0;
         int totalWays = 0;
@@ -32,6 +30,7 @@ public class WayRenderer implements Drawable {
         for(Way way : ways){
             totalWays++;
             Path2D path = buildPath(way);
+            gc.setColor(way.getColor()); //Uses way's getColor() method to determine the color based on its tags
             if (path == null) continue;
             drawnWays++;
             gc.draw(path);
