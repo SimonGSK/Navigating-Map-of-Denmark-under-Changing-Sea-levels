@@ -121,7 +121,7 @@ public class Way extends Element {
             } else if (tags.get("landuse").equals("industrial")) {
                 return Color.decode("#4d4f4c"); //Grå
             }
-            return Color.decode("#DAF6E3"); //Brun
+            return Color.decode("#a7d180"); //Brun
         } else if (tags.containsKey("natural")){
             if (tags.get("natural").equals("water") || tags.get("natural").equals("spring")) {
                 return Color.decode("#184e85"); //Blå

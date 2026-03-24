@@ -34,7 +34,7 @@ public class WayRenderer implements Drawable {
         if (isFerryLike(tags)) return false;
         if (isInfrastructureRoute(tags)) return false;
 
-        return hasAnyTag(tags, "highway", "building", "waterway", "landuse", "natural", "leisure");
+        return hasAnyTag(tags, "highway", "building", "waterway", "landuse", "natural", "leisure", "amenity");
     }
 
     private boolean isFerryLike(java.util.Map<String, String> tags) {
@@ -47,8 +47,8 @@ public class WayRenderer implements Drawable {
 
     private boolean isInfrastructureRoute(java.util.Map<String, String> tags) {
         return "power".equals(tags.get("route"))
-                || tags.containsKey("boundary")
-                || tags.containsKey("aerialway");
+                || tags.containsKey("boundary");
+
     }
 
     private boolean hasAnyTag(java.util.Map<String, String> tags, String... keys) {
