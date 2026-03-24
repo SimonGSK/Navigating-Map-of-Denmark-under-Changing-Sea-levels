@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c849cea3-a170-4673-a879-f2a326deb021" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/test.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/weekly-log.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,10 +72,11 @@
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;r-tree&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;creating-diary-log&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -107,6 +110,8 @@
       <workItem from="1773408389908" duration="72000" />
       <workItem from="1773408516372" duration="1456000" />
       <workItem from="1773750263340" duration="18000" />
+      <workItem from="1774351522330" duration="1660000" />
+      <workItem from="1774353212447" duration="18000" />
     </task>
     <task id="LOCAL-00001" summary="Refactor Element class to take list of Nodes as input and introduce MBR class for bounding box calculations">
       <option name="closed" value="true" />
