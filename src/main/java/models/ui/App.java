@@ -9,6 +9,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import models.osm.Way;
 import models.parser.Parser;
 import models.rendering.WayRenderer;
 
@@ -16,7 +17,9 @@ import java.awt.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import models.ui.DrawingUtils;
 
 public class App extends DrawingApp {
     private double screenX = 0;
@@ -31,13 +34,15 @@ public class App extends DrawingApp {
         stage.setWidth(getWIDTH());
         stage.setHeight(getHEIGHT());
 
-        Parser parser = new Parser("bornholm1.osm");
+        Parser parser = new Parser("bornholm.osm");
         parser.parse();
 
         List<Double> bb = parser.getBoundingBox();
         double meanLat = (bb.get(1) + bb.get(3)) / 2.0; // (minLat + maxLat) / 2
 
-        drawables.add(new WayRenderer(parser.getOsmWayMap().values(), meanLat));
+        List<Way> ways = new ArrayList<>(parser.getOsmWayMap().values());
+        ways.sort(Comparator.comparingDouble(o -> -o.getArea()));
+        drawables.add(new WayRenderer(ways, meanLat));
 
         long nonemptyWays = parser.getOsmWayMap().values().stream().filter(w -> w.getNodes() != null && !w.getNodes().isEmpty()).count();
         System.out.println("Non-empty ways in parser map=" + nonemptyWays);
