@@ -31,7 +31,7 @@ public class App extends DrawingApp {
         stage.setWidth(getWIDTH());
         stage.setHeight(getHEIGHT());
 
-        Parser parser = new Parser("Bornholm.osm");
+        Parser parser = new Parser("bornholm1.osm");
         parser.parse();
 
         List<Double> bb = parser.getBoundingBox();
