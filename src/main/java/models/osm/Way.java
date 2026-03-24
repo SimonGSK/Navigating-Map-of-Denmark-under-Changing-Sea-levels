@@ -96,12 +96,16 @@ public class Way extends Element {
 
     public Color getColor() {
         if (tags.containsKey("highway")) {
+
             return Color.decode("#2b2a2a"); //Grey
         } else if (tags.containsKey("building")) {
             return Color.decode("#a34018"); //Orange
         } else if (tags.containsKey("waterway")) {
             return Color.decode("#184e85"); //Blue
         }else if(tags.containsKey("landuse")){
+            if (tags.get("landuse").equals("forest")){
+                Color.decode("#1a3d0a");
+            }
             return Color.decode("#375c3b"); //Dark green
         }else{
             return Color.BLACK;
