@@ -31,18 +31,9 @@ public class WayRenderer implements Drawable {
         var tags = way.getTags();
         if (tags == null || tags.isEmpty()) return false;
         if (isGeometryOutlier(way)) return false;
-        if (isFerryLike(tags)) return false;
         if (isInfrastructureRoute(tags)) return false;
 
         return hasAnyTag(tags, "highway", "building", "waterway", "landuse", "natural", "leisure", "amenity");
-    }
-
-    private boolean isFerryLike(java.util.Map<String, String> tags) {
-        return "ferry".equals(tags.get("route"))
-                || "ferry".equals(tags.get("disused:route"))
-                || "ferry_route".equals(tags.get("seamark:type"))
-                || tags.containsKey("seamark:ferry_route:category")
-                || tags.containsKey("ferry");
     }
 
     private boolean isInfrastructureRoute(java.util.Map<String, String> tags) {
