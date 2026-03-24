@@ -190,13 +190,11 @@ public class WayRenderer implements Drawable {
     @Override
     public void drawForTest(Graphics2D gc) {
         if (!coastlineFillPaths.isEmpty()) {
-            gc.setColor(Color.decode("#e7e9e8"));
+            gc.setColor(Color.decode("#f5f0e1"));
             for (Path2D fillPath : coastlineFillPaths) {
                 gc.fill(fillPath);
             }
         }
-
-        gc.setStroke(new BasicStroke(0.0001f));
 
         int drawnWays = 0;
         int totalWays = 0;
@@ -208,7 +206,16 @@ public class WayRenderer implements Drawable {
             gc.setColor(way.getColor()); //Uses way's getColor() method to determine the color based on its tags
             if (path == null) continue;
             drawnWays++;
-            gc.draw(path);
+            //gc.draw(path);
+
+            if (way.getNodes().getFirst().getId() != way.getNodes().getLast().getId()){
+                gc.setStroke(new BasicStroke(0.0001f));
+                gc.draw(path);
+            } else{
+                gc.setStroke(new BasicStroke(0));
+                gc.fill(path);
+            }
+
         }
 
         System.out.println("WayRenderer: total ways=" + totalWays + ", drawn ways=" + drawnWays);
