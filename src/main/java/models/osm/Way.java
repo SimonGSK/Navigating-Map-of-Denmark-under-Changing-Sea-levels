@@ -107,7 +107,7 @@ public class Way extends Element {
                 Color.decode("#1a3d0a");
             }
             return Color.decode("#375c3b"); //Dark green
-        }else{
+        } else{
             return Color.BLACK;
         }
 
@@ -121,7 +121,7 @@ public class Way extends Element {
         //Key: natural - Values: scrub, water, coastline, rock, hill, peak, stone, spring, tree,
         //Key: amenity - Values: parking, grave_yard, shelter, school, ice_cream, bench, ...
         //Key: leisure - Values: park, golf_course, pitch, playground, ...
-        //Key: building - Values: yes
+        //Key: building - Values: yes    
 
         //More keys:
         // parking, barrier, oneway, historic, ...
