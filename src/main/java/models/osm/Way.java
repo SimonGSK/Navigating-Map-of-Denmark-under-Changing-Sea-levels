@@ -95,38 +95,46 @@ public class Way extends Element {
     }
 
     public Color getColor() {
-        if (tags.containsKey("highway")) {
-            if (tags.get("highway").equals("track") || tags.get("highway").equals("path")) {
-                return Color.decode("#664627");
+        if(tags.containsKey("surface")){
+            if(tags.get("surface").equals("grass")){
+                return Color.decode("#0b4f14"); //Grøn
+            } else if (tags.get("surface").equals("paved") || tags.get("surface").equals("paving_stones")){
+                return Color.decode("#4e524f"); //Grå
+            } else if (tags.get("surface").equals("gravel")){
+                return Color.decode("#4a4437"); //Gråbrun
             }
-            return Color.decode("#2b2a2a"); //Grey
+            return Color.decode("#171716"); //Mørkegrå
+        } else if (tags.containsKey("highway")) {
+            if (tags.get("highway").equals("track") || tags.get("highway").equals("path")) {
+                return Color.decode("#664627"); //Lysebrun
+            }
+            return Color.decode("#2b2a2a"); //Grå
         } else if (tags.containsKey("building")) {
             return Color.decode("#a34018"); //Orange
         } else if (tags.containsKey("waterway")) {
-            return Color.decode("#184e85"); //Blue
+            return Color.decode("#184e85"); //Blå
         } else if (tags.containsKey("landuse")) {
             if (tags.get("landuse").equals("forest")) {
-                return Color.decode("#1a3d0a");
+                return Color.decode("#1a3d0a"); //Mørkegrøn
             } else if (tags.get("landuse").equals("grass")) {
-                return Color.decode("#33910a");
+                return Color.decode("#297209"); //Grøn
             } else if (tags.get("landuse").equals("industrial")) {
-                return Color.decode("#4d4f4c");
+                return Color.decode("#4d4f4c"); //Grå
             }
-            return Color.decode("#362820");
+            return Color.decode("#362820"); //Brun
         } else if (tags.containsKey("natural")){
             if (tags.get("natural").equals("water") || tags.get("natural").equals("spring")) {
-                return Color.decode("#184e85");
+                return Color.decode("#184e85"); //Blå
             } else if (tags.get("natural").equals("rock") || tags.get("natural").equals("stone")) {
-                return Color.decode("#2b2a2a");
+                return Color.decode("#2b2a2a"); //Mørkegrå
             } else{
-                return Color.decode("#3b421d");
+                return Color.decode("#3b421d"); //Mørkegrøn
             }
+        } else if (tags.containsKey("amenity") || tags.containsKey("leisure")){
+            return Color.decode("#471309"); //Brun-rød
         } else{
             return Color.BLACK;
         }
-
-        //TODO: Lav forskellige farver til hver key afhængigt at deres value (highway, landuse, surface, natural)
-        //TODO: Tænker alle leisures skal have samme farve, uanset value, ved ikke med amenity
 
         //Tags:
         //Key: highway - Values: service, path, track, residential, footway, cycleway, ...
