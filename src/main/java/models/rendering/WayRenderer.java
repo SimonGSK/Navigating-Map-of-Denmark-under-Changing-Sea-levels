@@ -94,7 +94,6 @@ public class WayRenderer implements Drawable {
             gc.fill(new Rectangle.Double(minX, minY, maxX - minX, maxY - minY));
         }
 
-        //TODO: Måske lave forskellig tykkelse alt efter hvad man tegner. Føler byen bliver sammenpresset med 0.0002f men vejen bliver for tynde med 0.0001f
         gc.setStroke(new BasicStroke(0.0001f));
 
         int drawnWays = 0;

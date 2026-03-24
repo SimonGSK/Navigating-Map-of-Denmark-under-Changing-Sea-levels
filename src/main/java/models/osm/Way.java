@@ -96,17 +96,31 @@ public class Way extends Element {
 
     public Color getColor() {
         if (tags.containsKey("highway")) {
-
+            if (tags.get("highway").equals("track") || tags.get("highway").equals("path")) {
+                return Color.decode("#664627");
+            }
             return Color.decode("#2b2a2a"); //Grey
         } else if (tags.containsKey("building")) {
             return Color.decode("#a34018"); //Orange
         } else if (tags.containsKey("waterway")) {
             return Color.decode("#184e85"); //Blue
-        }else if(tags.containsKey("landuse")){
-            if (tags.get("landuse").equals("forest")){
-                Color.decode("#1a3d0a");
+        } else if (tags.containsKey("landuse")) {
+            if (tags.get("landuse").equals("forest")) {
+                return Color.decode("#1a3d0a");
+            } else if (tags.get("landuse").equals("grass")) {
+                return Color.decode("#33910a");
+            } else if (tags.get("landuse").equals("industrial")) {
+                return Color.decode("#4d4f4c");
             }
-            return Color.decode("#375c3b"); //Dark green
+            return Color.decode("#362820");
+        } else if (tags.containsKey("natural")){
+            if (tags.get("natural").equals("water") || tags.get("natural").equals("spring")) {
+                return Color.decode("#184e85");
+            } else if (tags.get("natural").equals("rock") || tags.get("natural").equals("stone")) {
+                return Color.decode("#2b2a2a");
+            } else{
+                return Color.decode("#3b421d");
+            }
         } else{
             return Color.BLACK;
         }
@@ -121,7 +135,7 @@ public class Way extends Element {
         //Key: natural - Values: scrub, water, coastline, rock, hill, peak, stone, spring, tree,
         //Key: amenity - Values: parking, grave_yard, shelter, school, ice_cream, bench, ...
         //Key: leisure - Values: park, golf_course, pitch, playground, ...
-        //Key: building - Values: yes    
+        //Key: building - Values: yes
 
         //More keys:
         // parking, barrier, oneway, historic, ...
