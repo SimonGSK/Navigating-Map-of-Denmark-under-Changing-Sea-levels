@@ -22,7 +22,6 @@ public class WayRenderer implements Drawable {
     @Override
     public void drawForTest(Graphics2D gc) {
 
-        //TODO: Måske lave forskellig tykkelse alt efter hvad man tegner. Føler byen bliver sammenpresset med 0.0002f men vejen bliver for tynde med 0.0001f
         gc.setStroke(new BasicStroke(0.0001f));
 
         int drawnWays = 0;
