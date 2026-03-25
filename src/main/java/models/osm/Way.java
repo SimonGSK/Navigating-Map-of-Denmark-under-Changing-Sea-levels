@@ -107,6 +107,8 @@ public class Way extends Element {
             return Color.decode("#2b2a2a"); //Grå
         } else if (tags.containsKey("building")) {
             return Color.decode("#a34018"); //Orange
+        } else if (tags.containsKey("amenity") || tags.containsKey("leisure")){
+            return Color.decode("#471309"); //Brun-rød
         } else if (tags.containsKey("waterway")) {
             return Color.decode("#184e85"); //Blå
         } else if (tags.containsKey("landuse")) {
@@ -123,16 +125,22 @@ public class Way extends Element {
                 return Color.decode("#184e85"); //Blå
             } else if (tags.get("natural").equals("rock") || tags.get("natural").equals("stone")) {
                 return Color.decode("#2b2a2a"); //Mørkegrå
+            } else if (tags.get("natural").equals("coastline")){
+                return Color.decode("#a19875");
             } else{
-                return Color.decode("#CBEFD6"); //Mørkegrøn
+                return Color.decode("#0b4f14"); //Mørkegrøn
             }
-        } else if (tags.containsKey("amenity") || tags.containsKey("leisure")){
-            return Color.decode("#471309"); //Brun-rød
         } else if (tags.containsKey("aeroway")){
-            if(tags.get("aeroway").equals("taxiway") || tags.get("aeroway").equals("runway")){
+            if(tags.get("aeroway").equals("taxiway") || tags.get("aeroway").equals("airstrip")){
                 return Color.decode("#576682"); //Gråblå
             }
             return Color.decode("#a69e9d"); //Lysegrå
+        } else if (tags.containsKey("barrier")){
+            if(tags.get("barrier").equals("hedge")){
+                return Color.decode("#0b4f14"); //Grøn
+            } else{
+                return Color.BLACK;
+            }
         } else{
             return Color.BLACK;
         }

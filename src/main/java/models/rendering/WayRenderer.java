@@ -24,24 +24,31 @@ public class WayRenderer implements Drawable {
     public WayRenderer(Collection<Way> ways, double meanLat) {
         this.ways = ways;
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
-        this.coastlineFillPaths = buildCoastlineFillPaths();
+        this.coastlineFillPaths = buildCoastlineFillPaths();  //Kan udkommenteres sammen med feltet for at fjerne baggrund
     }
 
     private boolean shouldDrawWay(Way way) {
         var tags = way.getTags();
         if (tags == null || tags.isEmpty()) return false;
-        if (isGeometryOutlier(way)) return false;
-        if (isInfrastructureRoute(tags)) return false;
+        if (shouldNotDraw(tags)) return false;
 
-        return true; //hasAnyTag(tags, "highway", "building", "waterway", "landuse", "natural", "leisure", "amenity");
-    } //TODO: Har lige udkommenteret dette for at tjekke hvad vi mangler at farve
+        //Har lige udkommenteret dette for at tjekke hvad vi mangler at farve
+        return true; //hasAnyTag(tags, "highway", "building", "waterway", "landuse", "natural", "leisure", "amenity", "barrier", "aeroway");
+    }
 
-
-    private boolean isInfrastructureRoute(java.util.Map<String, String> tags) {
+    private boolean shouldNotDraw(java.util.Map<String, String> tags) {
         return "power".equals(tags.get("route"))
+                || tags.containsKey("power")
                 || tags.containsKey("boundary")
-                || "ferry".equals(tags.get("route"));
-
+                || "ferry".equals(tags.get("route"))
+                || tags.containsValue("ferry")
+                || tags.containsValue("Belt Traffic")
+                || "underwater".equals(tags.get("location"))
+                || "strait".equals(tags.get("natural"))
+                || "bay".equals(tags.get("natural"))
+                || tags.containsKey("seamark:type")
+                || tags.containsValue("sea_area")
+                || tags.containsKey("proposed");
     }
 
     private boolean hasAnyTag(java.util.Map<String, String> tags, String... keys) {
@@ -96,18 +103,18 @@ public class WayRenderer implements Drawable {
                     }
                 }
             }
-
             if (!isClosedRing(ring)) continue;
             Path2D path = buildPathFromNodes(ring, true);
             if (path != null) fills.add(path);
         }
-
         return fills;
     }
 
     private Path2D buildPathFromNodes(List<Node> nodes, boolean closePath) {
         if (nodes == null || nodes.isEmpty()) return null;
+
         Path2D path = new Path2D.Double();
+
         boolean first = true;
         for (Node node : nodes) {
             if (node == null) continue;
@@ -147,41 +154,9 @@ public class WayRenderer implements Drawable {
         }
     }
 
-    private boolean isGeometryOutlier(Way way) {
-        if (way.getNodes() == null || way.getNodes().size() < 2) return true;
-        Node prev = null;
-        double maxSegmentLengthSquared = MAX_SEGMENT_LENGTH * MAX_SEGMENT_LENGTH;
-        double localMinX = Double.POSITIVE_INFINITY;
-        double localMaxX = Double.NEGATIVE_INFINITY;
-        double localMinY = Double.POSITIVE_INFINITY;
-        double localMaxY = Double.NEGATIVE_INFINITY;
-
-        for (Node node : way.getNodes()) {
-            if (node == null) continue;
-            double x = node.getLon() * cosMeanLat;
-            double y = -node.getCoordinate().getLat();
-            localMinX = Math.min(localMinX, x);
-            localMaxX = Math.max(localMaxX, x);
-            localMinY = Math.min(localMinY, y);
-            localMaxY = Math.max(localMaxY, y);
-
-            if (prev != null) {
-                double x1 = prev.getLon() * cosMeanLat;
-                double y1 = -prev.getCoordinate().getLat();
-                double dx = x - x1;
-                double dy = y - y1;
-                double segmentLengthSquared = dx * dx + dy * dy;
-                if (segmentLengthSquared > maxSegmentLengthSquared) {
-                    return true;
-                }
-            }
-            prev = node;
-        }
-        return (localMaxX - localMinX) > MAX_WAY_SPAN || (localMaxY - localMinY) > MAX_WAY_SPAN;
-    }
-
     @Override
     public void drawForTest(Graphics2D gc) {
+
         if (!coastlineFillPaths.isEmpty()) {
             gc.setColor(Color.decode("#f5f0e1"));
             for (Path2D fillPath : coastlineFillPaths) {
@@ -199,7 +174,6 @@ public class WayRenderer implements Drawable {
             gc.setColor(way.getColor()); //Uses way's getColor() method to determine the color based on its tags
             if (path == null) continue;
             drawnWays++;
-            //gc.draw(path);
 
             if (way.getNodes().getFirst().getId() != way.getNodes().getLast().getId()){
                 gc.setStroke(new BasicStroke(0.0001f));
@@ -208,7 +182,6 @@ public class WayRenderer implements Drawable {
                 gc.setStroke(new BasicStroke(0));
                 gc.fill(path);
             }
-
         }
 
         System.out.println("WayRenderer: total ways=" + totalWays + ", drawn ways=" + drawnWays);
