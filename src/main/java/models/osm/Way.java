@@ -10,10 +10,6 @@ import java.awt.*;
 public class Way extends Element {
     private List<Node> nodes;
     private final HashMap<String, String> tags;
-    //TODO: Måske lave et felt: boolean toFill som afgør om der skal kaldes .fill() når den tegnes
-    //f.eks. kan man kalde fill på buildings, landuse og leisure, men highway og waterway skal ikke fyldes
-    //Feltet kan initialiseres når farven også bestemmes
-    //Ved dog ikke om man kommer til at tegne nogle element oven på andre
 
     public Way(long id, List<Node> nodes, HashMap<String, String> tags) {
         super(id);
@@ -114,7 +110,7 @@ public class Way extends Element {
         } else if (tags.containsKey("waterway")) {
             return Color.decode("#184e85"); //Blå
         } else if (tags.containsKey("landuse")) {
-            if (tags.get("landuse").equals("forest")) {
+            if (tags.get("landuse").equals("forest")) { //TODO: De ufarvede arealer på Bornholm skulle gerne rammes af denne, men der står at det er en multipolygon, så der er måske derfor den ikke farves
                 return Color.decode("#1a3d0a"); //Mørkegrøn
             } else if (tags.get("landuse").equals("grass")) {
                 return Color.decode("#297209"); //Grøn
@@ -128,10 +124,15 @@ public class Way extends Element {
             } else if (tags.get("natural").equals("rock") || tags.get("natural").equals("stone")) {
                 return Color.decode("#2b2a2a"); //Mørkegrå
             } else{
-                return Color.decode("#3b421d"); //Mørkegrøn
+                return Color.decode("#CBEFD6"); //Mørkegrøn
             }
         } else if (tags.containsKey("amenity") || tags.containsKey("leisure")){
             return Color.decode("#471309"); //Brun-rød
+        } else if (tags.containsKey("aeroway")){
+            if(tags.get("aeroway").equals("taxiway") || tags.get("aeroway").equals("runway")){
+                return Color.decode("#576682"); //Gråblå
+            }
+            return Color.decode("#a69e9d"); //Lysegrå
         } else{
             return Color.BLACK;
         }
