@@ -33,12 +33,14 @@ public class WayRenderer implements Drawable {
         if (isGeometryOutlier(way)) return false;
         if (isInfrastructureRoute(tags)) return false;
 
-        return hasAnyTag(tags, "highway", "building", "waterway", "landuse", "natural", "leisure", "amenity");
-    }
+        return true; //hasAnyTag(tags, "highway", "building", "waterway", "landuse", "natural", "leisure", "amenity");
+    } //TODO: Har lige udkommenteret dette for at tjekke hvad vi mangler at farve
+
 
     private boolean isInfrastructureRoute(java.util.Map<String, String> tags) {
         return "power".equals(tags.get("route"))
-                || tags.containsKey("boundary");
+                || tags.containsKey("boundary")
+                || "ferry".equals(tags.get("route"));
 
     }
 
