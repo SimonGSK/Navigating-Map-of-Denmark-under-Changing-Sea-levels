@@ -16,7 +16,6 @@ public class Relation extends Element {
         this.tags = tags;
     }
 
-
     public boolean addMember(Member member) {
         if (members == null) {
             members = new ArrayList<>();
@@ -24,7 +23,6 @@ public class Relation extends Element {
 
         return members.add(member);
     }
-
 
     public List<Member> getMembers() {
         if (members == null) {
@@ -45,5 +43,14 @@ public class Relation extends Element {
     @Override
     public void drawForTest(Graphics2D gc){
 
+    }
+
+    public HashMap<String, String> getTags() {
+        return tags;
+    }
+
+    public String getTag(String key) {
+        if (tags == null) return null;
+        return tags.get(key);
     }
 }

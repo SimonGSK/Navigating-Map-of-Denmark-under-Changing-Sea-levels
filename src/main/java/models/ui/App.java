@@ -11,15 +11,14 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import models.osm.Way;
 import models.parser.Parser;
-import models.rendering.WayRenderer;
+import models.rendering.*;
 
 import java.awt.*;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import models.ui.DrawingUtils;
+import models.parser.MapData;
 
 public class App extends DrawingApp {
     private double screenX = 0;
@@ -37,12 +36,25 @@ public class App extends DrawingApp {
         Parser parser = new Parser("bornholm.osm");
         parser.parse();
 
+        /* //Bruges til at tjekke for ways uden tags
+        for (Way way : parser.getOsmWayMap().values()) {
+            if (way.getTags() == null || way.getTags().isEmpty()) {
+                System.out.println("Way uden tags: " + way.getId());
+            }
+        }
+        */
         List<Double> bb = parser.getBoundingBox();
         double meanLat = (bb.get(1) + bb.get(3)) / 2.0; // (minLat + maxLat) / 2
 
-        List<Way> ways = new ArrayList<>(parser.getOsmWayMap().values());
-        ways.sort(Comparator.comparingDouble(o -> -o.getArea()));
-        drawables.add(new WayRenderer(ways, meanLat));
+        MapData mapData = new MapData(parser.getOsmWayMap(), parser.getOsmRelationMap());
+
+        // Alle ways sendes til WayRenderer så kystkurven har adgang til dem
+        List<Way> allWays = new ArrayList<>(parser.getOsmWayMap().values());
+
+        drawables.add(new CoastlineRenderer(allWays, meanLat));                          // 1. landets baggrund
+        drawables.add(new RelationRenderer(mapData.multiPolygons,                        // 2. skove, søer osv.
+                Math.cos(Math.toRadians(meanLat))));
+        drawables.add(new WayRenderer(mapData.standaloneWays, meanLat));                 // 3. veje, bygninger
 
         long nonemptyWays = parser.getOsmWayMap().values().stream().filter(w -> w.getNodes() != null && !w.getNodes().isEmpty()).count();
         System.out.println("Non-empty ways in parser map=" + nonemptyWays);

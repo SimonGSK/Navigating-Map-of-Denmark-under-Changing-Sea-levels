@@ -19,12 +19,10 @@ public class WayRenderer implements Drawable {
 
     private final Collection<Way> ways;
     private final double cosMeanLat;
-    private final List<Path2D> coastlineFillPaths;
 
     public WayRenderer(Collection<Way> ways, double meanLat) {
         this.ways = ways;
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
-        this.coastlineFillPaths = buildCoastlineFillPaths();  //Kan udkommenteres sammen med feltet for at fjerne baggrund
     }
 
     private boolean shouldDrawWay(Way way) {
@@ -58,59 +56,7 @@ public class WayRenderer implements Drawable {
         return false;
     }
 
-    private List<Path2D> buildCoastlineFillPaths() {
-        List<List<Node>> coastlineSegments = new ArrayList<>();
-        for (Way way : ways) {
-            var tags = way.getTags();
-            if (tags == null) continue;
-            if (!"coastline".equals(tags.get("natural"))) continue;
-            if (way.getNodes() == null || way.getNodes().size() < 2) continue;
-            coastlineSegments.add(new ArrayList<>(way.getNodes()));
-        }
-
-        List<Path2D> fills = new ArrayList<>();
-        while (!coastlineSegments.isEmpty()) {
-            List<Node> ring = new ArrayList<>(coastlineSegments.remove(0));
-            boolean grew = true;
-
-            while (grew && !isClosedRing(ring)) {
-                grew = false;
-                Node ringEnd = lastNode(ring);
-                if (ringEnd == null) break;
-
-                Iterator<List<Node>> it = coastlineSegments.iterator();
-                while (it.hasNext()) {
-                    List<Node> segment = it.next();
-                    Node segStart = firstNode(segment);
-                    Node segEnd = lastNode(segment);
-                    if (segStart == null || segEnd == null) {
-                        it.remove();
-                        continue;
-                    }
-
-                    if (ringEnd.getId() == segStart.getId()) {
-                        appendWithoutDuplicateStart(ring, segment);
-                        it.remove();
-                        grew = true;
-                        break;
-                    }
-                    if (ringEnd.getId() == segEnd.getId()) {
-                        Collections.reverse(segment);
-                        appendWithoutDuplicateStart(ring, segment);
-                        it.remove();
-                        grew = true;
-                        break;
-                    }
-                }
-            }
-            if (!isClosedRing(ring)) continue;
-            Path2D path = buildPathFromNodes(ring, true);
-            if (path != null) fills.add(path);
-        }
-        return fills;
-    }
-
-    private Path2D buildPathFromNodes(List<Node> nodes, boolean closePath) {
+    private Path2D buildPathFromNodes(List<Node> nodes, boolean closePath, double cosMeanLat) {
         if (nodes == null || nodes.isEmpty()) return null;
 
         Path2D path = new Path2D.Double();
@@ -131,38 +77,8 @@ public class WayRenderer implements Drawable {
         return path;
     }
 
-    private Node firstNode(List<Node> nodes) {
-        if (nodes == null || nodes.isEmpty()) return null;
-        return nodes.get(0);
-    }
-
-    private Node lastNode(List<Node> nodes) {
-        if (nodes == null || nodes.isEmpty()) return null;
-        return nodes.get(nodes.size() - 1);
-    }
-
-    private boolean isClosedRing(List<Node> nodes) {
-        if (nodes == null || nodes.size() < 3) return false;
-        Node first = firstNode(nodes);
-        Node last = lastNode(nodes);
-        return first != null && last != null && first.getId() == last.getId();
-    }
-
-    private void appendWithoutDuplicateStart(List<Node> target, List<Node> source) {
-        for (int i = 1; i < source.size(); i++) {
-            target.add(source.get(i));
-        }
-    }
-
     @Override
     public void drawForTest(Graphics2D gc) {
-
-        if (!coastlineFillPaths.isEmpty()) {
-            gc.setColor(Color.decode("#f5f0e1"));
-            for (Path2D fillPath : coastlineFillPaths) {
-                gc.fill(fillPath);
-            }
-        }
 
         int drawnWays = 0;
         int totalWays = 0;
@@ -171,7 +87,7 @@ public class WayRenderer implements Drawable {
             if (!shouldDrawWay(way)) continue;
             totalWays++;
             Path2D path = buildPath(way);
-            gc.setColor(way.getColor()); //Uses way's getColor() method to determine the color based on its tags
+            gc.setColor(way.getColor());
             if (path == null) continue;
             drawnWays++;
 
@@ -188,6 +104,6 @@ public class WayRenderer implements Drawable {
     }
 
     private Path2D buildPath(Way way) {
-        return buildPathFromNodes(way.getNodes(), false);
+        return buildPathFromNodes(way.getNodes(), false, cosMeanLat);
     }
 }
