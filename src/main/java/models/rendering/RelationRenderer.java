@@ -55,7 +55,7 @@ public class RelationRenderer implements Drawable{
         if (outerWays.isEmpty()) return;
 
         Path2D path = new Path2D.Double();
-        path.setWindingRule(Path2D.WIND_NON_ZERO);
+        path.setWindingRule(Path2D.WIND_NON_ZERO); //Ved ikke om det er bedre med WIND_EVEN_ODD, men umiddelbart farves mere med WIND_NON_ZERO
 
         for (Way way : outerWays) {
             appendNodes(path, stitchWays(outerWays));

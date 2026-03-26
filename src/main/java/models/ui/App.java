@@ -36,13 +36,6 @@ public class App extends DrawingApp {
         Parser parser = new Parser("bornholm.osm");
         parser.parse();
 
-        /* //Bruges til at tjekke for ways uden tags
-        for (Way way : parser.getOsmWayMap().values()) {
-            if (way.getTags() == null || way.getTags().isEmpty()) {
-                System.out.println("Way uden tags: " + way.getId());
-            }
-        }
-        */
         List<Double> bb = parser.getBoundingBox();
         double meanLat = (bb.get(1) + bb.get(3)) / 2.0; // (minLat + maxLat) / 2
 
@@ -86,7 +79,6 @@ public class App extends DrawingApp {
         draw();
         render();
     }
-
 
     private void draw() {
         Graphics2D gc = getNewGraphicsContext();

@@ -18,7 +18,6 @@ public abstract class Element implements Drawable {
         return id;
     }
 
-
     protected String addTag(String key, String value) {
         if (tags == null) {
             tags = new HashMap<>();
@@ -26,7 +25,6 @@ public abstract class Element implements Drawable {
 
         return tags.putIfAbsent(key, value);
     }
-
 
     protected boolean modifyTag(String key, String value) {
         if (tags == null || !tags.containsKey(key)) {
@@ -37,7 +35,6 @@ public abstract class Element implements Drawable {
         return true;
     }
 
-
     protected String getTag(String key) {
         if (tags == null) {
             return null;
@@ -46,7 +43,6 @@ public abstract class Element implements Drawable {
         return tags.get(key);
     }
 
-
     protected boolean contains(String key) {
         if (tags == null) {
             return false;
@@ -54,7 +50,6 @@ public abstract class Element implements Drawable {
 
         return tags.containsKey(key);
     }
-
 
     protected HashMap<String, String> getTags() {
         if (tags == null) {
