@@ -42,6 +42,8 @@ public class RelationRenderer implements Drawable{
     // Bruger WIND_EVEN_ODD som fill-regel, hvilket automatisk gør at
     // overlappende inner-ringe bliver til huller i stedet for fyldte områder.
     private void drawMultiPolygon(Graphics2D gc, Relation relation) {
+        if (relation.shouldNotDraw()) return;
+
         List<Way> outerWays = new ArrayList<>();
         List<Way> innerWays = new ArrayList<>();
 

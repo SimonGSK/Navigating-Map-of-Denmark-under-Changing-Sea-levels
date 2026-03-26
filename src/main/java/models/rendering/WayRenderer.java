@@ -28,25 +28,10 @@ public class WayRenderer implements Drawable {
     private boolean shouldDrawWay(Way way) {
         var tags = way.getTags();
         if (tags == null || tags.isEmpty()) return false;
-        if (shouldNotDraw(tags)) return false;
+        if (way.shouldNotDraw()) return false;
 
         //Har lige udkommenteret dette for at tjekke hvad vi mangler at farve
         return true; //hasAnyTag(tags, "highway", "building", "waterway", "landuse", "natural", "leisure", "amenity", "barrier", "aeroway");
-    }
-
-    private boolean shouldNotDraw(java.util.Map<String, String> tags) {
-        return "power".equals(tags.get("route"))
-                || tags.containsKey("power")
-                || tags.containsKey("boundary")
-                || "ferry".equals(tags.get("route"))
-                || tags.containsValue("ferry")
-                || tags.containsValue("Belt Traffic")
-                || "underwater".equals(tags.get("location"))
-                || "strait".equals(tags.get("natural"))
-                || "bay".equals(tags.get("natural"))
-                || tags.containsKey("seamark:type")
-                || tags.containsValue("sea_area")
-                || tags.containsKey("proposed");
     }
 
     private boolean hasAnyTag(java.util.Map<String, String> tags, String... keys) {

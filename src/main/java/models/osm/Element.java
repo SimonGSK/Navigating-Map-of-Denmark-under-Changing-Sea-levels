@@ -157,4 +157,33 @@ public abstract class Element implements Drawable {
         //More keys:
         // parking, barrier, oneway, historic, ...
     }
+
+    public boolean shouldNotDraw() {
+        var tags = getTags();
+        if (tags == null) return false;
+
+        if ("power".equals(tags.get("route"))) return true;
+        if (tags.containsKey("power")) return true;
+        if (tags.containsKey("boundary")) return true;
+        if (tags.containsValue("boundary")) return true;
+        if (tags.containsKey("region")) return true;
+        if (tags.containsValue("region")) return true;
+        if ("ferry".equals(tags.get("route"))) return true;
+        if (tags.containsValue("ferry")) return true;
+        if (tags.containsValue("Belt Traffic")) return true;
+        if ("underwater".equals(tags.get("location"))) return true;
+        if ("strait".equals(tags.get("natural"))) return true;
+        if ("bay".equals(tags.get("natural"))) return true;
+        if (tags.containsKey("seamark:type")) return true;
+        if (tags.containsValue("sea_area")) return true;
+        if (tags.containsValue("training_area")) return true;
+        if (tags.containsKey("proposed")) return true;
+        if ("coastline".equals(tags.get("natural"))) return true;
+        if ("sea".equals(tags.get("natural"))) return true;
+        if ("ocean".equals(tags.get("natural"))) return true;
+        if ("navigation".equals(tags.get("route"))) return true;
+        if ("pipeline".equals(tags.get("man_made"))) return true;
+
+        return false;
+    }
 }
