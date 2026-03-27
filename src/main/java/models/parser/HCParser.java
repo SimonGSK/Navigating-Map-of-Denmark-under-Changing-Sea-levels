@@ -16,6 +16,7 @@ public class HCParser {
     }
 
     public HeightCurveData parse() {
+
         try {
             InputStream is = HCParser.class.getResourceAsStream("/" + fileName);
             if (is == null) {
@@ -26,13 +27,47 @@ public class HCParser {
 
             String line;
             while ((line = br.readLine()) != null) {
-                // TODO: Implement parsing
+                if (line.contains("coords")){
+                    double minlat = getAttributeDouble(line, "minlat");
+                    double minlon = getAttributeDouble(line, "minlon");
+                    double maxlat = getAttributeDouble(line, "maxlat");
+                    double maxlon = getAttributeDouble(line, "maxlon");
+                }
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
 
+        //HeightCurveData hcData = new HeightCurveData();
+
         //TODO: Return the parsed HeightCurveData object.
         return null;
+    }
+
+    public String getAttribute(String s, String key) {
+        String pattern = key + "=\"";
+        int start = s.indexOf(pattern);
+        if (start == -1) {
+            return null;
+        }
+        int valueStart = start + pattern.length();
+        int valueEnd = s.indexOf('"', valueStart);
+        return s.substring(valueStart, valueEnd);
+    }
+
+    public double getAttributeDouble(String s, String key) {
+        String val = getAttribute(s, key);
+        if (val == null) {
+            return Double.NaN;
+        }
+        return Double.parseDouble(val);
+    }
+
+    public long getAttributeLong(String s, String key) {
+        String val = getAttribute(s, key);
+        if (val == null) {
+            return 0L;
+        }
+        return Long.parseLong(val);
     }
 }

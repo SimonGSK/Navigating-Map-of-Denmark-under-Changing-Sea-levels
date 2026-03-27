@@ -27,7 +27,7 @@ public class Parser implements IParser {
     @Override
     public void parse(){
         try {
-            InputStream is = Parser.class.getResourceAsStream("/data/bornholm/" + fileName);
+            InputStream is = Parser.class.getResourceAsStream("/data/" + fileName);
             if (is == null) {
                 throw new IOException("OSM resource not found: /data/" + fileName + " (check src/main/resources path)");
             }

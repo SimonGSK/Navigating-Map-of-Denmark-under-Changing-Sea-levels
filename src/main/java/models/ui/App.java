@@ -30,7 +30,7 @@ import java.util.List;
 import models.ui.DrawingUtils;
 import models.parser.MapData;
 
-import static com.sun.javafx.scene.CameraHelper.project;
+//import static com.sun.javafx.scene.CameraHelper.project;
 
 public class App extends DrawingApp {
     private double screenX = 0;
@@ -56,7 +56,7 @@ public class App extends DrawingApp {
             BufferedImage.TYPE_INT_ARGB
     );
 
-    private final ImageView imageView = new ImageView();
+    //private final ImageView imageView = new ImageView();
 
     @Override
     public void start(Stage stage) {
@@ -69,7 +69,7 @@ public class App extends DrawingApp {
         stage.setWidth(getWIDTH());
         stage.setHeight(getHEIGHT());
 
-        Parser parser = new Parser("bornholm.osm");
+        Parser parser = new Parser("bornholm/bornholm.osm");
         parser.parse();
 
         List<Double> bb = parser.getBoundingBox();
@@ -106,10 +106,12 @@ public class App extends DrawingApp {
         stage.setScene(new Scene(root, getWIDTH(), getHEIGHT()));
         stage.show();
 
+        /*
         Graphics2D gc = bufferedImage.createGraphics();
         gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         gc.setBackground(WATER_COLOR);
         gc.fillRect(0, 0, getWIDTH(), getHEIGHT());
+
 
         HeightCurveData data;
         if (USE_EXAMPLE_ISLAND) {
@@ -141,6 +143,7 @@ public class App extends DrawingApp {
         System.arraycopy(pixels, 0, pixelBuffer.getBuffer().array(), 0, pixels.length);
         imageView.setImage(new WritableImage(pixelBuffer));
 
+         */
 
 
         System.out.println("Nodes: " + parser.getOsmNodeMap().size());
@@ -227,6 +230,7 @@ public class App extends DrawingApp {
                 .prependScale(scale, scale)
                 .prependTranslation(offsetX, offsetY);
     }
+    /*
     private static Shape project(Shape s, HeightCurveData d) {
         double p = 20, c = Math.cos(Math.toRadians((d.minLat + d.maxLat) / 2));
         double w = (d.maxLon - d.minLon) * c, h = d.maxLat - d.minLat;
@@ -238,4 +242,6 @@ public class App extends DrawingApp {
         t.translate(-d.minLon, -d.minLat);
         return t.createTransformedShape(s);
     }
+
+     */
 }
