@@ -76,7 +76,7 @@ public class CoastlineRenderer implements Drawable {
     }
 
     @Override
-    public void drawForTest(Graphics2D gc) {
+    public void draws(Graphics2D gc) {
         gc.setColor(Color.decode("#f5f0e1"));
         for (Path2D fillPath : coastlineFillPaths) {
             gc.fill(fillPath);

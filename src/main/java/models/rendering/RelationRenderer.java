@@ -31,7 +31,7 @@ public class RelationRenderer implements Drawable{
     // Tegner alle multipolygon-relations som fyldte områder på kortet.
     // Relations tegnes i den rækkefølge de ligger i listen – det forventes at listen allerede er sorteret fra størst til mindst areal.
     @Override
-    public void drawForTest(Graphics2D gc) {
+    public void draws(Graphics2D gc) {
         for (Relation relation : relations) {
             drawMultiPolygon(gc, relation);
         }
