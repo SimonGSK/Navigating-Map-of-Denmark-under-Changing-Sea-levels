@@ -2,7 +2,7 @@ package org.example;
 
 import java.util.*;
 
-public class DijkstraTo {
+public class Dijkstra {
 
     // Holds results of a single Dijkstra run
     public static class Result {
