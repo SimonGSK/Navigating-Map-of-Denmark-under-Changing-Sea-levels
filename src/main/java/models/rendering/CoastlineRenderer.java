@@ -24,8 +24,6 @@ public class CoastlineRenderer implements Drawable {
     }
 
     private List<Path2D> buildCoastlineFillPaths(Collection<Way> ways, double cosMeanLat) {
-        // Kopier den eksisterende buildCoastlineFillPaths-metode fra WayRenderer hertil,
-        // men tilføj cosMeanLat som parameter til buildPathFromNodes-kaldet
             List<List<Node>> coastlineSegments = new ArrayList<>();
             for (Way way : ways) {
                 var tags = way.getTags();

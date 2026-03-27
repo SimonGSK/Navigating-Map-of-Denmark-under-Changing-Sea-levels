@@ -15,17 +15,7 @@ public class Way extends Element {
         super(id);
         this.nodes = nodes;
         this.tags = tags;
-        double maxLon = 0;
-        double maxLat = 0;
-        double minLon = 0;
-        double minLat = 0;
-        for (Node node : nodes) {
-            if (node.getLon() > maxLon) maxLon = node.getLon();
-            if (node.getLon() < minLon) minLon = node.getLon();
-            if (node.getLat() > maxLat) maxLat = node.getLat();
-            if (node.getLat() < minLat) minLat = node.getLat();
-        }
-        this.setArea((maxLat - minLat) * (maxLon - minLon));
+        this.setArea(calculateArea(nodes));
     }
     public List<Node>getNodes(){
         return nodes;
@@ -37,5 +27,27 @@ public class Way extends Element {
     @Override
     public void drawForTest(Graphics2D gc) {
 
+    }
+
+    private double calculateArea(List<Node> nodes){
+        if (nodes == null || nodes.size() < 3) return 0; //Hvis der er under 3 noder er areal 0
+
+        //Hvis den første node ikke er den samme som den sidste, er way'en ikke lukket og har ikke noget areal
+        Node first = nodes.get(0);
+        Node last = nodes.get(nodes.size() - 1);
+        boolean isClosed = first.getId() == last.getId();
+        if (!isClosed) return 0;
+
+        //Shoelace-formlen
+        double area = 0;
+        int n = nodes.size();
+        for (int i = 0; i < n - 1; i++) {               //For hver node i way'en
+            double lat1 = nodes.get(i).getLat();        //får vi dens latitude
+            double lon1 = nodes.get(i).getLon();        //og longitude,
+            double lat2 = nodes.get(i + 1).getLat();    //lægger dens latitude sammen med næste nodes latitude,
+            double lon2 = nodes.get(i + 1).getLon();    //og longitude sammen med næste nodes longitude,
+            area += (lon1 * lat2) - (lon2 * lat1);      //og udregner arealet og lægger det til area
+        }
+        return Math.abs(area) / 2.0;
     }
 }
