@@ -1,7 +1,6 @@
 package org.example;
 
 public class Path {
-
     private final Node target;
     private final double weight;
 
