@@ -1,5 +1,8 @@
 package org.example;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A point on the earth's surface defined by its latitude and longitude.
  * <p>
@@ -22,8 +25,12 @@ package org.example;
  * <p>
  * <a href="https://wiki.openstreetmap.org/wiki/Node"><i>Source: OpenStreetMap Wiki; Node</i></a>
  */
-public class Node extends Element {
+public class Node extends Element implements Comparable<Node> {
     private final Coordinate coord;
+    private final List<Edge> adjacencyList;
+    private Node previousNode;
+    private double minDistance;
+    private Set<Node> visitedNodes;
 
     /**
      * Constructs a node at the specified geographic location.
@@ -35,6 +42,33 @@ public class Node extends Element {
     public Node(long id, double lat, double lon) {
         super(id);
         this.coord = new Coordinate(lat, lon);
+        this.adjacencyList = new ArrayList<>();
+    }
+
+
+
+    public List<Edge> getAdjacencyList() {
+        return this.adjacencyList;
+    }
+
+    public void addNeighbour(Edge edge) {
+        this.adjacencyList.add(edge);
+    }
+
+    public Node getPreviousNode() {
+        return this.previousNode;
+    }
+
+    public void setPreviousNode(Node previousNode) {
+        this.previousNode = previousNode;
+    }
+
+    public double getMinDistance() {
+        return this.minDistance;
+    }
+
+    public void setMinDistance(double minDistance) {
+        this.minDistance = minDistance;
     }
 
     /**
@@ -43,6 +77,11 @@ public class Node extends Element {
      * @return the {@link Coordinate} (latitude and longitude) of this node. Never {@code null}.
      */
     public Coordinate getCoord() {
-        return coord;
+        return this.coord;
+    }
+
+    @Override
+    public int compareTo(Node other) {
+        return Double.compare(this.minDistance, other.minDistance);
     }
 }
