@@ -117,13 +117,13 @@ public abstract class Element implements Drawable {
             if ("taxiway".equals(aeroway) || "airstrip".equals(aeroway)) return Color.decode("#576682"); // Gråblå
             return Color.decode("#a69e9d"); // Lysegrå
         }
-        
+
         if (tags.containsKey("barrier")) {
             String barrier = tags.get("barrier");
 
             if ("hedge".equals(barrier)) return Color.decode("#0b4f14"); // Grøn
         }
-
+        System.out.println(tags);
         return Color.decode("#e3dad1");
 
         //Tags:
