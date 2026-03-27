@@ -70,7 +70,22 @@ public abstract class Element implements Drawable {
         var tags = getTags();
         if (tags == null) return Color.BLACK;
 
-        if (tags.containsKey("surface")) {
+
+        if (tags.containsKey("natural")) {
+            String natural = tags.get("natural");
+
+            if ("water".equals(natural) || "spring".equals(natural)) {
+                return Color.decode("#184e85"); // Blå
+            } else if ("rock".equals(natural) || "stone".equals(natural)) {
+                return Color.decode("#2b2a2a"); // Mørkegrå
+            } else if ("coastline".equals(natural)) {
+                return Color.decode("#a19875");
+            } else if ("shoal".equals(natural)) {
+                return Color.decode("#7c9ea6");
+            }
+            return Color.decode("#0b4f14"); // Mørkegrøn
+
+        } else if (tags.containsKey("surface")) {
             String surface = tags.get("surface");
 
             if ("grass".equals(surface)) {
@@ -114,18 +129,6 @@ public abstract class Element implements Drawable {
             }
             return Color.decode("#a7d180"); // Brun
 
-        } else if (tags.containsKey("natural")) {
-            String natural = tags.get("natural");
-
-            if ("water".equals(natural) || "spring".equals(natural)) {
-                return Color.decode("#184e85"); // Blå
-            } else if ("rock".equals(natural) || "stone".equals(natural)) {
-                return Color.decode("#2b2a2a"); // Mørkegrå
-            } else if ("coastline".equals(natural)) {
-                return Color.decode("#a19875");
-            }
-            return Color.decode("#0b4f14"); // Mørkegrøn
-
         } else if (tags.containsKey("aeroway")) {
             String aeroway = tags.get("aeroway");
 
@@ -140,10 +143,9 @@ public abstract class Element implements Drawable {
             if ("hedge".equals(barrier)) {
                 return Color.decode("#0b4f14"); // Grøn
             }
-            return Color.BLACK;
         }
 
-        return Color.BLACK;
+        return Color.decode("#e3dad1");
 
         //Tags:
         //Key: highway - Values: service, path, track, residential, footway, cycleway, ...

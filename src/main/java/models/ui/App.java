@@ -44,10 +44,10 @@ public class App extends DrawingApp {
         // Alle ways sendes til WayRenderer så kystkurven har adgang til dem
         List<Way> allWays = new ArrayList<>(parser.getOsmWayMap().values());
 
-        drawables.add(new CoastlineRenderer(allWays, meanLat));                          // 1. landets baggrund
-        drawables.add(new RelationRenderer(mapData.multiPolygons,                        // 2. skove, søer osv.
+        drawables.add(new CoastlineRenderer(allWays, meanLat));                          // 1. Baggrund - landets baggrund
+        drawables.add(new RelationRenderer(mapData.multiPolygons,                        // 2. Relations/multipolygons - skove, søer osv.
                 Math.cos(Math.toRadians(meanLat))));
-        drawables.add(new WayRenderer(mapData.standaloneWays, meanLat));                 // 3. veje, bygninger
+        drawables.add(new WayRenderer(mapData.standaloneWays, meanLat));                 // 3. Ways - veje, bygninger
 
         long nonemptyWays = parser.getOsmWayMap().values().stream().filter(w -> w.getNodes() != null && !w.getNodes().isEmpty()).count();
         System.out.println("Non-empty ways in parser map=" + nonemptyWays);
