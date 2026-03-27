@@ -4,33 +4,61 @@ import java.util.*;
 
 public class DijkstraTo {
 
-    public void shortestPath(Node startNode) {
-        startNode.setMinDistance(0);
-        PriorityQueue<Node> queue = new PriorityQueue<>();
-        queue.add(startNode);
+    // Holds results of a single Dijkstra run
+    public static class Result {
+        public final Map<Node, Double> distances;
+        public final Map<Node, Node> previousNodes;
 
-
-        while (!queue.isEmpty()) {
-            Node actualNode = queue.poll();
-
-            for (Edge edge : actualNode.getAdjacencyList()) {
-                Node v = edge.getTargetNode();
-                double weight = edge.getWeight();
-                double currentDistance = actualNode.getMinDistance() + weight;
-
-                if (currentDistance < v.getMinDistance()) {
-                    queue.remove(v);
-                    v.setMinDistance(currentDistance);
-                    v.setPreviousNode(actualNode);
-                    queue.add(v);
-                }
-            }
+        public Result(Map<Node, Double> distances, Map<Node, Node> previousNodes) {
+            this.distances = distances;
+            this.previousNodes = previousNodes;
         }
     }
 
-    public List<Node> getShortestPathTo(Node targetNode) {
+    public Result shortestPath(Node startNode, Collection<Node> allNodes) {
+        Map<Node, Double> distances = new HashMap<>();
+        Map<Node, Node> previousNodes = new HashMap<>();
+        Set<Node> visited = new HashSet<>();
+
+
+        // Initialize all distances to infinity
+        for (Node node : allNodes) {
+            distances.put(node, Double.MAX_VALUE);
+        }
+        distances.put(startNode, 0.0);
+
+        // Priority queue comparing by known distance
+        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingDouble(n -> distances.getOrDefault(n, Double.MAX_VALUE)));
+        queue.add(startNode);
+
+        while (!queue.isEmpty()) {
+            Node current = queue.poll();
+
+            // Lazy deletion: skip if already settled
+            if (visited.contains(current)) continue;
+            visited.add(current);
+
+            for (Edge edge : current.getAdjacencyList()) {
+                Node neighbour = edge.getTargetNode();
+
+                if (visited.contains(neighbour)) continue;
+
+                double newDist = distances.get(current) + edge.getWeight();
+
+                if (newDist < distances.getOrDefault(neighbour, Double.MAX_VALUE)) {
+                    distances.put(neighbour, newDist);
+                    previousNodes.put(neighbour, current);
+                    queue.add(neighbour); // lazy: old entry stays, will be skipped
+                }
+            }
+        }
+
+        return new Result(distances, previousNodes);
+    }
+
+    public List<Node> getShortestPathTo(Node target, Map<Node, Node> previousNodes) {
         List<Node> path = new ArrayList<>();
-        for (Node node = targetNode; node != null; node = node.getPreviousNode()) {
+        for (Node node = target; node != null; node = previousNodes.get(node)) {
             path.add(node);
         }
         Collections.reverse(path);

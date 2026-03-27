@@ -1,7 +1,9 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A point on the earth's surface defined by its latitude and longitude.
@@ -28,9 +30,6 @@ import java.util.List;
 public class Node extends Element implements Comparable<Node> {
     private final Coordinate coord;
     private final List<Edge> adjacencyList;
-    private Node previousNode;
-    private double minDistance;
-    private Set<Node> visitedNodes;
 
     /**
      * Constructs a node at the specified geographic location.
@@ -45,30 +44,12 @@ public class Node extends Element implements Comparable<Node> {
         this.adjacencyList = new ArrayList<>();
     }
 
-
-
     public List<Edge> getAdjacencyList() {
-        return this.adjacencyList;
+        return adjacencyList;
     }
 
     public void addNeighbour(Edge edge) {
-        this.adjacencyList.add(edge);
-    }
-
-    public Node getPreviousNode() {
-        return this.previousNode;
-    }
-
-    public void setPreviousNode(Node previousNode) {
-        this.previousNode = previousNode;
-    }
-
-    public double getMinDistance() {
-        return this.minDistance;
-    }
-
-    public void setMinDistance(double minDistance) {
-        this.minDistance = minDistance;
+        adjacencyList.add(edge);
     }
 
     /**
@@ -82,6 +63,6 @@ public class Node extends Element implements Comparable<Node> {
 
     @Override
     public int compareTo(Node other) {
-        return Double.compare(this.minDistance, other.minDistance);
+        return Long.compare(this.getId(), other.getId());
     }
 }
