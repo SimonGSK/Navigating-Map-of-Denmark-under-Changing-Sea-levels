@@ -63,7 +63,7 @@ public class WayRenderer implements Drawable {
     }
 
     @Override
-    public void drawForTest(Graphics2D gc) {
+    public void draws(Graphics2D gc) {
 
         int drawnWays = 0;
         int totalWays = 0;
