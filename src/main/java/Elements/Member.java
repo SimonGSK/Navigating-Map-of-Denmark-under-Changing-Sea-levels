@@ -1,4 +1,4 @@
-package org.example;
+package Elements;
 
 /**
  * Represents a member of a relation.

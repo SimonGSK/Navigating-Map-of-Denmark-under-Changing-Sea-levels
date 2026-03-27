@@ -1,9 +1,7 @@
-package org.example;
+package Elements;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * A point on the earth's surface defined by its latitude and longitude.
