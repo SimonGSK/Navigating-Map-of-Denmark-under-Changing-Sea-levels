@@ -2,6 +2,10 @@ package models.ui;
 
 import Interfaces.Drawable;
 import javafx.application.Application;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelBuffer;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.WritableImage;
 import models.geometry.SuperAffine;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
@@ -9,16 +13,24 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import models.heightcurve.HeightCurve;
+import models.heightcurve.HeightCurveData;
 import models.osm.Way;
 import models.parser.Parser;
 import models.rendering.*;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import models.ui.DrawingUtils;
 import models.parser.MapData;
+
+import static com.sun.javafx.scene.CameraHelper.project;
 
 public class App extends DrawingApp {
     private double screenX = 0;
@@ -26,9 +38,33 @@ public class App extends DrawingApp {
     private final SuperAffine superAffine = new SuperAffine();
     private final List<Drawable> drawables = new ArrayList<>();
 
+    private static final boolean USE_EXAMPLE_ISLAND = false;
+    private static final double SEA_LEVEL = 0.0;
+    private static final int WIDTH = 800;
+    private static final int HEIGHT = 800;
+    private static final Color WATER_COLOR = Color.decode("#2b8cbe");
+
+    private final PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer<>(
+            WIDTH, HEIGHT,
+            IntBuffer.allocate(WIDTH * HEIGHT),
+            PixelFormat.getIntArgbPreInstance()
+    );
+
+    private final BufferedImage bufferedImage = new BufferedImage(
+            WIDTH,
+            HEIGHT,
+            BufferedImage.TYPE_INT_ARGB
+    );
+
+    private final ImageView imageView = new ImageView();
+
     @Override
     public void start(Stage stage) {
-        stage.setTitle("Drawing App");
+        if  (USE_EXAMPLE_ISLAND) {
+            stage.setTitle("Example ISLAND");
+        } else {
+            stage.setTitle("Drawing App");
+        }
         stage.setResizable(false);
         stage.setWidth(getWIDTH());
         stage.setHeight(getHEIGHT());
@@ -69,6 +105,43 @@ public class App extends DrawingApp {
         StackPane root = new StackPane(this.imageView, mouseEventComponent);
         stage.setScene(new Scene(root, getWIDTH(), getHEIGHT()));
         stage.show();
+
+        Graphics2D gc = bufferedImage.createGraphics();
+        gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        gc.setBackground(WATER_COLOR);
+        gc.fillRect(0, 0, getWIDTH(), getHEIGHT());
+
+        HeightCurveData data;
+        if (USE_EXAMPLE_ISLAND) {
+           data = ExampleIsland.create();
+        } else {
+            data = bornholm.create();
+        }
+
+        HeightCurve sea = data.sea;
+        sea.resetSubmerged();
+        sea.submerge(SEA_LEVEL);
+
+        for (HeightCurve curve: data.curves) {
+            if (curve == sea) {
+                continue;
+            }
+            gc.setColor(curve.getFillColor(SEA_LEVEL));
+            gc.fill(project(curve.getRegionPath(), data));
+        }
+        for (HeightCurve  curve: data.curves) {
+            if (curve == sea) {
+                continue;
+            }
+            gc.setColor(Color.BLACK);
+            gc.draw(project(curve.getBoundaryPath(), data));
+        }
+
+        int[] pixels = ((DataBufferInt) bufferedImage.getRaster().getDataBuffer()).getData();
+        System.arraycopy(pixels, 0, pixelBuffer.getBuffer().array(), 0, pixels.length);
+        imageView.setImage(new WritableImage(pixelBuffer));
+
+
 
         System.out.println("Nodes: " + parser.getOsmNodeMap().size());
         System.out.println("Ways: " + parser.getOsmWayMap().size());
@@ -153,5 +226,16 @@ public class App extends DrawingApp {
                 .prependTranslation(-minLon * cosMeanLat, maxLat)
                 .prependScale(scale, scale)
                 .prependTranslation(offsetX, offsetY);
+    }
+    private static Shape project(Shape s, HeightCurveData d) {
+        double p = 20, c = Math.cos(Math.toRadians((d.minLat + d.maxLat) / 2));
+        double w = (d.maxLon - d.minLon) * c, h = d.maxLat - d.minLat;
+        double k = Math.min((WIDTH - 2 * p) / w, (HEIGHT - 2 * p) / h);
+        AffineTransform t = new AffineTransform();
+        t.translate(p + (WIDTH - 2 * p - w * k) / 2, p + (HEIGHT - 2 * p - h * k) / 2 + h * k);
+        t.scale(k, -k);
+        t.scale(c, 1);
+        t.translate(-d.minLon, -d.minLat);
+        return t.createTransformedShape(s);
     }
 }
