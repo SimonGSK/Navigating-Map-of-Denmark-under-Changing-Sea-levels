@@ -35,7 +35,7 @@ public class Way extends Element {
     }
 
     @Override
-    public void drawForTest(Graphics2D gc) {
+    public void draws(Graphics2D gc) {
 
     }
 }
