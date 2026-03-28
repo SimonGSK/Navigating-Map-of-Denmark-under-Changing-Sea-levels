@@ -81,8 +81,7 @@ public class App extends DrawingApp {
         List<Way> allWays = new ArrayList<>(parser.getOsmWayMap().values());
 
         drawables.add(new CoastlineRenderer(allWays, meanLat));                          // 1. Baggrund - landets baggrund
-        drawables.add(new RelationRenderer(mapData.multiPolygons,                        // 2. Relations/multipolygons - skove, søer osv.
-                Math.cos(Math.toRadians(meanLat))));
+        drawables.add(new RelationRenderer(mapData.multiPolygons, meanLat));             // 2. Relations/multipolygons - skove, søer osv.
         drawables.add(new WayRenderer(mapData.standaloneWays, meanLat));                 // 3. Ways - veje, bygninger
 
         long nonemptyWays = parser.getOsmWayMap().values().stream().filter(w -> w.getNodes() != null && !w.getNodes().isEmpty()).count();

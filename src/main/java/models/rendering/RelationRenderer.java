@@ -26,9 +26,9 @@ public class RelationRenderer implements Drawable {
     private final double cosMeanLat;
     private static final double SNAP_THRESHOLD = 0.0001;
 
-    public RelationRenderer(List<Relation> relations, double cosMeanLat) {
+    public RelationRenderer(List<Relation> relations, double meanLat) {
         this.relations = relations;
-        this.cosMeanLat = cosMeanLat;
+        this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
     }
 
     // Tegner alle multipolygon-relations som fyldte områder på kortet.

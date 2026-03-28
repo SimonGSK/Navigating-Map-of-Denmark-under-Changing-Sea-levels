@@ -25,8 +25,7 @@ public class WayRenderer implements Drawable {
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
     }
 
-    private Path2D buildPathFromNodes(List<Node> nodes, boolean closePath, double cosMeanLat) {
-        if (nodes == null || nodes.isEmpty()) return null;
+    private Path2D buildPath(List<Node> nodes, boolean closePath) {
 
         Path2D path = new Path2D.Double();
 
@@ -43,6 +42,7 @@ public class WayRenderer implements Drawable {
             }
         }
         if (closePath) path.closePath();
+
         return path;
     }
 
@@ -54,16 +54,21 @@ public class WayRenderer implements Drawable {
 
         for(Way way : ways){
             totalWays++;
-            Path2D path = buildPath(way);
-            if (path == null) continue;
 
             Color c = way.getColor();
             if (c == null) continue;
+
+            List<Node> nodes = way.getNodes();
+            if (nodes == null || nodes.size() < 2) continue;
+            boolean isClosed = nodes.getFirst().getId() == nodes.getLast().getId();
+
+            Path2D path = buildPath(nodes, isClosed);
+
             gc.setColor(c);
 
             drawnWays++;
 
-            if (way.getNodes().getFirst().getId() != way.getNodes().getLast().getId()){
+            if (!isClosed){
                 gc.setStroke(new BasicStroke(0.0001f));
                 gc.draw(path);
             } else{
@@ -73,9 +78,5 @@ public class WayRenderer implements Drawable {
         }
 
         System.out.println("WayRenderer: total ways=" + totalWays + ", drawn ways=" + drawnWays);
-    }
-
-    private Path2D buildPath(Way way) {
-        return buildPathFromNodes(way.getNodes(), false, cosMeanLat);
     }
 }
