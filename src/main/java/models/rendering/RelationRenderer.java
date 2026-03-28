@@ -36,6 +36,7 @@ public class RelationRenderer implements Drawable {
     @Override
     public void draws(Graphics2D gc) {
         for (Relation relation : relations) {
+            if (relation.getColor() == null) continue;
             drawMultiPolygon(gc, relation);
         }
     }
@@ -45,8 +46,6 @@ public class RelationRenderer implements Drawable {
     // Bruger WIND_EVEN_ODD som fill-regel, hvilket automatisk gør at
     // overlappende inner-ringe bliver til huller i stedet for fyldte områder.
     private void drawMultiPolygon(Graphics2D gc, Relation relation) {
-        if (relation.shouldNotDraw()) return;
-
         List<Way> outerWays = new ArrayList<>();
         List<Way> innerWays = new ArrayList<>();
 
@@ -62,8 +61,6 @@ public class RelationRenderer implements Drawable {
         Path2D path = new Path2D.Double();
         path.setWindingRule(Path2D.WIND_NON_ZERO); //Ved ikke om det er bedre med WIND_EVEN_ODD, men umiddelbart farves mere med WIND_NON_ZERO
 
-
-        // Erstat løkken ovenfor med dette:
         for (List<Node> ring: stitchWaysToRings(outerWays)) {
             appendNodes(path, ring);
         }

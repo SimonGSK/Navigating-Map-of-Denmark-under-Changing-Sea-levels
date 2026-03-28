@@ -70,101 +70,91 @@ public abstract class Element implements Drawable {
         var tags = getTags();
         if (tags == null) return Color.BLACK;
 
-        if (tags.containsKey("natural")) {
-            String natural = tags.get("natural");
+        //NOT TO DRAW
+        if ("power".equals(tags.get("route"))) return null;
+        if (tags.containsKey("power")) return null;
+        if (tags.containsKey("boundary")) return null;
+        if (tags.containsValue("boundary")) return null;
+        if (tags.containsKey("region")) return null;
+        if (tags.containsValue("region")) return null;
+        if (tags.containsValue("ferry")) return null;
+        if (tags.containsValue("Belt Traffic")) return null;
+        if ("underwater".equals(tags.get("location"))) return null;
+        if ("strait".equals(tags.get("natural"))) return null;
+        if ("bay".equals(tags.get("natural"))) return null;
+        if ("coastline".equals(tags.get("natural"))) return null;
+        if ("sea".equals(tags.get("natural"))) return null;
+        if ("ocean".equals(tags.get("natural"))) return null;
+        if ("ferry".equals(tags.get("route"))) return null;
+        if ("navigation".equals(tags.get("route"))) return null;
+        if (tags.containsKey("seamark:type")) return null;
+        if (tags.containsValue("sea_area")) return null;
+        if (tags.containsValue("training_area")) return null;
+        if (tags.containsKey("proposed")) return null;
+        if ("pipeline".equals(tags.get("man_made"))) return null;
 
+        //NATURAL
+        if (tags.containsKey("natural")) { String natural = tags.get("natural");
             if ("water".equals(natural) || "spring".equals(natural)) return Color.decode("#184e85"); // Blå
             if ("rock".equals(natural) || "stone".equals(natural)) return Color.decode("#2b2a2a"); // Mørkegrå
             if ("coastline".equals(natural)) return Color.decode("#a19875");
             if ("shoal".equals(natural)) return Color.decode("#7c9ea6");
-
             return Color.decode("#0b4f14"); // Mørkegrøn
         }
 
-        if (tags.containsKey("surface")) {
-            String surface = tags.get("surface");
-
+        //SURFACE
+        if (tags.containsKey("surface")) { String surface = tags.get("surface");
             if ("grass".equals(surface)) return Color.decode("#0b4f14"); // Grøn
             if ("paved".equals(surface) || "paving_stones".equals(surface)) return Color.decode("#4e524f"); // Grå
             if ("gravel".equals(surface)) return Color.decode("#4a4437"); // Gråbrun
             return Color.decode("#171716"); // Mørkegrå
         }
 
-        if (tags.containsKey("highway")) {
-            String highway = tags.get("highway");
-
+        //HIGHWAY
+        if (tags.containsKey("highway")) { String highway = tags.get("highway");
             if ("track".equals(highway) || "path".equals(highway)) return Color.decode("#664627"); // Lysebrun
             return Color.decode("#2b2a2a"); // Grå
         }
 
+        //BUILDING
         if (tags.containsKey("building")) return Color.decode("#a34018"); // Orange
         if (tags.containsKey("amenity") || tags.containsKey("leisure")) return Color.decode("#471309"); // Brun-rød
         if ("camp_site".equals(tags.get("tourism"))) return Color.decode("#471309"); // Samme farve som amenity/leisure
         if (tags.containsKey("waterway")) return Color.decode("#184e85"); // Blå
 
-        if (tags.containsKey("landuse")) {
-            String landuse = tags.get("landuse");
-
+        //LANDUSE
+        if (tags.containsKey("landuse")) { String landuse = tags.get("landuse");
             if ("forest".equals(landuse)) return Color.decode("#1a3d0a"); // Mørkegrøn
             if ("grass".equals(landuse)) return Color.decode("#297209"); // Grøn
             if ("industrial".equals(landuse)) return Color.decode("#4d4f4c"); // Grå
             return Color.decode("#a7d180"); // Brun
         }
 
-        if (tags.containsKey("aeroway")) {
-            String aeroway = tags.get("aeroway");
-
+        //AEROWAY
+        if (tags.containsKey("aeroway")) { String aeroway = tags.get("aeroway");
             if ("taxiway".equals(aeroway) || "airstrip".equals(aeroway)) return Color.decode("#576682"); // Gråblå
             return Color.decode("#a69e9d"); // Lysegrå
         }
 
-        if (tags.containsKey("barrier")) {
-            String barrier = tags.get("barrier");
-
+        //BARRIER
+        if (tags.containsKey("barrier")) { String barrier = tags.get("barrier");
             if ("hedge".equals(barrier)) return Color.decode("#0b4f14"); // Grøn
         }
+
+        //FALLBACK COLOR
         System.out.println(tags);
         return Color.decode("#e3dad1");
-
-        //Tags:
-        //Key: highway - Values: service, path, track, residential, footway, cycleway, ...
-        //Key: landuse - Values: forest, grass, industrial, farmyard, recreation_ground, cemetery, allotments, residential, ...
-        //Key: surface - Values: gravel, grass, asphalt, compacted, paved, paving_stones, ...
-        //Key: natural - Values: scrub, water, coastline, rock, hill, peak, stone, spring, tree,
-        //Key: amenity - Values: parking, grave_yard, shelter, school, ice_cream, bench, ...
-        //Key: leisure - Values: park, golf_course, pitch, playground, ...
-        //Key: building - Values: yes
-
-        //More keys:
-        // parking, barrier, oneway, historic, ...
     }
 
-    public boolean shouldNotDraw() {
-        var tags = getTags();
-        if (tags == null) return false;
+    //Tags:
+    //Key: highway - Values: service, path, track, residential, footway, cycleway, ...
+    //Key: landuse - Values: forest, grass, industrial, farmyard, recreation_ground, cemetery, allotments, residential, ...
+    //Key: surface - Values: gravel, grass, asphalt, compacted, paved, paving_stones, ...
+    //Key: natural - Values: scrub, water, coastline, rock, hill, peak, stone, spring, tree,
+    //Key: amenity - Values: parking, grave_yard, shelter, school, ice_cream, bench, ...
+    //Key: leisure - Values: park, golf_course, pitch, playground, ...
+    //Key: building - Values: yes
 
-        if ("power".equals(tags.get("route"))) return true;
-        if (tags.containsKey("power")) return true;
-        if (tags.containsKey("boundary")) return true;
-        if (tags.containsValue("boundary")) return true;
-        if (tags.containsKey("region")) return true;
-        if (tags.containsValue("region")) return true;
-        if ("ferry".equals(tags.get("route"))) return true;
-        if (tags.containsValue("ferry")) return true;
-        if (tags.containsValue("Belt Traffic")) return true;
-        if ("underwater".equals(tags.get("location"))) return true;
-        if ("strait".equals(tags.get("natural"))) return true;
-        if ("bay".equals(tags.get("natural"))) return true;
-        if (tags.containsKey("seamark:type")) return true;
-        if (tags.containsValue("sea_area")) return true;
-        if (tags.containsValue("training_area")) return true;
-        if (tags.containsKey("proposed")) return true;
-        if ("coastline".equals(tags.get("natural"))) return true;
-        if ("sea".equals(tags.get("natural"))) return true;
-        if ("ocean".equals(tags.get("natural"))) return true;
-        if ("navigation".equals(tags.get("route"))) return true;
-        if ("pipeline".equals(tags.get("man_made"))) return true;
-
-        return false;
-    }
+    //More keys:
+    // parking, barrier, oneway, historic, ...
 }

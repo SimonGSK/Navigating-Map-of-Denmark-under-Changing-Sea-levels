@@ -25,15 +25,6 @@ public class WayRenderer implements Drawable {
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
     }
 
-    private boolean shouldDrawWay(Way way) {
-        var tags = way.getTags();
-        if (tags == null || tags.isEmpty()) return false;
-        if (way.shouldNotDraw()) return false;
-
-        //Har lige udkommenteret dette for at tjekke hvad vi mangler at farve
-        return true; //hasAnyTag(tags, "highway", "building", "waterway", "landuse", "natural", "leisure", "amenity", "barrier", "aeroway");
-    }
-
     private boolean hasAnyTag(java.util.Map<String, String> tags, String... keys) {
         for (String key : keys) {
             if (tags.containsKey(key)) return true;
@@ -69,11 +60,14 @@ public class WayRenderer implements Drawable {
         int totalWays = 0;
 
         for(Way way : ways){
-            if (!shouldDrawWay(way)) continue;
             totalWays++;
             Path2D path = buildPath(way);
-            gc.setColor(way.getColor());
             if (path == null) continue;
+
+            Color c = way.getColor();
+            if (c == null) continue;
+            gc.setColor(c);
+
             drawnWays++;
 
             if (way.getNodes().getFirst().getId() != way.getNodes().getLast().getId()){
