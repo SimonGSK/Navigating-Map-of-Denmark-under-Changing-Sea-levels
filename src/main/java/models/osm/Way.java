@@ -49,5 +49,7 @@ public class Way extends Element {
             area += (lon1 * lat2) - (lon2 * lat1);      //og udregner arealet og lægger det til area
         }
         return Math.abs(area) / 2.0;
+
+        //TODO: Hække bliver i byen tegner oven på veje. Find en løsning på dette
     }
 }

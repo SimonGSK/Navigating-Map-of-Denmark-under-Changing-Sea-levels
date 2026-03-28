@@ -25,13 +25,6 @@ public class WayRenderer implements Drawable {
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
     }
 
-    private boolean hasAnyTag(java.util.Map<String, String> tags, String... keys) {
-        for (String key : keys) {
-            if (tags.containsKey(key)) return true;
-        }
-        return false;
-    }
-
     private Path2D buildPathFromNodes(List<Node> nodes, boolean closePath, double cosMeanLat) {
         if (nodes == null || nodes.isEmpty()) return null;
 

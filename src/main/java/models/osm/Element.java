@@ -145,6 +145,7 @@ public abstract class Element implements Drawable {
         System.out.println(tags);
         return Color.decode("#e3dad1");
     }
+    //TODO: Find farver til de elementer der får fallback color
 
     //Tags:
     //Key: highway - Values: service, path, track, residential, footway, cycleway, ...
