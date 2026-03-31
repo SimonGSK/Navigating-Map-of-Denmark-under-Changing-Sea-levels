@@ -92,6 +92,7 @@ public abstract class Element implements Drawable {
         if (tags.containsValue("training_area")) return null;
         if (tags.containsKey("proposed")) return null;
         if ("pipeline".equals(tags.get("man_made"))) return null;
+        if (tags.containsKey("demolished:building")) return null;
 
         //NATURAL
         if (tags.containsKey("natural")) { String natural = tags.get("natural");
@@ -99,6 +100,8 @@ public abstract class Element implements Drawable {
             if ("rock".equals(natural) || "stone".equals(natural)) return Color.decode("#2b2a2a"); // Mørkegrå
             if ("coastline".equals(natural)) return Color.decode("#a19875");
             if ("shoal".equals(natural)) return Color.decode("#7c9ea6");
+            if ("wetland".equals(natural)) return Color.decode("#638040");
+            if ("heath".equals(natural)) return Color.decode("#638040");
             return Color.decode("#0b4f14"); // Mørkegrøn
         }
 
@@ -116,11 +119,10 @@ public abstract class Element implements Drawable {
             return Color.decode("#2b2a2a"); // Grå
         }
 
-        //BUILDING
-        if (tags.containsKey("building")) return Color.decode("#a34018"); // Orange
-        if (tags.containsKey("amenity") || tags.containsKey("leisure")) return Color.decode("#471309"); // Brun-rød
-        if ("camp_site".equals(tags.get("tourism"))) return Color.decode("#471309"); // Samme farve som amenity/leisure
-        if (tags.containsKey("waterway")) return Color.decode("#184e85"); // Blå
+        //AREA:HIGHWAY
+        if (tags.containsKey("area:highway")) {
+            return Color.decode("#4e524f"); //Paved grey
+        }
 
         //LANDUSE
         if (tags.containsKey("landuse")) { String landuse = tags.get("landuse");
@@ -139,7 +141,20 @@ public abstract class Element implements Drawable {
         //BARRIER
         if (tags.containsKey("barrier")) { String barrier = tags.get("barrier");
             if ("hedge".equals(barrier)) return Color.decode("#0b4f14"); // Grøn
+            return  Color.decode("#825e35");
         }
+
+        //OTHER TAGS
+        if (tags.containsKey("man_made")) { return Color.decode("#75716d");} //Grå
+        if (tags.containsKey("tourism")) { return Color.decode("#8c6239");} //Muted brown
+        if (tags.containsKey("historic")) {return Color.decode("#8a7355");} //Slightly lighter sandy brown
+        if (tags.containsKey("building") || tags.containsKey("building:part")) return Color.decode("#a34018"); // Orange
+        if (tags.containsKey("amenity") || tags.containsKey("leisure")) return Color.decode("#471309"); // Brun-rød
+        if (tags.containsKey("waterway")) return Color.decode("#184e85"); // Blå
+        if (tags.containsKey("landcover")) return Color.decode("#1a3d0a"); //Mørkegrøn
+        if (tags.containsKey("grassland")) return Color.decode("#6b8c3a"); //Grøn
+        if (tags.containsKey("place")) return Color.decode("#4e524f"); //Paved grey
+
 
         //FALLBACK COLOR
         System.out.println(tags);

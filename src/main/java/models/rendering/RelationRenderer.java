@@ -46,6 +46,9 @@ public class RelationRenderer implements Drawable {
     // Bruger WIND_EVEN_ODD som fill-regel, hvilket automatisk gør at
     // overlappende inner-ringe bliver til huller i stedet for fyldte områder.
     private void drawMultiPolygon(Graphics2D gc, Relation relation) {
+        var tags = relation.getTags();
+        if (tags == null || tags.isEmpty()) return;
+
         List<Way> outerWays = new ArrayList<>();
         List<Way> innerWays = new ArrayList<>();
 
@@ -59,7 +62,7 @@ public class RelationRenderer implements Drawable {
         if (outerWays.isEmpty()) return;
 
         Path2D path = new Path2D.Double();
-        path.setWindingRule(Path2D.WIND_NON_ZERO); //Ved ikke om det er bedre med WIND_EVEN_ODD, men umiddelbart farves mere med WIND_NON_ZERO
+        path.setWindingRule(Path2D.WIND_NON_ZERO);
 
         for (List<Node> ring: stitchWaysToRings(outerWays)) {
             appendNodes(path, ring);
