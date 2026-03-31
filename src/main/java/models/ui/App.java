@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import models.heightcurve.HeightCurve;
 import models.heightcurve.HeightCurveData;
 import models.osm.Way;
+import models.parser.HCParser;
 import models.parser.Parser;
 import models.rendering.*;
 
@@ -68,6 +69,10 @@ public class App extends DrawingApp {
         stage.setResizable(false);
         stage.setWidth(getWIDTH());
         stage.setHeight(getHEIGHT());
+
+        HCParser hcParser = new HCParser("bornholm.hc");
+        HeightCurveData hcData = hcParser.parse();
+        HeightCurveRenderer hcRender = new HeightCurveRenderer(hcData);
 
         Parser parser = new Parser("bornholm/bornholm.osm");
         parser.parse();
