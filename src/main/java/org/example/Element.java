@@ -13,13 +13,12 @@ import java.util.List;
  * <p>
  * <a href="https://wiki.openstreetmap.org/wiki/Elements#Elements"><i>Source: OpenStreetMap Wiki; Elements</i></a>
  */
-public abstract class Element {
+public abstract class Element extends BoundingBoxDecorator {
     final private long id;
     private final HashMap<String, String> tags;
-    protected MBR mbr;
     protected double size;
 
-    public Element(long id, HashMap<String, String> tags, MBR mbr) {
+    public Element(long id, HashMap<String, String> tags, BoundingBox mbr) {
         this.id = id;
         this.tags = tags;
         this.mbr = mbr;

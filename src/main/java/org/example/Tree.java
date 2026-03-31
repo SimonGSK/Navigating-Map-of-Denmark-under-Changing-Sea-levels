@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Tree {
-    public Element element;
-    public List<Tree> nodes;
+    public TreeNode root = new TreeNode();
+
+    public void insert(Element element) {
+        root.insert(element);
+    }
 
     public Tree _find(BoundingBox searchArea) {
         /*
