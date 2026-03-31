@@ -80,7 +80,7 @@ public class App extends DrawingApp {
         // Alle ways sendes til WayRenderer så kystkurven har adgang til dem
         List<Way> allWays = new ArrayList<>(parser.getOsmWayMap().values());
 
-        drawables.add(new CoastlineRenderer(allWays, meanLat));                          // 1. Baggrund - landets baggrund
+        //drawables.add(new CoastlineRenderer(allWays, meanLat));                          // 1. Baggrund - landets baggrund
         drawables.add(new RelationRenderer(mapData.multiPolygons, meanLat));             // 2. Relations/multipolygons - skove, søer osv.
         drawables.add(new WayRenderer(mapData.standaloneWays, meanLat));                 // 3. Ways - veje, bygninger
 

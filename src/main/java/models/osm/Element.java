@@ -82,7 +82,7 @@ public abstract class Element implements Drawable {
         if ("underwater".equals(tags.get("location"))) return null;
         if ("strait".equals(tags.get("natural"))) return null;
         if ("bay".equals(tags.get("natural"))) return null;
-        if ("coastline".equals(tags.get("natural"))) return null;
+        //if ("coastline".equals(tags.get("natural"))) return null;
         if ("sea".equals(tags.get("natural"))) return null;
         if ("ocean".equals(tags.get("natural"))) return null;
         if ("ferry".equals(tags.get("route"))) return null;

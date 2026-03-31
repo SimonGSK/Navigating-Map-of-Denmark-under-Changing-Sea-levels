@@ -81,10 +81,6 @@ public class HeightCurve {
         }
     }
 
-    public HeightCurve() {
-        this(0L, 0.0, new ArrayList<>(), new ArrayList<>());
-    }
-
     public HeightCurve(long id, double height, List<Coordinate> coords) {
         this(id, height, coords, new ArrayList<>());
     }
