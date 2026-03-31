@@ -82,7 +82,6 @@ public abstract class Element implements Drawable {
         if ("underwater".equals(tags.get("location"))) return null;
         if ("strait".equals(tags.get("natural"))) return null;
         if ("bay".equals(tags.get("natural"))) return null;
-        //if ("coastline".equals(tags.get("natural"))) return null;
         if ("sea".equals(tags.get("natural"))) return null;
         if ("ocean".equals(tags.get("natural"))) return null;
         if ("ferry".equals(tags.get("route"))) return null;
@@ -102,6 +101,7 @@ public abstract class Element implements Drawable {
             if ("shoal".equals(natural)) return Color.decode("#7c9ea6");
             if ("wetland".equals(natural)) return Color.decode("#638040");
             if ("heath".equals(natural)) return Color.decode("#638040");
+            if ("coastline".equals(natural)) return Color.decode("#c7b687");
             return Color.decode("#0b4f14"); // Mørkegrøn
         }
 
