@@ -1,5 +1,13 @@
 package org.example;
 
 public abstract class BoundingBoxDecorator {
-    protected BoundingBox mbr;
+    private BoundingBox mbr;
+
+    public BoundingBox getMbr() {
+        return mbr;
+    }
+
+    public void setMbr(BoundingBox mbr) {
+        this.mbr = mbr;
+    }
 }
