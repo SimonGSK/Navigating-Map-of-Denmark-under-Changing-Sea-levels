@@ -1,67 +1,58 @@
 package models.ui;
 
 import Interfaces.Drawable;
-import javafx.application.Application;
-import javafx.scene.image.ImageView;
+import javafx.scene.Scene;
 import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
-import javafx.scene.image.WritableImage;
-import models.geometry.SuperAffine;
-import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import models.heightcurve.HeightCurve;
+import models.geometry.BoundingBox;
+import models.geometry.SuperAffine;
 import models.heightcurve.HeightCurveData;
 import models.osm.Way;
 import models.parser.HCParser;
+import models.parser.MapData;
 import models.parser.Parser;
-import models.rendering.*;
+import models.rendering.RelationRenderer;
+import models.rendering.WayRenderer;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import models.ui.DrawingUtils;
-import models.parser.MapData;
 
 //import static com.sun.javafx.scene.CameraHelper.project;
 
 public class App extends DrawingApp {
-    private double screenX = 0;
-    private double screenY = 0;
-    private final SuperAffine superAffine = new SuperAffine();
-    private final List<Drawable> drawables = new ArrayList<>();
-
     private static final boolean USE_EXAMPLE_ISLAND = false;
     private static final double SEA_LEVEL = 0.0;
     private static final int WIDTH = 800;
     private static final int HEIGHT = 800;
     private static final Color WATER_COLOR = Color.decode("#2b8cbe");
-
+    private final SuperAffine superAffine = new SuperAffine();
+    private final List<Drawable> drawables = new ArrayList<>();
     private final PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer<>(
             WIDTH, HEIGHT,
             IntBuffer.allocate(WIDTH * HEIGHT),
             PixelFormat.getIntArgbPreInstance()
     );
-
     private final BufferedImage bufferedImage = new BufferedImage(
             WIDTH,
             HEIGHT,
             BufferedImage.TYPE_INT_ARGB
     );
+    private double screenX = 0;
+    private double screenY = 0;
 
     //private final ImageView imageView = new ImageView();
 
     @Override
     public void start(Stage stage) {
-        if  (USE_EXAMPLE_ISLAND) {
+        if (USE_EXAMPLE_ISLAND) {
             stage.setTitle("Example ISLAND");
         } else {
             stage.setTitle("Drawing App");
@@ -77,8 +68,8 @@ public class App extends DrawingApp {
         Parser parser = new Parser("bornholm/bornholm.osm");
         parser.parse();
 
-        List<Double> bb = parser.getBoundingBox();
-        double meanLat = (bb.get(1) + bb.get(3)) / 2.0; // (minLat + maxLat) / 2
+        BoundingBox mbr = parser.getBoundingBox();
+        double meanLat = (mbr.maxLat() + mbr.minLat()) / 2.0; // (minLat + maxLat) / 2
 
         MapData mapData = new MapData(parser.getOsmWayMap(), parser.getOsmRelationMap());
 
@@ -93,9 +84,12 @@ public class App extends DrawingApp {
         System.out.println("Non-empty ways in parser map=" + nonemptyWays);
 
         // reCenter(new double[]{10, 50, 15, 55}); // Centers around the bounds given
-        if(bb.size() == 4){
+        /* // TODO: Commenting this out because I've refactored bb -> mbr, and to use BoundingBox instead of List<Double>
+        if (bb.size() == 4) {
             reCenter(new double[]{bb.get(0), bb.get(1), bb.get(2), bb.get(3)}, meanLat);
         }
+         */
+        reCenter(mbr, meanLat);
 
         BorderPane mouseEventComponent = new BorderPane();
         mouseEventComponent.setOnMousePressed(this::handleMousePressed);
@@ -197,7 +191,7 @@ public class App extends DrawingApp {
     }
 
     private void handleScroll(ScrollEvent event) {
-        double zoom = event.getDeltaY() > 0 ? 1.05 : 1/1.05;
+        double zoom = event.getDeltaY() > 0 ? 1.05 : 1 / 1.05;
         superAffine
                 .prependTranslation(-event.getX(), -event.getY())
                 .prependScale(zoom, zoom)
@@ -206,15 +200,10 @@ public class App extends DrawingApp {
         drawAndRender();
     }
 
-    public void reCenter(double[] bounds, double meanLat) {
-        double minLon = bounds[0];
-        double minLat = bounds[1];
-        double maxLon = bounds[2];
-        double maxLat = bounds[3];
-
+    public void reCenter(BoundingBox mbr, double meanLat) {
         double cosMeanLat = Math.cos(Math.toRadians(meanLat));
-        double dataWidth = (maxLon - minLon) * cosMeanLat;
-        double dataHeight = maxLat - minLat;
+        double dataWidth = (mbr.maxLon() - mbr.minLon()) * cosMeanLat;
+        double dataHeight = mbr.maxLat() - mbr.minLat();
         if (dataWidth <= 0 || dataHeight <= 0) {
             return;
         }
@@ -230,7 +219,7 @@ public class App extends DrawingApp {
 
         // WayRenderer y is -latitude, so after translating by maxLat it becomes 0..dataHeight
         superAffine.reset()
-                .prependTranslation(-minLon * cosMeanLat, maxLat)
+                .prependTranslation(-mbr.minLon() * cosMeanLat, mbr.maxLat())
                 .prependScale(scale, scale)
                 .prependTranslation(offsetX, offsetY);
     }

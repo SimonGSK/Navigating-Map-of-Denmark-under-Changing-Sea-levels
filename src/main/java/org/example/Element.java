@@ -1,7 +1,9 @@
 package org.example;
 
+import models.geometry.BoundingBox;
+import models.geometry.SpatialElement;
+
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Elements are the basic components of OpenStreetMap's conceptual data model of the physical world.
@@ -13,7 +15,7 @@ import java.util.List;
  * <p>
  * <a href="https://wiki.openstreetmap.org/wiki/Elements#Elements"><i>Source: OpenStreetMap Wiki; Elements</i></a>
  */
-public abstract class Element extends BoundingBoxDecorator {
+public abstract class Element extends SpatialElement {
     final private long id;
     private final HashMap<String, String> tags;
     protected double size;

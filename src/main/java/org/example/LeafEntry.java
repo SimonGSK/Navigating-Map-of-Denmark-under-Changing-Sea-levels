@@ -1,5 +1,7 @@
 package org.example;
 
+import models.geometry.BoundingBox;
+
 public record LeafEntry(BoundingBox mbr, Element data) implements TreeEntry {
     @Override
     public boolean overlaps(BoundingBox box) {

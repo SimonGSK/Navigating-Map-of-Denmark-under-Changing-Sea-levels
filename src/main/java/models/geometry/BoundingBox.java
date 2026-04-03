@@ -1,4 +1,4 @@
-package org.example;
+package models.geometry;
 
 public record BoundingBox(double minLat, double minLon, double maxLat, double maxLon) {
     public boolean isInside(BoundingBox other) {
@@ -25,15 +25,15 @@ public record BoundingBox(double minLat, double minLon, double maxLat, double ma
     }
 
     public BoundingBox copy() {
-        return new BoundingBox(minLat,minLon,maxLat,maxLon);
+        return new BoundingBox(minLat, minLon, maxLat, maxLon);
     }
 
     public BoundingBox getExpanded(BoundingBox mbr) {
         return new BoundingBox(
-                Math.min(this.minLat,mbr.minLat),
-                Math.min(this.minLon,mbr.minLon),
-                Math.min(this.maxLat,mbr.maxLat),
-                Math.min(this.maxLon,mbr.maxLon)
+                Math.min(this.minLat, mbr.minLat),
+                Math.min(this.minLon, mbr.minLon),
+                Math.min(this.maxLat, mbr.maxLat),
+                Math.min(this.maxLon, mbr.maxLon)
         );
     }
 }

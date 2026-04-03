@@ -2,11 +2,12 @@ package org.example;
 
 import java.util.List;
 
-public class TreeNode extends BoundingBoxDecorator {
+public class TreeNode extends SpatialElement {
     public List<TreeEntry> entries;
     private boolean isLeaf = false;
 
-    public TreeNode() {}
+    public TreeNode() {
+    }
 
     public TreeNode(boolean isLeaf) {
         this.isLeaf = isLeaf;

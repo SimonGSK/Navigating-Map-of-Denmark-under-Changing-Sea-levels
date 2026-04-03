@@ -1,5 +1,7 @@
 package org.example;
 
+import models.geometry.BoundingBox;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -1,5 +1,7 @@
 package org.example;
 
+import models.geometry.BoundingBox;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +13,7 @@ public class Tree {
     private int max = 4;
 
     public Tree(int min, int max) {
-        if (min > Math.floorDiv(max,2)) {
+        if (min > Math.floorDiv(max, 2)) {
             throw new RuntimeException("min must be <= max / 2");
         }
 
@@ -23,7 +25,7 @@ public class Tree {
         List<Element> results = new ArrayList<>();
         Queue<TreeNode> queue = new LinkedList<>();
         if (root != null) {
-            searchRecursive(root,searchArea,results);
+            searchRecursive(root, searchArea, results);
         }
         return results;
     }
@@ -46,7 +48,7 @@ public class Tree {
 
         List<TreeNode> path = new ArrayList<>();
         TreeNode leaf = chooseLeaf(root, element.getMbr(), path);
-        leaf.entries.add(new LeafEntry(element.getMbr(),element));
+        leaf.entries.add(new LeafEntry(element.getMbr(), element));
 
         TreeNode splitResult = null;
         if (leaf.isOverflowing(max)) {
@@ -80,7 +82,7 @@ public class Tree {
             }
         }
 
-        return chooseLeaf(bestChild,mbr,path);
+        return chooseLeaf(bestChild, mbr, path);
     }
 
     private void adjustTree(List<TreeNode> path, TreeNode child, TreeNode sibling) {
@@ -90,7 +92,7 @@ public class Tree {
             for (int j = 0; j < parent.entries.size(); j++) {
                 TreeEntry entry = parent.entries.get(j);
                 if (entry instanceof NodeEntry nodeEntry && nodeEntry.child() == child) {
-                    parent.entries.set(j, new NodeEntry(child.getMbr(),child));
+                    parent.entries.set(j, new NodeEntry(child.getMbr(), child));
                     break;
                 }
             }
@@ -110,8 +112,8 @@ public class Tree {
         // If sibling != null, then the root has been split
         if (sibling != null) {
             TreeNode newRoot = new TreeNode(false);
-            newRoot.entries.add(new NodeEntry(root.getMbr(),root));
-            newRoot.entries.add(new NodeEntry(sibling.getMbr(),sibling));
+            newRoot.entries.add(new NodeEntry(root.getMbr(), root));
+            newRoot.entries.add(new NodeEntry(sibling.getMbr(), sibling));
             root = newRoot;
         }
     }
@@ -137,7 +139,7 @@ public class Tree {
                 break;
             }
 
-            TreeEntry next = pickNext(allEntries,left,right);
+            TreeEntry next = pickNext(allEntries, left, right);
             allEntries.remove(next);
 
             BoundingBox leftMbr = computeMBR(left);
@@ -188,14 +190,14 @@ public class Tree {
                 TreeEntry aTmp = entries.get(i);
                 TreeEntry bTmp = entries.get(j);
 
-                double containerArea = computeMBR(List.of(aTmp,bTmp)).area();
+                double containerArea = computeMBR(List.of(aTmp, bTmp)).area();
                 double aArea = aTmp.getMbr().area();
                 double bArea = bTmp.getMbr().area();
 
                 double deadSpace = containerArea - aArea - bArea;
 
                 if (deadSpace > seedsArea) {
-                    seeds = new SeedPack(aTmp,bTmp);
+                    seeds = new SeedPack(aTmp, bTmp);
                     seedsArea = deadSpace;
                 }
             }
@@ -217,17 +219,11 @@ public class Tree {
             double rightAreaIncr = computeMBR(right).areaIncreaseNeeded(e.getMbr());
             if (leftAreaIncr < minAreaIncr || rightAreaIncr < minAreaIncr) {
                 next = e;
-                minAreaIncr = Math.min(leftAreaIncr,rightAreaIncr);
+                minAreaIncr = Math.min(leftAreaIncr, rightAreaIncr);
             }
         }
 
         return next;
-    }
-
-    record SeedPack(TreeEntry left, TreeEntry right) {
-         public List<TreeEntry> all() {
-             return List.of(left,right);
-         }
     }
 
     private BoundingBox computeMBR(List<TreeEntry> entries) {
@@ -240,5 +236,11 @@ public class Tree {
 
     private BoundingBox computeMBR(TreeNode node) {
         return computeMBR(node.entries);
+    }
+
+    record SeedPack(TreeEntry left, TreeEntry right) {
+        public List<TreeEntry> all() {
+            return List.of(left, right);
+        }
     }
 }

@@ -1,10 +1,11 @@
 package models.parser;
 
-import java.util.*;
-import models.osm.Way;
-import models.osm.Relation;
 import models.osm.Member;
 import models.osm.Node;
+import models.osm.Relation;
+import models.osm.Way;
+
+import java.util.*;
 
 public class MapData {
     public final List<Way> standaloneWays;

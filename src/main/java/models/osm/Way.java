@@ -1,44 +1,27 @@
 package models.osm;
 
-import java.awt.geom.Path2D;
-import java.util.ArrayList;
+import models.geometry.BoundingBox;
+
+import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.awt.*;
 
 public class Way extends Element {
-    private List<Node> nodes;
-    private final HashMap<String, String> tags;
+    private final List<Node> nodes;
 
-    public Way(long id, List<Node> nodes, HashMap<String, String> tags) {
-        super(id);
+    public Way(long id, HashMap<String, String> tags, BoundingBox mbr, List<Node> nodes) {
+        super(id, tags, mbr);
         this.nodes = nodes;
-        this.tags = tags;
         this.setArea(calculateArea(nodes));
     }
-    public List<Node>getNodes(){
-        return nodes;
-    }
-    public HashMap<String, String> getTags() {
-        return tags;
-    }
 
-    @Override
-    public void draws(Graphics2D gc) {
-
-    }
-
-    private double calculateArea(List<Node> nodes){
-        if (nodes == null || nodes.size() < 3) return 0; //Hvis der er under 3 noder er areal 0
-
-        //Hvis den første node ikke er den samme som den sidste, er way'en ikke lukket og har ikke noget areal
-        Node first = nodes.get(0);
-        Node last = nodes.get(nodes.size() - 1);
-        boolean isClosed = first.getId() == last.getId();
-        if (!isClosed) return 0;
-
-        //Shoelace-formlen
+    /**
+     * Calculates area of way, using the shoelace algorithm
+     *
+     * @param nodes
+     * @return
+     */
+    private static double getArea(List<Node> nodes) {
         double area = 0;
         int n = nodes.size();
         for (int i = 0; i < n - 1; i++) {               //For hver node i way'en
@@ -48,6 +31,29 @@ public class Way extends Element {
             double lon2 = nodes.get(i + 1).getLon();    //og longitude sammen med næste nodes longitude,
             area += (lon1 * lat2) - (lon2 * lat1);      //og udregner arealet og lægger det til area
         }
+        return area;
+    }
+
+    public List<Node> getNodes() {
+        return nodes;
+    }
+
+    @Override
+    public void draws(Graphics2D gc) {
+
+    }
+
+    private double calculateArea(List<Node> nodes) {
+        if (nodes == null || nodes.size() < 3) return 0; //Hvis der er under 3 noder er areal 0
+
+        //Hvis den første node ikke er den samme som den sidste, er way'en ikke lukket og har ikke noget areal
+        Node first = nodes.getFirst();
+        Node last = nodes.getLast();
+        boolean isClosed = first.getId() == last.getId();
+        if (!isClosed) return 0;
+
+        //Shoelace-formlen
+        double area = getArea(nodes);
         return Math.abs(area) / 2.0;
 
         //TODO: Hække bliver i byen tegner oven på veje. Find en løsning på dette

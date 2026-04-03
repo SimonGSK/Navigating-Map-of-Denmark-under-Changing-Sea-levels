@@ -1,7 +1,8 @@
 package org.example;
 
+import models.geometry.Coordinate;
+
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * A point on the earth's surface defined by its latitude and longitude.

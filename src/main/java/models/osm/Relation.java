@@ -1,5 +1,7 @@
 package models.osm;
 
+import models.geometry.BoundingBox;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,10 +10,9 @@ import java.util.List;
 
 public class Relation extends Element {
     private List<Member> members;
-    private HashMap<String, String> tags;
 
-    public Relation(long id,List<Member> members, HashMap<String, String> tags) {
-        super(id);
+    public Relation(long id, HashMap<String, String> tags, BoundingBox mbr, List<Member> members) {
+        super(id, tags, mbr);
         this.members = members;
         this.tags = tags;
     }
@@ -32,25 +33,12 @@ public class Relation extends Element {
         return new ArrayList<>(members);
     }
 
-    public void setMembers(List<Member> members){
+    public void setMembers(List<Member> members) {
         this.members = members;
     }
 
-    public void setTags (HashMap<String, String> tags){
-        this.tags = tags;
-    }
-
     @Override
-    public void draws(Graphics2D gc){
-
-    }
-
-    public HashMap<String, String> getTags() {
-        return tags;
-    }
-
-    public String getTag(String key) {
-        if (tags == null) return null;
-        return tags.get(key);
+    public void draws(Graphics2D gc) {
+        // TODO: This should be cleaned up. If the method doesn't do anything, we should look at how we can restructure the purpose of Drawable.
     }
 }
