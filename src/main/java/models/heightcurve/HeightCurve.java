@@ -46,17 +46,17 @@ public class HeightCurve {
     public Color getFillColor(double seaLevel) {
         double altitude = height - seaLevel;
 
-        if (altitude < 0 && submerged) return Color.decode("#2b8cbe");
-        if (altitude < 0 && !submerged) return Color.decode("#ffffcc");
-        if (altitude < 10) return Color.decode("#edf8b1");
-        if (altitude < 20) return Color.decode("#c2e699");
-        if (altitude < 30) return Color.decode("#99d8c9");
-        if (altitude < 40) return Color.decode("#78c679");
-        if (altitude < 60) return Color.decode("#41ab5d");
-        if (altitude < 80) return Color.decode("#238443");
-        if (altitude < 100) return Color.decode("#006837");
-        if (altitude < 130) return Color.decode("#78503a");
-        return Color.decode("#5c3d2a");
+        if (altitude < 0 && submerged) return Color.decode("#2b8cbe");   // water
+        if (altitude < 0 && !submerged) return Color.decode("#ffffcc");  // below sea but not submerged
+        if (altitude < 10) return Color.decode("#edf8b1");  // very light yellow-green
+        if (altitude < 20) return Color.decode("#c2e699");  // light green
+        if (altitude < 30) return Color.decode("#99d8c9");  // light teal
+        if (altitude < 40) return Color.decode("#78c679");  // medium green
+        if (altitude < 60) return Color.decode("#41ab5d");  // green
+        if (altitude < 80) return Color.decode("#238443");  // darker green
+        if (altitude < 100) return Color.decode("#006837"); // dark green
+        if (altitude < 130) return Color.decode("#78503a"); // brown
+        return Color.decode("#5c3d2a"); // dark brown (160m+)
 
 
 
