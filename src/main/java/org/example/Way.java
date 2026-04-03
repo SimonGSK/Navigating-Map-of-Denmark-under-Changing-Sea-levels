@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -15,35 +16,46 @@ import java.util.List;
  * <a href="https://wiki.openstreetmap.org/wiki/Elements#Elements"><i>Source: OpenStreetMap Wiki; Elements</i></a>
  */
 public class Way extends Element {
-    private List<Node> nodes;
+    private final List<Node> nodes;
 
-    public Way(long id) {
-        super(id);
+    public Way(long id, HashMap<String, String> tags, List<Node> nodes) {
+        super(id, tags, calcMBR(nodes));
+        this.nodes = nodes;
     }
 
-    /**
-     * Adds a node to this way's ordered list of nodes.
-     * <p>
-     * Note that it's possible to have the same node appear multiple times, such as a way in the shape of a figure-8.
-     * <p>
-     * This method lazily initializes the nodes list on first use.
-     *
-     * @param node the {@link Node} to be added to this way. Must not be {@code null}.
-     * @return {@code true} if the node was added successfully, {@code false} otherwise.
-     */
-    public boolean addNote(Node node) {
-        if (nodes == null) {
-            nodes = new ArrayList<>();
+    static MBR calcMBR(List<Node> nodes) {
+        if (nodes == null || nodes.isEmpty()) {
+            throw new RuntimeException("nodes is empty or null");
         }
 
-        return nodes.add(node);
+        double minLat = nodes.getFirst().getCoord().lat();
+        double minLon = nodes.getFirst().getCoord().lon();
+        double maxLat = nodes.getFirst().getCoord().lat();
+        double maxLon = nodes.getFirst().getCoord().lon();
+
+        if (nodes.size() == 1) {
+            return new MBR(new BoundingBox(minLat, minLon, maxLat, maxLon), 0);
+        }
+
+        for (Node n : nodes) {
+            Coordinate c = n.getCoord();
+            if (c.lat() < minLat) minLat = c.lat();
+            if (c.lon() < minLon) minLon = c.lon();
+            if (c.lat() > maxLat) maxLat = c.lat();
+            if (c.lon() > maxLon) maxLon = c.lon();
+        }
+
+        double deltaLat = maxLat - minLat;
+        double deltaLon = maxLon - minLon;
+
+        return new MBR(new BoundingBox(minLat, minLon, maxLat, maxLon), deltaLat * deltaLon);
     }
 
     /**
      * Returns a copy of this way's ordered list of nodes.
      * <p>
      * The returned list is a defensive copy, so modifications to it will not
-     * affect this way's nodes. To add nodes to this way, use {@link #addNote(Node)}.
+     * affect this way's nodes.
      *
      * @return a copy of the list containing all nodes in this way, or {@code null}
      * if no nodes have been added to this way.

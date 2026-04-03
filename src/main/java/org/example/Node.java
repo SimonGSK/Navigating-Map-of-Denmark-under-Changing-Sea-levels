@@ -1,5 +1,8 @@
 package org.example;
 
+import java.util.HashMap;
+import java.util.List;
+
 /**
  * A point on the earth's surface defined by its latitude and longitude.
  * <p>
@@ -32,8 +35,8 @@ public class Node extends Element {
      * @param lat the latitude of this node in degrees, ranging from -90° (South Pole) to +90° (North Pole).
      * @param lon the longitude of this node in degrees, ranging from -180° to +180°.
      */
-    public Node(long id, double lat, double lon) {
-        super(id);
+    public Node(long id, HashMap<String, String> tags, double lat, double lon) {
+        super(id, tags, new MBR(lat, lon, lat, lon, 0));
         this.coord = new Coordinate(lat, lon);
     }
 
