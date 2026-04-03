@@ -26,7 +26,7 @@ public class HCParser {
         Deque<HeightCurve> stack = new ArrayDeque<>();
 
         try {
-            InputStream is = HCParser.class.getResourceAsStream("/" + fileName);
+            InputStream is = HCParser.class.getResourceAsStream("/data/" + fileName);
             if (is == null) {
                 throw new IllegalArgumentException("Resource not found: " + fileName);
             }

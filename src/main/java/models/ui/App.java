@@ -70,9 +70,7 @@ public class App extends DrawingApp {
         stage.setWidth(getWIDTH());
         stage.setHeight(getHEIGHT());
 
-        HCParser hcParser = new HCParser("bornholm.hc");
-        HeightCurveData hcData = hcParser.parse();
-        HeightCurveRenderer hcRender = new HeightCurveRenderer(hcData);
+
 
         Parser parser = new Parser("bornholm/bornholm.osm");
         parser.parse();
@@ -80,14 +78,20 @@ public class App extends DrawingApp {
         List<Double> bb = parser.getBoundingBox();
         double meanLat = (bb.get(1) + bb.get(3)) / 2.0; // (minLat + maxLat) / 2
 
+        HCParser hcParser = new HCParser("bornholm/bornholm.hc");
+        HeightCurveData hcData = hcParser.parse();
+
         MapData mapData = new MapData(parser.getOsmWayMap(), parser.getOsmRelationMap());
 
         // Alle ways sendes til WayRenderer så kystkurven har adgang til dem
         List<Way> allWays = new ArrayList<>(parser.getOsmWayMap().values());
 
+
         //drawables.add(new CoastlineRenderer(allWays, meanLat));                          // 1. Baggrund - landets baggrund
-        drawables.add(new RelationRenderer(mapData.multiPolygons, meanLat));             // 2. Relations/multipolygons - skove, søer osv.
-        drawables.add(new WayRenderer(mapData.standaloneWays, meanLat));                 // 3. Ways - veje, bygninger
+        drawables.add(new HeightCurveRenderer(hcData, meanLat));                         // 2. Højdekurver - højdekurver
+       //  drawables.add(new RelationRenderer(mapData.multiPolygons, meanLat));             // 3. Relations/multipolygons - skove, søer osv.
+        // drawables.add(new WayRenderer(mapData.standaloneWays, meanLat));                 // 4. Ways - veje, bygninger
+
 
         long nonemptyWays = parser.getOsmWayMap().values().stream().filter(w -> w.getNodes() != null && !w.getNodes().isEmpty()).count();
         System.out.println("Non-empty ways in parser map=" + nonemptyWays);
@@ -109,46 +113,6 @@ public class App extends DrawingApp {
         StackPane root = new StackPane(this.imageView, mouseEventComponent);
         stage.setScene(new Scene(root, getWIDTH(), getHEIGHT()));
         stage.show();
-
-        /*
-        Graphics2D gc = bufferedImage.createGraphics();
-        gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        gc.setBackground(WATER_COLOR);
-        gc.fillRect(0, 0, getWIDTH(), getHEIGHT());
-
-
-        HeightCurveData data;
-        if (USE_EXAMPLE_ISLAND) {
-           data = ExampleIsland.create();
-        } else {
-            data = bornholm.create();
-        }
-
-        HeightCurve sea = data.sea;
-        sea.resetSubmerged();
-        sea.submerge(SEA_LEVEL);
-
-        for (HeightCurve curve: data.curves) {
-            if (curve == sea) {
-                continue;
-            }
-            gc.setColor(curve.getFillColor(SEA_LEVEL));
-            gc.fill(project(curve.getRegionPath(), data));
-        }
-        for (HeightCurve  curve: data.curves) {
-            if (curve == sea) {
-                continue;
-            }
-            gc.setColor(Color.BLACK);
-            gc.draw(project(curve.getBoundaryPath(), data));
-        }
-
-        int[] pixels = ((DataBufferInt) bufferedImage.getRaster().getDataBuffer()).getData();
-        System.arraycopy(pixels, 0, pixelBuffer.getBuffer().array(), 0, pixels.length);
-        imageView.setImage(new WritableImage(pixelBuffer));
-
-         */
-
 
         System.out.println("Nodes: " + parser.getOsmNodeMap().size());
         System.out.println("Ways: " + parser.getOsmWayMap().size());
@@ -234,7 +198,7 @@ public class App extends DrawingApp {
                 .prependScale(scale, scale)
                 .prependTranslation(offsetX, offsetY);
     }
-    /*
+
     private static Shape project(Shape s, HeightCurveData d) {
         double p = 20, c = Math.cos(Math.toRadians((d.minLat + d.maxLat) / 2));
         double w = (d.maxLon - d.minLon) * c, h = d.maxLat - d.minLat;
@@ -247,5 +211,5 @@ public class App extends DrawingApp {
         return t.createTransformedShape(s);
     }
 
-     */
+
 }
