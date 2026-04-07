@@ -47,54 +47,7 @@ public class Parser implements IParser {
                     Way way = extractWay(line, br);
                     wayMap.put(way.getId(), way);
                 } else if (line.contains("<relation ") || line.contains("<relation>")) {
-                    List<Member> members = new ArrayList<>();
-                    HashMap<String, String> tags = new HashMap<>();
-
-                    long relationID = getAttributeLong(line, "id");
-
-                    while (!line.contains("</relation>")) {
-                        line = br.readLine().trim();
-
-                        if (line.contains("<member")) {
-                            String type = getAttribute(line, "type");
-                            Long ref = getAttributeLong(line, "ref");
-                            String role = getAttribute(line, "role");
-
-                            if (type.equals("node")) {
-                                if (nodeMap.containsKey(ref)) {
-                                    Member member = new Member(nodeMap.get(ref), role);
-                                    members.add(member);
-                                }
-                            } else if (type.equals("way")) {
-                                if (wayMap.containsKey(ref)) {
-                                    Member member = new Member(wayMap.get(ref), role);
-                                    members.add(member);
-                                }
-                            } else if (type.equals("relation")) {
-
-                                if (!relationMap.containsKey(ref)) {
-                                    List<Member> newMembers = new ArrayList<>();
-                                    HashMap<String, String> newTags = new HashMap<>();
-                                    Relation newRelation = new Relation(ref, newTags, newMembers);
-                                    relationMap.put(ref, newRelation);
-                                }
-                                Member member = new Member(relationMap.get(ref), role);
-                                members.add(member);
-                            }
-                        } else if (line.contains("<tag")) {
-                            String k = getAttribute(line, "k");
-                            String v = getAttribute(line, "v");
-                            tags.put(k, v);
-                        }
-                    }
-                    if (relationMap.containsKey(relationID)) {
-                        Relation existing = relationMap.get(relationID);
-                        existing.setMembers(members);
-                        existing.setTags(tags);
-                    } else {
-                        Relation relation = new Relation(relationID, members, tags);
-                        relationMap.put(relationID, relation);
-                    }
+                    extractRelation(line, br);
                 }
             }
 
@@ -104,6 +57,59 @@ public class Parser implements IParser {
 
         } catch (IOException e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    private void extractRelation(String line, BufferedReader br) throws IOException {
+        List<Member> members = new ArrayList<>();
+        HashMap<String, String> tags = new HashMap<>();
+        long relationID = getAttributeLong(line, "id");
+
+        while (!line.contains("</relation>")) {
+            line = br.readLine().trim();
+
+            if (line.contains("<member")) {
+                String type = getAttribute(line, "type");
+                Long ref = getAttributeLong(line, "ref");
+                String role = getAttribute(line, "role");
+
+                switch (type) {
+                    case "node" -> {
+                        if (nodeMap.containsKey(ref)) {
+                            Member member = new Member(nodeMap.get(ref), role);
+                            members.add(member);
+                        }
+                    }
+                    case "way" -> {
+                        if (wayMap.containsKey(ref)) {
+                            Member member = new Member(wayMap.get(ref), role);
+                            members.add(member);
+                        }
+                    }
+                    case "relation" -> {
+                        if (!relationMap.containsKey(ref)) {
+                            List<Member> newMembers = new ArrayList<>();
+                            HashMap<String, String> newTags = new HashMap<>();
+                            Relation newRelation = new Relation(ref, newTags, null, newMembers);
+                            relationMap.put(ref, newRelation);
+                        }
+                        Member member = new Member(relationMap.get(ref), role);
+                        members.add(member);
+                    }
+                }
+            } else if (line.contains("<tag")) {
+                String k = getAttribute(line, "k");
+                String v = getAttribute(line, "v");
+                tags.put(k, v);
+            }
+        }
+        if (relationMap.containsKey(relationID)) {
+            Relation existing = relationMap.get(relationID);
+            existing.setMembers(members);
+            existing.setTags(tags);
+        } else {
+            Relation relation = new Relation(relationID, members, tags);
+            relationMap.put(relationID, relation);
         }
     }
 

@@ -61,7 +61,7 @@ public abstract class Element extends SpatialElement implements Drawable {
         return new HashMap<>(tags);
     }
 
-    protected void setTags(HashMap<String, String> tags) {
+    public void setTags(HashMap<String, String> tags) {
         this.tags = tags;
     }
 
