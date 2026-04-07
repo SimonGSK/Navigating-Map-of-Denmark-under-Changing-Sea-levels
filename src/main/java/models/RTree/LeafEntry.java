@@ -1,4 +1,7 @@
-package org.example;
+package models.RTree;
+
+import models.geometry.BoundingBox;
+import models.osm.Element;
 
 public record LeafEntry(BoundingBox mbr, Element data) implements TreeEntry {
     @Override
