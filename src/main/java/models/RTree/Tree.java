@@ -17,7 +17,6 @@ public class Tree {
         if (min > Math.floorDiv(max, 2)) {
             throw new RuntimeException("min must be <= max / 2");
         }
-
         this.min = min;
         this.max = max;
     }

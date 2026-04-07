@@ -49,6 +49,8 @@ public class MapData {
         double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
         double minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
 
+        // TODO: Use Relation.getMbr() instead
+
         for (Member m : r.getMembers()) {
             if (!(m.getElement() instanceof Way w)) continue;
             if (!"outer".equals(m.getRole())) continue;
