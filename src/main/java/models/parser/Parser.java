@@ -2,7 +2,10 @@ package models.parser;
 
 import Interfaces.IParser;
 import models.geometry.BoundingBox;
-import models.osm.*;
+import models.osm.Member;
+import models.osm.Node;
+import models.osm.Relation;
+import models.osm.Way;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,10 +16,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static models.geometry.BoundingBox.computeMbr;
+
 public class Parser implements IParser {
 
     private final String fileName;
-    private final List<Double> boundingBox = new ArrayList<>();
     private final HashMap<Long, Node> nodeMap = new HashMap<>();
     private final HashMap<Long, Way> wayMap = new HashMap<>();
     private final HashMap<Long, Relation> relationMap = new HashMap<>();
@@ -90,7 +94,7 @@ public class Parser implements IParser {
                         if (!relationMap.containsKey(ref)) {
                             List<Member> newMembers = new ArrayList<>();
                             HashMap<String, String> newTags = new HashMap<>();
-                            Relation newRelation = new Relation(ref, newTags, null, newMembers);
+                            Relation newRelation = new Relation(ref, newTags, newMembers);
                             relationMap.put(ref, newRelation);
                         }
                         Member member = new Member(relationMap.get(ref), role);
@@ -103,14 +107,15 @@ public class Parser implements IParser {
                 tags.put(k, v);
             }
         }
+
         if (relationMap.containsKey(relationID)) {
             Relation existing = relationMap.get(relationID);
             existing.setMembers(members);
             existing.setTags(tags);
-        } else {
-            Relation relation = new Relation(relationID, members, tags);
-            relationMap.put(relationID, relation);
+            return;
         }
+        Relation relation = new Relation(relationID, tags, members);
+        relationMap.put(relationID, relation);
     }
 
     private Way extractWay(String line, BufferedReader br) throws IOException {
@@ -132,31 +137,14 @@ public class Parser implements IParser {
             }
         }
 
-        BoundingBox mbrWay = computeMbr(nodes);
-
-        return new Way(wayID, tags, mbrWay, nodes);
+        return new Way(wayID, tags, nodes);
     }
 
     private Node extractNode(String line) {
         double lat = getAttributeDouble(line, "lat");
         double lon = getAttributeDouble(line, "lon");
         long id = getAttributeLong(line, "id");
-        Node node = new Node(id, lat, lon); // TODO: Parse tags for Node and add as input
-    }
-
-    private BoundingBox computeMbr(List<? extends Element> elements) {
-        double minLat = Double.MAX_VALUE;
-        double minLon = Double.MAX_VALUE;
-        double maxLat = Double.MIN_VALUE;
-        double maxLon = Double.MIN_VALUE;
-
-        for (Element e : nodeMap.values()) {
-            minLat = Math.min(minLat, e.getMbr().minLat());
-            minLon = Math.min(minLon, e.getMbr().minLon());
-            maxLat = Math.max(maxLat, e.getMbr().maxLat());
-            maxLon = Math.max(maxLon, e.getMbr().maxLon());
-        }
-        return new BoundingBox(minLat, minLon, maxLat, maxLon);
+        return new Node(id, lat, lon); // TODO: Parse tags for Node and add as input
     }
 
     private BoundingBox extractBounds(String line) {

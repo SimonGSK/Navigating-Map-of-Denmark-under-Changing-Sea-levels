@@ -14,7 +14,15 @@ public abstract class Element extends SpatialElement implements Drawable {
     public Element(long id, HashMap<String, String> tags, BoundingBox mbr) {
         this.id = id;
         this.tags = tags;
-        this.setMbr(mbr);
+        setMbr(mbr);
+        setArea(mbr.area());
+    }
+
+    public Element(long id, HashMap<String, String> tags, BoundingBox mbr, double area) {
+        this.id = id;
+        this.tags = tags;
+        setMbr(mbr);
+        setArea(area);
     }
 
     public long getId() {
@@ -38,7 +46,7 @@ public abstract class Element extends SpatialElement implements Drawable {
         return true;
     }
 
-    protected String getTag(String key) {
+    public String getTag(String key) {
         if (tags == null) {
             return null;
         }
@@ -54,7 +62,7 @@ public abstract class Element extends SpatialElement implements Drawable {
         return tags.containsKey(key);
     }
 
-    protected HashMap<String, String> getTags() {
+    public HashMap<String, String> getTags() {
         if (tags == null) {
             return null;
         }

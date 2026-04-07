@@ -1,8 +1,9 @@
-package org.example;
+package models.RTree;
 
 import models.geometry.BoundingBox;
+import models.osm.Element;
 
-public record NodeEntry(BoundingBox mbr, TreeNode child) implements TreeEntry {
+public record LeafEntry(BoundingBox mbr, Element data) implements TreeEntry {
     @Override
     public boolean overlaps(BoundingBox box) {
         return mbr.isOverlappingOther(box);

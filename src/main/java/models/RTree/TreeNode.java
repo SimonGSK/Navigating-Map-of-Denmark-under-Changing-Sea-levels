@@ -1,4 +1,6 @@
-package org.example;
+package models.RTree;
+
+import models.geometry.SpatialElement;
 
 import java.util.List;
 

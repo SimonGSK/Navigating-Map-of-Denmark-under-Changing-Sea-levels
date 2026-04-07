@@ -1,4 +1,4 @@
-package org.example;
+package models.RTree;
 
 import models.geometry.BoundingBox;
 

@@ -11,17 +11,20 @@ import java.util.List;
 public class Relation extends Element {
     private List<Member> members;
 
-    public Relation(long id, HashMap<String, String> tags, BoundingBox mbr, List<Member> members) {
-        super(id, tags, mbr);
+    public Relation(long id, HashMap<String, String> tags, List<Member> members) {
+        super(id, tags, computeMbr(members));
         this.members = members;
-        this.tags = tags;
+    }
+
+    static private BoundingBox computeMbr(List<Member> members) {
+        return BoundingBox.computeMbr(members.stream().map(Member::getElement).toList());
     }
 
     public boolean addMember(Member member) {
         if (members == null) {
             members = new ArrayList<>();
         }
-
+        setMbr(updateMbr(member));
         return members.add(member);
     }
 
@@ -35,6 +38,15 @@ public class Relation extends Element {
 
     public void setMembers(List<Member> members) {
         this.members = members;
+        setMbr(updateMbr(this.members));
+    }
+
+    private BoundingBox updateMbr(List<Member> members) {
+        return BoundingBox.computeMbr(members.stream().map(Member::getElement).toList());
+    }
+
+    private BoundingBox updateMbr(Member newMember) {
+        return getMbr().getExpanded(newMember.getElement().getMbr());
     }
 
     @Override

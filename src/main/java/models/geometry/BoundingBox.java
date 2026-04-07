@@ -1,6 +1,25 @@
 package models.geometry;
 
+import models.osm.Element;
+
+import java.util.List;
+
 public record BoundingBox(double minLat, double minLon, double maxLat, double maxLon) {
+    static public BoundingBox computeMbr(List<? extends Element> elements) {
+        double minLat = Double.MAX_VALUE;
+        double minLon = Double.MAX_VALUE;
+        double maxLat = Double.MIN_VALUE;
+        double maxLon = Double.MIN_VALUE;
+
+        for (Element e : elements) {
+            minLat = Math.min(minLat, e.getMbr().minLat());
+            minLon = Math.min(minLon, e.getMbr().minLon());
+            maxLat = Math.max(maxLat, e.getMbr().maxLat());
+            maxLon = Math.max(maxLon, e.getMbr().maxLon());
+        }
+        return new BoundingBox(minLat, minLon, maxLat, maxLon);
+    }
+
     public boolean isInside(BoundingBox other) {
         return this.minLat >= other.minLat && this.minLon >= other.minLon && this.maxLat <= other.maxLat && this.maxLon <= other.maxLon;
     }
@@ -21,7 +40,7 @@ public record BoundingBox(double minLat, double minLon, double maxLat, double ma
     }
 
     public double area() {
-        return (maxLat - minLat) * (maxLon - minLon);
+        return Math.max(0, (maxLat - minLat) * (maxLon - minLon));
     }
 
     public BoundingBox copy() {

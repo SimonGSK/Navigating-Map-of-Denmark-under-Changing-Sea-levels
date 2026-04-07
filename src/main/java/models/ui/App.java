@@ -11,9 +11,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import models.geometry.BoundingBox;
 import models.geometry.SuperAffine;
-import models.heightcurve.HeightCurveData;
 import models.osm.Way;
-import models.parser.HCParser;
 import models.parser.MapData;
 import models.parser.Parser;
 import models.rendering.RelationRenderer;
@@ -61,11 +59,14 @@ public class App extends DrawingApp {
         stage.setWidth(getWIDTH());
         stage.setHeight(getHEIGHT());
 
+        /*
+
         HCParser hcParser = new HCParser("bornholm.hc");
         HeightCurveData hcData = hcParser.parse();
         HeightCurveRenderer hcRender = new HeightCurveRenderer(hcData);
+         */
 
-        Parser parser = new Parser("bornholm/bornholm.osm");
+        Parser parser = new Parser("Bornholm.osm");
         parser.parse();
 
         BoundingBox mbr = parser.getBoundingBox();
