@@ -1,127 +1,148 @@
 ---
 name: weekly-log-from-transcripts
-description: Create short, concise weekly project log entries using the user's weekly rundown as the primary source and transcripts as supporting context.
+description: Revise/create TA-facing weekly project diary entries with concrete programming progress, using the user's rundown as primary truth and transcripts as supporting evidence.
 ---
 
 # Weekly Log From Transcripts
 
-Use this skill to create short weekly log entries for a university project.
+Use this skill to build or revise weekly logs so a TA can immediately see technical project progress.
 
-Treat the user's own weekly rundown as the primary source of truth.
-Use meeting transcripts only as supporting context for clarification and detail.
+The log must describe engineering progress, not just meeting/process activity.
 
-The output must be concise, concrete, and easy to scan.
+## Primary Goal
+
+Make each week answer these questions clearly:
+1. What was implemented/integrated/refactored/tested?
+2. What technical decisions were made?
+3. What blockers or risks remain?
+4. What coding/integration steps are next?
 
 ## When to Use
 
 - The user shares transcript files from team meetings.
-- The user asks for a weekly log, status update, or summary.
+- The user asks for a weekly log, project diary update, or status summary.
 - The project requires regular progress reporting.
+- The existing weekly log is too process-focused and needs technical detail.
 
 ## Inputs
 
 Ask for the following if not already provided:
 
-- A quick rundown from the user of what was done this week (required).
-- Which week or date range the log should cover.
-- Which transcript files to include.
-- Preferred output format (bullet points or short paragraphs).
+- A quick user rundown of coding progress (required).
+- Week(s) or date range to cover.
+- Transcript files to include.
+- Whether to append new weeks only or also rewrite older vague weeks (default: rewrite affected weeks).
 
 If the user's quick rundown is missing, ask for it before writing the log.
 
-## Output Requirements
+## Source Priority (Strict)
 
-- Keep each weekly entry short (typically 4-8 bullets total).
+Use this order when producing content:
+1. User's weekly rundown (**authoritative**)
+2. Meeting transcripts (**supporting evidence only**)
+3. Unknown details explicitly marked as `Not discussed`
+
+Transcripts must never override explicit user statements.
+
+## Mandatory Output Requirements
+
+- Keep entries concise and scan-friendly (typically 2-6 bullets per section).
 - No fluff, no motivational language, no filler.
-- Use plain, specific wording.
-- Prioritize facts from the user's rundown.
-- Use transcripts to support, disambiguate, or add context only.
-- If transcript content conflicts with the user's rundown, follow the user's rundown and note uncertainty briefly if needed.
-- Focus on:
-  - Work completed
-  - Decisions made
-  - Blockers/risks
-  - Next actions
+- Use concrete, verifiable technical wording.
+- Focus on implementation outcomes, integration progress, testing/benchmark status, and technical blockers.
+- Process-only bullets (e.g., "we had scrum") are not enough unless tied to a technical outcome.
 - Do not infer completion from discussion alone in transcripts.
 - Do not invent details that are not explicitly stated by the user or transcript evidence.
 - If information is missing, write `Not discussed`.
+- If existing weekly entries are vague/process-heavy, rewrite them to reflect real engineering progress.
+- When transcript filenames are duplicated or mislabeled (e.g., wrong year), deduplicate and use content/date context.
 
-## Source Priority
+## Required Section Structure (Per Week)
 
-Use this order when generating entries:
+Use this exact order:
 
-1. User's weekly rundown (authoritative)
-2. Meeting transcripts (context only)
-3. Explicitly mark unknowns as `Not discussed`
-
-Transcripts should never override the user's explicit weekly rundown.
-
-## Recommended Entry Structure
-
-Use this exact section order:
-
-1. `Week of: <date range>`
+1. `Week of <YYYY-MM-DD to YYYY-MM-DD>`
 2. `Completed`
 3. `Decisions`
 4. `Blockers`
 5. `Next`
 
-Keep each bullet to one sentence when possible.
+## Programming-Progress Focus (Mandatory)
+
+In `Completed`, prioritize statements like:
+- Implemented feature/data structure/algorithm
+- Integrated branches/components
+- Refactored shared models/interfaces
+- Added/ran tests or set up test branches
+- Started/finished benchmark setup
+- Fixed concrete rendering/parsing/pathfinding issues
+
+Prefer subsystem framing when useful:
+- Rendering
+- Data Layer
+- Algorithms/Pathfinding
+- Testing/Benchmarking
 
 ## Style Rules
 
-- Prefer strong verbs: "implemented", "tested", "decided", "blocked".
+- Prefer strong verbs: `implemented`, `integrated`, `refactored`, `tested`, `decided`, `blocked`.
 - Avoid vague phrases like "worked on stuff" or "made progress".
-- Keep statements factual and verifiable from the provided sources.
+- Keep each bullet factual and verifiable from provided sources.
+- Keep each bullet to one sentence when possible.
 - Do not include assumptions, interpretation-heavy claims, or speculation.
 
-## Process
+## Process Workflow
 
-1. Collect the user's quick rundown for the week (required).
-2. Identify transcript files relevant to the same week.
-3. Extract concrete actions, decisions, blockers, and next steps from both sources.
-4. Resolve conflicts by prioritizing the user's rundown.
-5. Remove repetition and merge duplicate points.
-6. Draft a compact weekly entry using the required structure.
-7. Tighten wording until each bullet is direct and specific.
+1. Collect/confirm the user's coding-progress rundown (required).
+2. Identify transcript files for the target period.
+3. Map transcripts to calendar weeks; remove duplicates/mirror files.
+4. Extract verifiable engineering milestones by week.
+5. Rewrite affected weeks (not only append) if existing entries underreport programming progress.
+6. Draft each week with `Completed / Decisions / Blockers / Next`.
+7. Ensure blockers and next steps are technical and specific.
+8. Resolve conflicts by prioritizing the user's rundown.
+9. Mark unknowns as `Not discussed`.
+10. Final pass: ensure a TA can quickly judge implementation depth and remaining risk.
 
 ## Template
 
 ```md
-Week of: <YYYY-MM-DD to YYYY-MM-DD>
+## Week of <YYYY-MM-DD to YYYY-MM-DD>
 
 Completed
-- <specific completed item from user rundown, optionally supported by transcript context>
-- <specific completed item>
+- <implemented/integrated item with concrete scope>
+- <tested/refactored/merged item>
 
 Decisions
-- <decision made, with brief context>
+- <technical decision and short rationale>
 
 Blockers
-- <blocker and impact>
-  - or `Not discussed`
+- <technical blocker and impact>
+- <or `Not discussed`>
 
 Next
-- <next action with owner if known>
-- <next action>
+- <next coding/integration action>
+- <next testing/benchmarking action>
 ```
 
 ## Example
 
 ```md
-Week of: 2026-03-10 to 2026-03-16
+## Week of 2026-03-30 to 2026-04-05
 
 Completed
-- Implemented parser handling for nodes and ways (from team weekly rundown).
-- Split map rendering tasks across team members (confirmed by meeting transcript context).
+- Implemented relation renderer updates to handle multipolygons and avoid double-drawing ways in relations.
+- Moved area ordering to shoelace-based calculations for more reliable polygon rendering.
+- Reported Dijkstra functionally complete and shifted focus to correctness tests.
+- Advanced R-tree implementation toward integration with rendering/parser branches.
 
 Decisions
-- Decided to prioritize MVP map interaction before UI polish.
+- Prioritized correctness tests before benchmarking pathfinding performance.
 
 Blockers
-- JavaFX setup mismatch on one machine delayed local testing.
+- Pathfinding test coverage remained incomplete, delaying meaningful benchmark comparisons.
 
 Next
-- Fix JavaFX environment setup and rerun tests.
-- Prepare TA meeting agenda with open architecture questions.
+- Finalize Dijkstra test cases (shortest path and adjacency behavior).
+- Complete R-tree integration and align rendering queries with the shared bounding-box model.
 ```
