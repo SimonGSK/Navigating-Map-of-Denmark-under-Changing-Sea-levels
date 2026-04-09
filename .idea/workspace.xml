@@ -5,9 +5,50 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c849cea3-a170-4673-a879-f2a326deb021" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/copilotDiffState.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/Resources/data/tuna/tuna.hc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/Resources/data/tuna/tuna.osm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/Interfaces/Drawable.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/Interfaces/IParser.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/RTree/LeafEntry.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/RTree/NodeEntry.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/RTree/Tree.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/RTree/TreeEntry.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/RTree/TreeNode.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/geometry/BoundingBox.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/geometry/Coordinate.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/geometry/SpatialElement.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/geometry/SuperAffine.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/heightcurve/HeightCurve.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/heightcurve/HeightCurveData.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/osm/Element.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/osm/Member.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/osm/Node.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/osm/Relation.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/osm/Way.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/parser/HCParser.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/parser/MapData.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/parser/Parser.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/rendering/RelationRenderer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/rendering/WayRenderer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/ui/App.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/ui/DrawingApp.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/ui/DrawingUtils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/ui/Main.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/RTree/Tree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/models/RTree/Tree.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/parser/MapData.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/models/parser/MapData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Coordinate.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Element.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Member.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Node.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Relation.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Way.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,7 +118,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "integrate-parser-with-r-tree",
+    "git-widget-placeholder": "Merging creating-diary-log",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
