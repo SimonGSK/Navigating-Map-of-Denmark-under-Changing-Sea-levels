@@ -1,6 +1,7 @@
 package models.parser;
 
 import Interfaces.IParser;
+import models.RTree.Tree;
 import models.geometry.BoundingBox;
 import models.osm.Member;
 import models.osm.Node;
@@ -19,15 +20,20 @@ import java.util.List;
 import static models.geometry.BoundingBox.computeMbr;
 
 public class Parser implements IParser {
-
+    private final Tree tree;
     private final String fileName;
     private final HashMap<Long, Node> nodeMap = new HashMap<>();
     private final HashMap<Long, Way> wayMap = new HashMap<>();
     private final HashMap<Long, Relation> relationMap = new HashMap<>();
     private BoundingBox mbr;
 
-    public Parser(String filename) {
+    public Parser(Tree tree, String filename) {
+        this.tree = tree;
         this.fileName = filename;
+    }
+
+    public Tree getTree() {
+        return tree;
     }
 
     @Override
@@ -43,13 +49,15 @@ public class Parser implements IParser {
 
             while ((line = br.readLine()) != null) {
                 if (line.contains("<bounds")) {
-                    mbr = extractBounds(line);
+                    tree.setMbr(extractBounds(line));
                 } else if (line.contains("<node") && !line.contains("</node")) {
                     Node node = extractNode(line);
-                    nodeMap.put(node.getId(), node);
+                    tree.insert(node);
+                    // nodeMap.put(node.getId(), node);
                 } else if (line.contains("<way")) {
                     Way way = extractWay(line, br);
-                    wayMap.put(way.getId(), way);
+                    tree.insert(way);
+                    // wayMap.put(way.getId(), way);
                 } else if (line.contains("<relation ") || line.contains("<relation>")) {
                     extractRelation(line, br);
                 }

@@ -9,6 +9,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import models.RTree.Tree;
 import models.geometry.BoundingBox;
 import models.geometry.SuperAffine;
 import models.osm.Way;
@@ -46,6 +47,8 @@ public class App extends DrawingApp {
     private double screenX = 0;
     private double screenY = 0;
 
+    private Tree tree = new Tree(1, 4);
+
     //private final ImageView imageView = new ImageView();
 
     @Override
@@ -66,10 +69,11 @@ public class App extends DrawingApp {
         HeightCurveRenderer hcRender = new HeightCurveRenderer(hcData);
          */
 
-        Parser parser = new Parser("Bornholm.osm");
+        Parser parser = new Parser(tree, "Bornholm.osm");
         parser.parse();
+        tree = parser.getTree();
 
-        BoundingBox mbr = parser.getBoundingBox();
+        BoundingBox mbr = tree.getMbr();
         double meanLat = (mbr.maxLat() + mbr.minLat()) / 2.0; // (minLat + maxLat) / 2
 
         MapData mapData = new MapData(parser.getOsmWayMap(), parser.getOsmRelationMap());

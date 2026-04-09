@@ -4,14 +4,13 @@ import models.geometry.BoundingBox;
 import models.osm.Element;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 public class Tree {
-    public TreeNode root;
+    private TreeNode root;
     private int min = 1;
     private int max = 4;
+    private BoundingBox mbr;
 
     public Tree(int min, int max) {
         if (min > Math.floorDiv(max, 2)) {
@@ -21,9 +20,16 @@ public class Tree {
         this.max = max;
     }
 
+    public BoundingBox getMbr() {
+        return mbr;
+    }
+
+    public void setMbr(BoundingBox mbr) {
+        this.mbr = mbr;
+    }
+
     public List<Element> search(BoundingBox searchArea) {
         List<Element> results = new ArrayList<>();
-        Queue<TreeNode> queue = new LinkedList<>();
         if (root != null) {
             searchRecursive(root, searchArea, results);
         }
