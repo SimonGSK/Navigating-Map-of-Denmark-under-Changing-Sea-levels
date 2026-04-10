@@ -23,7 +23,6 @@ public class HCParser {
 
     public HeightCurveData parse() {
         List<HeightCurve> allCurves = new ArrayList<>();
-        Deque<HeightCurve> stack = new ArrayDeque<>();
 
         try {
             InputStream is = HCParser.class.getResourceAsStream("/data/" + fileName);
@@ -38,23 +37,18 @@ public class HCParser {
                 if (line.contains("<hc")) {
                     long id = getAttributeLong(line, "id");
                     double height = getAttributeDouble(line, "height");
-                    HeightCurve curve = new HeightCurve(id, height, new ArrayList<>());
-                    stack.push(curve);
+                    ArrayList<Coordinate> coordinates = new ArrayList<>();
 
-                } else if (line.contains("<coords")) {
-                    double lat = getAttributeDouble(line, "lat");
-                    double lon = getAttributeDouble(line, "lon");
-                    stack.peek().getCoords().add(new Coordinate(lat, lon));
-
-                } else if (line.contains("</hc>")) {
-                    HeightCurve done = stack.pop();
-                    allCurves.add(done);
-                    if (!stack.isEmpty()) {
-                        stack.peek().getChildren().add(done);
+                    while (!line.contains("</hc>")){
+                        if (line.contains("<coords")) {
+                            double lat = getAttributeDouble(line, "lat");
+                            double lon = getAttributeDouble(line, "lon");
+                            coordinates.add(new Coordinate(lat, lon));
+                        }
                     }
+                    HeightCurve curve = new HeightCurve(id, height, coordinates);
                 }
             }
-
 
         } catch (IOException e) {
             System.out.println(e.getMessage());

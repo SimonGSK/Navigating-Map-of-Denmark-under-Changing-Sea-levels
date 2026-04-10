@@ -128,6 +128,10 @@ public class HeightCurve {
         return children;
     }
 
+    public void addChild(HeightCurve child) {
+        this.children.add(child);
+    }
+
     public boolean isSubmerged() {
         return submerged;
     }
