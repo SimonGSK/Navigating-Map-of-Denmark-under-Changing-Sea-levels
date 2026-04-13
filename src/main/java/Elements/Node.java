@@ -36,7 +36,7 @@ public class Node extends Element implements Comparable<Node> {
      * @param lat the latitude of this node in degrees, ranging from -90° (South Pole) to +90° (North Pole).
      * @param lon the longitude of this node in degrees, ranging from -180° to +180°.
      */
-    public Node(long id, double lat, double lon) {
+    public Node(long id, double lat, double lon) { // add hc
         super(id);
         this.coord = new Coordinate(lat, lon);
         this.adjacencyList = new ArrayList<>();

@@ -4,10 +4,10 @@ public class Edge {
     private Node targetNode;
     private double weight;
 
-      Edge(Node sourceNode, Node targetNode) {
+      public Edge(Node sourceNode, Node targetNode) {
         this.targetNode = targetNode;
         this.weight = calcDist(sourceNode, targetNode);
-    }  
+    }
 
     public Node getTargetNode() {
           return this.targetNode;

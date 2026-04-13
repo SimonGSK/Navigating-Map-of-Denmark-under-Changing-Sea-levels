@@ -8,14 +8,7 @@ import java.util.*;
 public class Dijkstra {
 
     // Holds results of a single Dijkstra run
-    public static class Result {
-        public final Map<Node, Double> distances;
-        public final Map<Node, Node> previousNodes;
-
-        public Result(Map<Node, Double> distances, Map<Node, Node> previousNodes) {
-            this.distances = distances;
-            this.previousNodes = previousNodes;
-        }
+        public record Result(Map<Node, Double> distances, Map<Node, Node> previousNodes) {
     }
 
     public Result shortestPath(Node startNode, Collection<Node> allNodes) {
