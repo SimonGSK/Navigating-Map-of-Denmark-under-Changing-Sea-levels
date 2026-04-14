@@ -52,12 +52,10 @@ public class App extends DrawingApp {
     );
 
     private final BufferedImage bufferedImage = new BufferedImage(
-            WIDTH,
-            HEIGHT,
-            BufferedImage.TYPE_INT_ARGB
-    );
+            WIDTH, HEIGHT,
+            BufferedImage.TYPE_INT_ARGB);
 
-    //private final ImageView imageView = new ImageView();
+    private final ImageView imageView = new ImageView();
 
     @Override
     public void start(Stage stage) {
@@ -87,7 +85,7 @@ public class App extends DrawingApp {
         List<Way> allWays = new ArrayList<>(parser.getOsmWayMap().values());
 
 
-       //  drawables.add(new HeightCurveRenderer(hcData, meanLat));                         // 1. Højdekurver - højdekurver
+       // drawables.add(new HeightCurveRenderer(hcData, meanLat));                         // 1. Højdekurver - højdekurver
         drawables.add(new RelationRenderer(mapData.multiPolygons, meanLat));             // 2. Relations/multipolygons - skove, søer osv.
         drawables.add(new WayRenderer(mapData.standaloneWays, meanLat));                 // 3. Ways - veje, bygninger
 
