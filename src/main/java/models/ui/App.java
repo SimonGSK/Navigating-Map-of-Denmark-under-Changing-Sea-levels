@@ -24,6 +24,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 //import static com.sun.javafx.scene.CameraHelper.project;
@@ -208,11 +209,13 @@ public class App extends DrawingApp {
         BoundingBox viewport = getViewportBox();
 
         visibleWays = wayTree.search(viewport).stream()
+                .sorted(Comparator.comparingDouble(e -> -e.getArea()))
                 .filter(e -> e instanceof Way)
                 .map(e -> (Way) e)
                 .toList();
 
         visibleRelations = relationTree.search(viewport).stream()
+                .sorted(Comparator.comparingDouble(e -> -e.getArea()))
                 .filter(e -> e instanceof Relation)
                 .map(e -> (Relation) e)
                 .toList();

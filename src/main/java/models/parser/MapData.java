@@ -32,7 +32,7 @@ public class MapData {
 
         // Sorterer relations fra størst til mindst
         multiPolygons = polys.stream()
-                .sorted(Comparator.comparingDouble(r -> -estimateArea(r)))
+                .sorted(Comparator.comparingDouble(r -> -r.getArea()))
                 .toList();
 
         // Sorterer ways fra størst til mindst
