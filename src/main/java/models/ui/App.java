@@ -208,16 +208,22 @@ public class App extends DrawingApp {
     private void draw() {
         BoundingBox viewport = getViewportBox();
 
+        double scaleX = superAffine.getScaleX(); // Simple LOD, setup
+        double scaleY = superAffine.getScaleX(); // Simple LOD, setup
+        double minGeoArea = 256.0 / (scaleX * scaleY); // Simple LOD, step 1; Elements rendering less than 16x16 px are skipped
+
         visibleWays = wayTree.search(viewport).stream()
-                .sorted(Comparator.comparingDouble(e -> -e.getArea()))
                 .filter(e -> e instanceof Way)
                 .map(e -> (Way) e)
+                .filter(w -> w.getMbr().area() > minGeoArea) // Simple LOD, step 2
+                .sorted(Comparator.comparingDouble(e -> -e.getArea()))
                 .toList();
 
         visibleRelations = relationTree.search(viewport).stream()
-                .sorted(Comparator.comparingDouble(e -> -e.getArea()))
                 .filter(e -> e instanceof Relation)
                 .map(e -> (Relation) e)
+                .filter(r -> r.getArea() > minGeoArea) // Simple LOD, step 2
+                .sorted(Comparator.comparingDouble(e -> -e.getArea()))
                 .toList();
 
         wayRenderer.setWays(visibleWays);
