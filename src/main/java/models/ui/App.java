@@ -91,7 +91,7 @@ public class App extends DrawingApp {
 
         HCParser hcParser = new HCParser("bornholm.hc");
         //HeightCurveData hcData = hcParser.parse();
-        //HeightCurveRenderer hcRender = new HeightCurveRenderer(hcData, meanLat);
+        //HeightCurveRenderer hcRenderer = new HeightCurveRenderer(hcData, meanLat);
 
         Parser parser = new Parser("Bornholm.osm");
         parser.parse();
@@ -123,9 +123,9 @@ public class App extends DrawingApp {
         relationRenderer = new RelationRenderer(visibleRelations, meanLat);
         wayRenderer = new WayRenderer(visibleWays, meanLat);
 
-        // 1. Baggrund - landets baggrund
+        //drawables.add(hcRenderer);
         drawables.add(relationRenderer);             // 2. Relations/multipolygons - skove, søer osv.
-        drawables.add(wayRenderer);                 // 3. Ways - veje, bygninger
+        drawables.add(wayRenderer);                  // 3. Ways - veje, bygninger
 
         long nonemptyWays = parser.getOsmWayMap().values().stream().filter(w -> w.getNodes() != null && !w.getNodes().isEmpty()).count();
         System.out.println("Non-empty ways in parser map=" + nonemptyWays);

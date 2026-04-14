@@ -58,12 +58,11 @@ public class HeightCurveData {
         HeightCurve bestParent = sea;
         double bestArea = Double.MAX_VALUE;
 
-        for (HeightCurve potentialParent : sorted) {
+        for (int i = sorted.size() -1 ; i >= 0 ; i--) {
+            HeightCurve potentialParent = sorted.get(i);
             if (potentialParent == hc) continue;
-            double area = boundingArea(potentialParent);
-            if (area < bestArea && contains(potentialParent, hc)) {
-                bestArea = area;
-                bestParent = potentialParent;
+            if (contains(potentialParent, hc)) {
+                return potentialParent;
             }
         }
         return bestParent;

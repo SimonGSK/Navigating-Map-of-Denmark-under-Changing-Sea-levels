@@ -81,7 +81,6 @@ public class HCParser {
         }
 
         return new HeightCurveData(minLat, minLon, maxLat, maxLon, sea, allCurves);
-
     }
 
     public String getAttribute(String s, String key) {
