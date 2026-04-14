@@ -1,11 +1,11 @@
 package Interfaces;
 
+import models.geometry.BoundingBox;
 import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
 
 import java.util.HashMap;
-import java.util.List;
 
 public interface IParser {
 
@@ -17,5 +17,5 @@ public interface IParser {
 
     HashMap<Long, Relation> getOsmRelationMap();
 
-    List<Double> getBoundingBox();
+    BoundingBox getBoundingBox();
 }

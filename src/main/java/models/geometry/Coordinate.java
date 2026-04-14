@@ -8,10 +8,16 @@ public class Coordinate {
         this.lat = lat;
         this.lon = lon;
     }
+
     public double getLat() {
         return lat;
     }
+
     public double getLon() {
         return lon;
+    }
+
+    public Coordinate copy() {
+        return new Coordinate(lat, lon);
     }
 }

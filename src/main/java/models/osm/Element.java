@@ -1,17 +1,28 @@
 package models.osm;
 
 import Interfaces.Drawable;
+import models.geometry.BoundingBox;
+import models.geometry.SpatialElement;
 
-import java.util.HashMap;
 import java.awt.*;
+import java.util.HashMap;
 
-public abstract class Element implements Drawable {
+public abstract class Element extends SpatialElement implements Drawable {
     final private long id;
-    private HashMap<String, String> tags;
-    private double area;
+    protected HashMap<String, String> tags;
 
-    public Element(long id) {
+    public Element(long id, HashMap<String, String> tags, BoundingBox mbr) {
         this.id = id;
+        this.tags = tags;
+        setMbr(mbr);
+        setArea(mbr.area());
+    }
+
+    public Element(long id, HashMap<String, String> tags, BoundingBox mbr, double area) {
+        this.id = id;
+        this.tags = tags;
+        setMbr(mbr);
+        setArea(area);
     }
 
     public long getId() {
@@ -35,7 +46,7 @@ public abstract class Element implements Drawable {
         return true;
     }
 
-    protected String getTag(String key) {
+    public String getTag(String key) {
         if (tags == null) {
             return null;
         }
@@ -51,19 +62,15 @@ public abstract class Element implements Drawable {
         return tags.containsKey(key);
     }
 
-    protected HashMap<String, String> getTags() {
+    public HashMap<String, String> getTags() {
         if (tags == null) {
             return null;
         }
         return new HashMap<>(tags);
     }
 
-    public double getArea() {
-        return this.area;
-    }
-
-    protected void setArea(double area) {
-        this.area = area;
+    public void setTags(HashMap<String, String> tags) {
+        this.tags = tags;
     }
 
     public Color getColor() {
@@ -94,7 +101,8 @@ public abstract class Element implements Drawable {
         if (tags.containsKey("demolished:building")) return null;
 
         //NATURAL
-        if (tags.containsKey("natural")) { String natural = tags.get("natural");
+        if (tags.containsKey("natural")) {
+            String natural = tags.get("natural");
             if ("water".equals(natural) || "spring".equals(natural)) return Color.decode("#184e85"); // Blå
             if ("rock".equals(natural) || "stone".equals(natural)) return Color.decode("#2b2a2a"); // Mørkegrå
             if ("coastline".equals(natural)) return Color.decode("#a19875");
@@ -106,7 +114,8 @@ public abstract class Element implements Drawable {
         }
 
         //SURFACE
-        if (tags.containsKey("surface")) { String surface = tags.get("surface");
+        if (tags.containsKey("surface")) {
+            String surface = tags.get("surface");
             if ("grass".equals(surface)) return Color.decode("#0b4f14"); // Grøn
             if ("paved".equals(surface) || "paving_stones".equals(surface)) return Color.decode("#4e524f"); // Grå
             if ("gravel".equals(surface)) return Color.decode("#4a4437"); // Gråbrun
@@ -114,7 +123,8 @@ public abstract class Element implements Drawable {
         }
 
         //HIGHWAY
-        if (tags.containsKey("highway")) { String highway = tags.get("highway");
+        if (tags.containsKey("highway")) {
+            String highway = tags.get("highway");
             if ("track".equals(highway) || "path".equals(highway)) return Color.decode("#664627"); // Lysebrun
             return Color.decode("#2b2a2a"); // Grå
         }
@@ -125,7 +135,8 @@ public abstract class Element implements Drawable {
         }
 
         //LANDUSE
-        if (tags.containsKey("landuse")) { String landuse = tags.get("landuse");
+        if (tags.containsKey("landuse")) {
+            String landuse = tags.get("landuse");
             if ("forest".equals(landuse)) return Color.decode("#1a3d0a"); // Mørkegrøn
             if ("grass".equals(landuse)) return Color.decode("#297209"); // Grøn
             if ("industrial".equals(landuse)) return Color.decode("#4d4f4c"); // Grå
@@ -133,21 +144,29 @@ public abstract class Element implements Drawable {
         }
 
         //AEROWAY
-        if (tags.containsKey("aeroway")) { String aeroway = tags.get("aeroway");
+        if (tags.containsKey("aeroway")) {
+            String aeroway = tags.get("aeroway");
             if ("taxiway".equals(aeroway) || "airstrip".equals(aeroway)) return Color.decode("#576682"); // Gråblå
             return Color.decode("#a69e9d"); // Lysegrå
         }
 
         //BARRIER
-        if (tags.containsKey("barrier")) { String barrier = tags.get("barrier");
+        if (tags.containsKey("barrier")) {
+            String barrier = tags.get("barrier");
             if ("hedge".equals(barrier)) return Color.decode("#0b4f14"); // Grøn
-            return  Color.decode("#825e35");
+            return Color.decode("#825e35");
         }
 
         //OTHER TAGS
-        if (tags.containsKey("man_made")) { return Color.decode("#75716d");} //Grå
-        if (tags.containsKey("tourism")) { return Color.decode("#8c6239");} //Muted brown
-        if (tags.containsKey("historic")) {return Color.decode("#8a7355");} //Slightly lighter sandy brown
+        if (tags.containsKey("man_made")) {
+            return Color.decode("#75716d");
+        } //Grå
+        if (tags.containsKey("tourism")) {
+            return Color.decode("#8c6239");
+        } //Muted brown
+        if (tags.containsKey("historic")) {
+            return Color.decode("#8a7355");
+        } //Slightly lighter sandy brown
         if (tags.containsKey("building") || tags.containsKey("building:part")) return Color.decode("#a34018"); // Orange
         if (tags.containsKey("amenity") || tags.containsKey("leisure")) return Color.decode("#471309"); // Brun-rød
         if (tags.containsKey("waterway")) return Color.decode("#184e85"); // Blå
