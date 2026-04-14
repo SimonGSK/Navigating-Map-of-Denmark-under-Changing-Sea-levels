@@ -78,9 +78,6 @@ public class App extends DrawingApp {
 
     Path2D nearestNeighborPath;
 
-
-    //private final ImageView imageView = new ImageView();
-
     @Override
     public void start(Stage stage) {
         if (USE_EXAMPLE_ISLAND) {

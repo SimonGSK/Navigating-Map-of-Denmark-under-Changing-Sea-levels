@@ -33,20 +33,24 @@ public class HCParser {
             BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
 
             String line;
+            HeightCurve currentCurve = null;
+
             while ((line = br.readLine()) != null) {
+                line = line.trim();
+
                 if (line.contains("<hc")) {
                     long id = getAttributeLong(line, "id");
                     double height = getAttributeDouble(line, "height");
-                    ArrayList<Coordinate> coordinates = new ArrayList<>();
+                    currentCurve = new HeightCurve(id, height, new ArrayList<>());
 
-                    while (!line.contains("</hc>")){
-                        if (line.contains("<coords")) {
-                            double lat = getAttributeDouble(line, "lat");
-                            double lon = getAttributeDouble(line, "lon");
-                            coordinates.add(new Coordinate(lat, lon));
-                        }
-                    }
-                    HeightCurve curve = new HeightCurve(id, height, coordinates);
+                } else if (line.contains("<coords") && currentCurve != null) {
+                    double lat = getAttributeDouble(line, "lat");
+                    double lon = getAttributeDouble(line, "lon");
+                    currentCurve.getCoords().add(new Coordinate(lat, lon));
+
+                } else if (line.contains("</hc>") && currentCurve != null){
+                    allCurves.add(currentCurve);
+                    currentCurve = null;
                 }
             }
 
@@ -55,7 +59,6 @@ public class HCParser {
         }
 
         //HeightCurveData hcData = new HeightCurveData();
-
 
         HeightCurve sea = null;
         for (HeightCurve curve : allCurves) {
@@ -80,7 +83,6 @@ public class HCParser {
         return new HeightCurveData(minLat, minLon, maxLat, maxLon, sea, allCurves);
 
     }
-
 
     public String getAttribute(String s, String key) {
         String pattern = key + "=\"";
