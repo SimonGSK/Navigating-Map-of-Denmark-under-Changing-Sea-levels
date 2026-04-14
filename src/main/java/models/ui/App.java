@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import models.RTree.Tree;
 import models.geometry.BoundingBox;
 import models.geometry.SuperAffine;
+import models.osm.Relation;
 import models.osm.Way;
 import models.parser.MapData;
 import models.parser.Parser;
@@ -19,6 +20,7 @@ import models.rendering.RelationRenderer;
 import models.rendering.WayRenderer;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -44,10 +46,19 @@ public class App extends DrawingApp {
             HEIGHT,
             BufferedImage.TYPE_INT_ARGB
     );
+    int treeNodeMin = 1;
+    int treeNodeMax = 4;
     private double screenX = 0;
     private double screenY = 0;
+    private List<Relation> visibleRelations;
+    private List<Way> visibleWays;
+    private Tree relationTree = new Tree(treeNodeMin, treeNodeMax);
+    private Tree wayTree = new Tree(treeNodeMin, treeNodeMax);
 
-    private Tree tree = new Tree(1, 4);
+    private RelationRenderer relationRenderer;
+    private WayRenderer wayRenderer;
+    private double meanLat;
+
 
     //private final ImageView imageView = new ImageView();
 
@@ -69,21 +80,39 @@ public class App extends DrawingApp {
         HeightCurveRenderer hcRender = new HeightCurveRenderer(hcData);
          */
 
-        Parser parser = new Parser(tree, "Bornholm.osm");
+        Parser parser = new Parser("Bornholm.osm");
         parser.parse();
-        tree = parser.getTree();
 
-        BoundingBox mbr = tree.getMbr();
-        double meanLat = (mbr.maxLat() + mbr.minLat()) / 2.0; // (minLat + maxLat) / 2
+        BoundingBox mbr = parser.getBoundingBox();
+        meanLat = (mbr.maxLat() + mbr.minLat()) / 2.0; // (minLat + maxLat) / 2
 
         MapData mapData = new MapData(parser.getOsmWayMap(), parser.getOsmRelationMap());
 
-        // Alle ways sendes til WayRenderer så kystkurven har adgang til dem
-        List<Way> allWays = new ArrayList<>(parser.getOsmWayMap().values());
+        // Build Rtree for relations and ways
+        for (Relation r : mapData.multiPolygons) {
+            relationTree.insert(r);
+        }
+        for (Way w : mapData.standaloneWays) {
+            wayTree.insert(w);
+        }
 
-        //drawables.add(new CoastlineRenderer(allWays, meanLat));                          // 1. Baggrund - landets baggrund
-        drawables.add(new RelationRenderer(mapData.multiPolygons, meanLat));             // 2. Relations/multipolygons - skove, søer osv.
-        drawables.add(new WayRenderer(mapData.standaloneWays, meanLat));                 // 3. Ways - veje, bygninger
+        // Create updatable lists for relations and ways
+        visibleRelations = relationTree.search(getViewportBox()).stream()
+                .filter(Relation.class::isInstance)
+                .map(Relation.class::cast)
+                .toList();
+        visibleWays = relationTree.search(getViewportBox()).stream()
+                .filter(Way.class::isInstance)
+                .map(Way.class::cast)
+                .toList();
+
+
+        relationRenderer = new RelationRenderer(visibleRelations, meanLat);
+        wayRenderer = new WayRenderer(visibleWays, meanLat);
+
+        // 1. Baggrund - landets baggrund
+        drawables.add(relationRenderer);             // 2. Relations/multipolygons - skove, søer osv.
+        drawables.add(wayRenderer);                 // 3. Ways - veje, bygninger
 
         long nonemptyWays = parser.getOsmWayMap().values().stream().filter(w -> w.getNodes() != null && !w.getNodes().isEmpty()).count();
         System.out.println("Non-empty ways in parser map=" + nonemptyWays);
@@ -159,7 +188,39 @@ public class App extends DrawingApp {
         render();
     }
 
+    private BoundingBox getViewportBox() {
+        int w = getWIDTH();
+        int h = getHEIGHT();
+
+        Point2D topLeft = superAffine.inverseTransform(w * 0.2, h * 0.2);
+        Point2D bottomRight = superAffine.inverseTransform(w * 0.8, h * 0.8);
+        double cosMeanLat = Math.cos(Math.toRadians(meanLat));
+
+        double minLon = topLeft.getX() / cosMeanLat;
+        double maxLon = bottomRight.getX() / cosMeanLat;
+        double maxLat = -topLeft.getY();
+        double minLat = -bottomRight.getY();
+
+        return new BoundingBox(minLat, minLon, maxLat, maxLon);
+    }
+
     private void draw() {
+        BoundingBox viewport = getViewportBox();
+
+        visibleWays = wayTree.search(viewport).stream()
+                .filter(e -> e instanceof Way)
+                .map(e -> (Way) e)
+                .toList();
+
+        visibleRelations = relationTree.search(viewport).stream()
+                .filter(e -> e instanceof Relation)
+                .map(e -> (Relation) e)
+                .toList();
+
+        wayRenderer.setWays(visibleWays);
+        relationRenderer.setRelations(visibleRelations);
+
+
         Graphics2D gc = getNewGraphicsContext();
 
         // Clear background in device space first.

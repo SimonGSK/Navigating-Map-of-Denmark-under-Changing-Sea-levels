@@ -20,7 +20,17 @@ public class Tree {
         this.max = max;
     }
 
+    public void updateTreeNodeMbr(TreeNode node) {
+        if (node == null || node.entries == null || node.entries.isEmpty()) {
+            return;
+        }
+        node.setMbr(computeMBR(node.entries));
+    }
+
     public BoundingBox getMbr() {
+        if (mbr == null) {
+            mbr = computeMBR(root.entries);
+        }
         return mbr;
     }
 
@@ -55,6 +65,7 @@ public class Tree {
         List<TreeNode> path = new ArrayList<>();
         TreeNode leaf = chooseLeaf(root, element.getMbr(), path);
         leaf.entries.add(new LeafEntry(element.getMbr(), element));
+        updateTreeNodeMbr(leaf);
 
         TreeNode splitResult = null;
         if (leaf.isOverflowing(max)) {
@@ -62,6 +73,8 @@ public class Tree {
         }
 
         adjustTree(path, leaf, splitResult);
+
+        this.mbr = (root != null) ? root.getMbr() : null;
     }
 
     private TreeNode chooseLeaf(TreeNode node, BoundingBox mbr, List<TreeNode> path) {
@@ -112,6 +125,8 @@ public class Tree {
                     sibling = null;
                 }
             }
+
+            updateTreeNodeMbr(parent);
             child = parent;
         }
 
@@ -121,6 +136,7 @@ public class Tree {
             newRoot.entries.add(new NodeEntry(root.getMbr(), root));
             newRoot.entries.add(new NodeEntry(sibling.getMbr(), sibling));
             root = newRoot;
+            updateTreeNodeMbr(root);
         }
     }
 
@@ -180,31 +196,36 @@ public class Tree {
 
         node.entries.clear();
         node.entries.addAll(left);
+        updateTreeNodeMbr(node);
 
         TreeNode newNode = new TreeNode(node.isLeaf());
         newNode.entries.addAll(right);
+        updateTreeNodeMbr(newNode);
 
         return newNode;
     }
 
     private SeedPack pickSeeds(List<TreeEntry> entries) {
+        if (entries == null || entries.size() < 2) {
+            throw new IllegalArgumentException("pickSeeds needs at least 2 entries");
+        }
         SeedPack seeds = null;
-        double seedsArea = Double.MIN_VALUE;
+        double maxDeadSace = Double.NEGATIVE_INFINITY;
 
-        for (int i = 0; i < entries.size(); i++) {
-            for (int j = 0; j < entries.size(); j++) {
-                TreeEntry aTmp = entries.get(i);
-                TreeEntry bTmp = entries.get(j);
+        for (int i = 0; i < entries.size() - 1; i++) {
+            for (int j = i + 1; j < entries.size(); j++) {
+                TreeEntry a = entries.get(i);
+                TreeEntry b = entries.get(j);
 
-                double containerArea = computeMBR(List.of(aTmp, bTmp)).area();
-                double aArea = aTmp.getMbr().area();
-                double bArea = bTmp.getMbr().area();
+                double containerArea = computeMBR(List.of(a, b)).area();
 
+                double aArea = a.getMbr().area();
+                double bArea = b.getMbr().area();
                 double deadSpace = containerArea - aArea - bArea;
 
-                if (deadSpace > seedsArea) {
-                    seeds = new SeedPack(aTmp, bTmp);
-                    seedsArea = deadSpace;
+                if (deadSpace > maxDeadSace) {
+                    maxDeadSace = deadSpace;
+                    seeds = new SeedPack(a, b);
                 }
             }
         }

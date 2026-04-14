@@ -1,34 +1,29 @@
 package models.rendering;
 
 import Interfaces.Drawable;
-import java.util.*;
-import java.awt.*;
-
-import models.osm.Relation;
-import models.osm.Node;
-import models.osm.Way;
 import models.osm.Member;
+import models.osm.Node;
+import models.osm.Relation;
+import models.osm.Way;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.geom.Path2D;
-import java.util.Collections;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
 
 
-
 public class RelationRenderer implements Drawable {
-    private final List<Relation> relations;
-    private final double cosMeanLat;
     private static final double SNAP_THRESHOLD = 0.0001;
+    private final double cosMeanLat;
+    private List<Relation> relations;
 
     public RelationRenderer(List<Relation> relations, double meanLat) {
         this.relations = relations;
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
+    }
+
+    public void setRelations(List<Relation> relations) {
+        this.relations = relations;
     }
 
     // Tegner alle multipolygon-relations som fyldte områder på kortet.
@@ -64,7 +59,7 @@ public class RelationRenderer implements Drawable {
         Path2D path = new Path2D.Double();
         path.setWindingRule(Path2D.WIND_NON_ZERO);
 
-        for (List<Node> ring: stitchWaysToRings(outerWays)) {
+        for (List<Node> ring : stitchWaysToRings(outerWays)) {
             appendNodes(path, ring);
         }
 
@@ -119,9 +114,12 @@ public class RelationRenderer implements Drawable {
 
                 for (Iterator<Way> it = remaining.iterator(); it.hasNext(); ) {
                     List<Node> nodes = it.next().getNodes();
-                    if (nodes == null || nodes.isEmpty()) { it.remove(); continue; }
+                    if (nodes == null || nodes.isEmpty()) {
+                        it.remove();
+                        continue;
+                    }
 
-                    Node candidateStart =  nodes.get(0);
+                    Node candidateStart = nodes.get(0);
                     Node candidateEnd = nodes.get(nodes.size() - 1);
 
                     boolean matchStart = candidateStart.getId() == last.getId()
@@ -131,12 +129,16 @@ public class RelationRenderer implements Drawable {
 
                     if (matchStart) {
                         nodes.subList(1, nodes.size()).forEach(ring::addLast);
-                        it.remove(); progress = true; break;
+                        it.remove();
+                        progress = true;
+                        break;
                     } else if (matchEnd) {
                         List<Node> reversed = new ArrayList<>(nodes);
                         Collections.reverse(reversed);
                         reversed.subList(1, reversed.size()).forEach(ring::addLast);
-                        it.remove(); progress = true; break;
+                        it.remove();
+                        progress = true;
+                        break;
                     }
                 }
             }
@@ -144,7 +146,8 @@ public class RelationRenderer implements Drawable {
         }
         return rings;
     }
-    private double distance(Node a,  Node b) {
+
+    private double distance(Node a, Node b) {
         double dLat = a.getLat() - b.getLat();
         double dLon = a.getLon() - b.getLon();
         return Math.sqrt(dLat * dLat + dLon * dLon);

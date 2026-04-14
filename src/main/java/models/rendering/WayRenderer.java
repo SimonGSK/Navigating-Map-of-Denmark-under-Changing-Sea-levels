@@ -1,28 +1,27 @@
 package models.rendering;
+
 import Interfaces.Drawable;
 import models.osm.Node;
 import models.osm.Way;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.geom.Path2D;
-import java.util.Collections;
 import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class WayRenderer implements Drawable {
     private static final double MAX_WAY_SPAN = 0.7;
     private static final double MAX_SEGMENT_LENGTH = 0.25;
-
-    private final Collection<Way> ways;
     private final double cosMeanLat;
+    private Collection<Way> ways;
 
     public WayRenderer(Collection<Way> ways, double meanLat) {
         this.ways = ways;
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
+    }
+
+    public void setWays(Collection<Way> ways) {
+        this.ways = ways;
     }
 
     private Path2D buildPath(List<Node> nodes, boolean closePath) {
@@ -52,7 +51,7 @@ public class WayRenderer implements Drawable {
         int drawnWays = 0;
         int totalWays = 0;
 
-        for(Way way : ways){
+        for (Way way : ways) {
             totalWays++;
 
             Color c = way.getColor();
@@ -68,10 +67,10 @@ public class WayRenderer implements Drawable {
 
             drawnWays++;
 
-            if (!isClosed){
+            if (!isClosed) {
                 gc.setStroke(new BasicStroke(0.0001f));
                 gc.draw(path);
-            } else{
+            } else {
                 gc.setStroke(new BasicStroke(0));
                 gc.fill(path);
             }
