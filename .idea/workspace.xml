@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c849cea3-a170-4673-a879-f2a326deb021" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/RTree/Tree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/models/RTree/Tree.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/RTree/TreeNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/models/RTree/TreeNode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/geometry/BoundingBox.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/models/geometry/BoundingBox.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/parser/Parser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/models/parser/Parser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/rendering/RelationRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/models/rendering/RelationRenderer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/rendering/WayRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/models/rendering/WayRenderer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/models/ui/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/models/ui/App.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,7 +114,7 @@
       <workItem from="1775557768828" duration="303000" />
       <workItem from="1775558461846" duration="6338000" />
       <workItem from="1775822539060" duration="4368000" />
-      <workItem from="1776150693594" duration="1423000" />
+      <workItem from="1776150693594" duration="1793000" />
     </task>
     <task id="LOCAL-00001" summary="Refactor Element class to take list of Nodes as input and introduce MBR class for bounding box calculations">
       <option name="closed" value="true" />
