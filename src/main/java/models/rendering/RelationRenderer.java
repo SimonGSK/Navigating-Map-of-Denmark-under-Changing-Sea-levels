@@ -41,7 +41,7 @@ public class RelationRenderer implements Drawable {
     // Bruger WIND_EVEN_ODD som fill-regel, hvilket automatisk gør at
     // overlappende inner-ringe bliver til huller i stedet for fyldte områder.
     private void drawMultiPolygon(Graphics2D gc, Relation relation) {
-        var tags = relation.getTags();
+        var tags = relation.getTags(); // Todo: Don't use var -> use the returned data type for easier understanding
         if (tags == null || tags.isEmpty()) return;
 
         List<Way> outerWays = new ArrayList<>();
@@ -78,7 +78,7 @@ public class RelationRenderer implements Drawable {
     // at længdegrader er tættere på hinanden jo længere fra ækvator man er, og invertere latitude fordi skærm-y-aksen peger nedad.
     private void appendNodes(Path2D path, List<Node> nodes) {
         if (nodes == null || nodes.isEmpty()) return;
-        boolean first = true;
+        boolean first = true; // TODO: Use "is"-naming convention for boolean flags: first -> isFirst
         for (Node node : nodes) {
             if (node == null) continue;
             double x = node.getLon() * cosMeanLat;
@@ -154,7 +154,7 @@ public class RelationRenderer implements Drawable {
     }
 }
 
-
+// TODO: Remove unused code snippets
   /*
             for (Iterator<Way> it = remaining.iterator(); it.hasNext();) {
 

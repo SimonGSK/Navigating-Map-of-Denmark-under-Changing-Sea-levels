@@ -13,7 +13,7 @@ public class WayRenderer implements Drawable {
     private static final double MAX_WAY_SPAN = 0.7;
     private static final double MAX_SEGMENT_LENGTH = 0.25;
     private final double cosMeanLat;
-    private Collection<Way> ways;
+    private Collection<Way> ways; // TODO: Why do we use Collection<Way> and not List<Way>? Collection could be a Set, List, Map, etc.
 
     public WayRenderer(Collection<Way> ways, double meanLat) {
         this.ways = ways;
@@ -28,7 +28,7 @@ public class WayRenderer implements Drawable {
 
         Path2D path = new Path2D.Double();
 
-        boolean first = true;
+        boolean first = true; // TODO: Use "is"-naming convention for boolean flags: first -> isFirst
         for (Node node : nodes) {
             if (node == null) continue;
             double x = node.getLon() * cosMeanLat;
