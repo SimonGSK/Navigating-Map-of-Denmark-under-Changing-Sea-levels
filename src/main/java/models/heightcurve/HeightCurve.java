@@ -58,29 +58,6 @@ public class HeightCurve {
         if (altitude < 130) return Color.decode("#78503a"); // brown
         return Color.decode("#5c3d2a"); // dark brown (160m+)
 
-
-
-        /*
-        Color c = new Color(227, 28, 197, 128);
-
-        double altitude = height - seaLevel;
-        if(altitude < 0 && submerged){
-            c = Color.decode("#2b8cbe");
-        } else if (altitude < 0 && !submerged){
-            c = Color.decode("#ffffcc");
-        } else if (altitude >= 0 && altitude < 2.5){
-            c = Color.decode("#c2e699");
-        } else if (altitude >= 2.5 && altitude < 5){
-            c = Color.decode("#78c679");
-        } else if (altitude >= 5 && altitude < 7.5){
-            c = Color.decode("#31a354");
-        }  else if (altitude >= 7.5){
-            c = Color.decode("#006837");
-        }
-
-        return c;
-
-         */
     }
 
     public void resetSubmerged() {
