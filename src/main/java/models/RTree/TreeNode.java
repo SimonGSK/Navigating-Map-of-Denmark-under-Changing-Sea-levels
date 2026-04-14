@@ -2,10 +2,11 @@ package models.RTree;
 
 import models.geometry.SpatialElement;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TreeNode extends SpatialElement {
-    public List<TreeEntry> entries;
+    public List<TreeEntry> entries = new ArrayList<>();
     private boolean isLeaf = false;
 
     public TreeNode() {

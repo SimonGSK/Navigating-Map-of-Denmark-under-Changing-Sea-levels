@@ -19,7 +19,6 @@ import java.util.List;
 import static models.geometry.BoundingBox.computeMbr;
 
 public class Parser implements IParser {
-
     private final String fileName;
     private final HashMap<Long, Node> nodeMap = new HashMap<>();
     private final HashMap<Long, Way> wayMap = new HashMap<>();

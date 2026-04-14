@@ -31,7 +31,7 @@ public record BoundingBox(double minLat, double minLon, double maxLat, double ma
 
     public double areaIncreaseNeeded(BoundingBox mbr) {
         if (mbr.isInside(this)) {
-            return 1;
+            return 0;
         }
 
         BoundingBox container = getExpanded(mbr);
@@ -51,8 +51,8 @@ public record BoundingBox(double minLat, double minLon, double maxLat, double ma
         return new BoundingBox(
                 Math.min(this.minLat, mbr.minLat),
                 Math.min(this.minLon, mbr.minLon),
-                Math.min(this.maxLat, mbr.maxLat),
-                Math.min(this.maxLon, mbr.maxLon)
+                Math.max(this.maxLat, mbr.maxLat),
+                Math.max(this.maxLon, mbr.maxLon)
         );
     }
 }
