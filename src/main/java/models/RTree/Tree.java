@@ -4,22 +4,25 @@ import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.osm.Element;
 import models.osm.Node;
+import models.osm.Relation;
+import models.osm.Way;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.swing.*;
+import java.util.*;
 
 public class Tree {
     private TreeNode root;
-    private int min = 1;
-    private int max = 4;
+    private int min = 1; // Must be >= 1
+    private int max = 30; // Must be
     private BoundingBox mbr;
+    private DataMap dataMap;
 
-    public Tree(int min, int max) {
-        if (min > Math.floorDiv(max, 2)) {
-            throw new RuntimeException("min must be <= max / 2");
+    public Tree(BoundingBox mbr, Map<Long,Node> nodeMap, Map<Long, Way> wayMap, Map<Long, Relation> relationMap) {
+        if (nodeMap == null || wayMap == null || relationMap == null) {
+            throw new RuntimeException("nodeWay, wayMap, and relationMap must not be null");
         }
-        this.min = min;
-        this.max = max;
+        this.mbr = mbr;
+        this.dataMap = new DataMap(nodeMap, wayMap, relationMap);
     }
 
     public void updateTreeNodeMbr(TreeNode node) {
@@ -30,30 +33,42 @@ public class Tree {
     }
 
     public BoundingBox getMbr() {
-        if (mbr == null) {
-            mbr = computeMBR(root.entries);
-        }
         return mbr;
     }
 
-    public void setMbr(BoundingBox mbr) {
-        this.mbr = mbr;
-    }
-
-    public List<Element> search(BoundingBox searchArea) {
-        List<Element> results = new ArrayList<>();
+    public SearchResults search(BoundingBox searchArea) {
+        EnumMap<ElementType, Set<Long>> keySearch = new EnumMap<>(ElementType.class);
         if (root != null) {
-            searchRecursive(root, searchArea, results);
+            searchRecursive(root, searchArea, keySearch);
         }
-        return results;
+        return materialize(keySearch);
     }
 
-    private void searchRecursive(TreeNode node, BoundingBox searchArea, List<Element> results) {
+    private SearchResults materialize(EnumMap<ElementType, Set<Long>> keyMap) {
+        SearchResults searchResults = new SearchResults();
+        for (ElementType type : ElementType.values()) {
+            for (Long key : keyMap.get(type)) {
+                switch (type) {
+                    case ElementType.node -> searchResults.add(type, dataMap.nodes().get(key));
+                    case ElementType.way -> searchResults.add(type, dataMap.ways().get(key));
+                    case ElementType.relation -> searchResults.add(type, dataMap.relations().get(key));
+                }
+            }
+        }
+        searchResults.sort();
+        return searchResults;
+    }
+
+    private void searchRecursive(TreeNode node, BoundingBox searchArea, EnumMap<ElementType, Set<Long>> searchResults) {
         for (TreeEntry entry : node.entries) {
             if (entry.overlaps(searchArea)) {
                 switch (entry) {
-                    case LeafEntry leaf -> results.add(leaf.data());
-                    case NodeEntry nonLeaf -> searchRecursive(nonLeaf.child(), searchArea, results);
+                    case LeafEntry leaf -> {
+                        Long key = leaf.entryKey().key();
+                        ElementType type = leaf.entryKey().type();
+                        searchResults.get(type).add(key);
+                    }
+                    case NodeEntry nonLeaf -> searchRecursive(nonLeaf.child(), searchArea, searchResults);
                 }
             }
         }
