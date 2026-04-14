@@ -12,13 +12,13 @@ import java.util.*;
 
 public class Tree {
     private TreeNode root;
-    private int min = 1; // Must be >= 1
-    private int max = 30; // Must be
+    private final int min = 1; // Must be >= 1
+    private final int max = 30; // Must be
     private BoundingBox mbr;
     private DataMap dataMap;
 
     public Tree(BoundingBox mbr, Map<Long,Node> nodeMap, Map<Long, Way> wayMap, Map<Long, Relation> relationMap) {
-        if (nodeMap == null || wayMap == null || relationMap == null) {
+        if (mbr == null || nodeMap == null || wayMap == null || relationMap == null) {
             throw new RuntimeException("nodeWay, wayMap, and relationMap must not be null");
         }
         this.mbr = mbr;
