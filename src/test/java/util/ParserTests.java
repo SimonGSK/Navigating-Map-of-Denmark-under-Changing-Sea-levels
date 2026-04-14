@@ -43,4 +43,24 @@ public class ParserTests {
 
         }
     }
+    @BeforeEach
+    public void setUp() {
+    }
+
+    @ParameterizedTest
+    @MethodSource(providerKey)
+    @Order(1)
+    void ParserCreatesNodes (ParserResults pr) {
+       try {
+           IParser expectedParser = pr.getExpectedParser();
+           IParser actualParser = pr.getActualParser();
+
+           HashMap<Long, Node> expectedNodes = expectedParser.getOsmNodeMap();
+           HashMap<Long, Node> actualNodes = actualParser.getOsmNodeMap();
+
+           assertEquals(expectedNodes.size(), actualNodes.size());
+       } catch (Exception e) {
+           fail(e.getMessage());
+       }
+    }
 }

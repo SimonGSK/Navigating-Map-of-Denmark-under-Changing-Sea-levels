@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import Interfaces.IParser;
+import models.geometry.BoundingBox;
 import models.osm.Member;
 import models.osm.Element;
 import models.osm.Node;
@@ -105,7 +106,7 @@ public class TestParser implements IParser {
                 String value = tag.path("@v").asText();
                 tagsInWay.put(key, value);
             }
-                wayMap.put(id, new Way(id, nodesInWay, tagsInWay));
+                wayMap.put(id, new Way(id, tagsInWay, nodesInWay));
         }
     }
 
@@ -145,7 +146,7 @@ public class TestParser implements IParser {
                         if (relationExists) {
                             element = relationMap.get(ref);
                         } else {
-                            Relation relation1 = new Relation(ref, List.of(), new HashMap());
+                            Relation relation1 = new Relation(ref,new HashMap(), List.of());
                             relationMap.put(ref, relation1);
                             element = relation1;
                         }
@@ -170,14 +171,14 @@ public class TestParser implements IParser {
                 relation1.setMembers(members);
                 relation1.setTags(tagsInRelation);
             } else {
-                relationMap.put(id, new Relation(id, members, tagsInRelation));
+                relationMap.put(id, new Relation(id, tagsInRelation, members));
             }
         }
     }
 
     @Override
-    public List<Double> getBoundingBox() {
-        return boundingBox;
+    public BoundingBox getBoundingBox() {
+        return new BoundingBox(boundingBox.get(0), boundingBox.get(1), boundingBox.get(2), boundingBox.get(3));
     }
     @Override
     public HashMap<Long, Node> getOsmNodeMap() {
