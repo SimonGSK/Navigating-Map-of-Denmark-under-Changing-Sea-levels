@@ -1,7 +1,9 @@
 package models.RTree;
 
 import models.geometry.BoundingBox;
+import models.geometry.Coordinate;
 import models.osm.Element;
+import models.osm.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +57,31 @@ public class Tree {
                 }
             }
         }
+    }
+
+    public Node getNearestNode(Coordinate cursor) {
+        float searchRadius = 1; // 1 lat/lon
+        BoundingBox searchArea = new BoundingBox(cursor.getLat() - 1, cursor.getLon() - 1, cursor.getLat() + 1, cursor.getLon() + 1);
+        
+        List<Element> searchResults = search(searchArea).stream()
+                .filter(e -> e instanceof Node)
+                .toList();
+        
+        Node nearestNode = null;
+        double nearestDist = Double.POSITIVE_INFINITY;
+        
+        for (Element e : searchResults) {
+            if (e instanceof Node node) {
+                double euclideanDist = Math.sqrt(Math.pow(nearestNode.getLat() - cursor.getLat(),2) + Math.pow(nearestNode.getLon() - cursor.getLon(),2));
+
+                if (nearestNode == null || euclideanDist < nearestDist) {
+                    nearestNode = node;
+                    nearestDist = euclideanDist;
+                }
+            }
+        }
+
+        return nearestNode;
     }
 
     public void insert(Element element) {

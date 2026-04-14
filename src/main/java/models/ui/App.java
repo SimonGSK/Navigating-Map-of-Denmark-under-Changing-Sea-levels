@@ -11,7 +11,9 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import models.RTree.Tree;
 import models.geometry.BoundingBox;
+import models.geometry.Coordinate;
 import models.geometry.SuperAffine;
+import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
 import models.parser.MapData;
@@ -20,6 +22,7 @@ import models.rendering.RelationRenderer;
 import models.rendering.WayRenderer;
 
 import java.awt.*;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.nio.IntBuffer;
@@ -59,6 +62,11 @@ public class App extends DrawingApp {
     private RelationRenderer relationRenderer;
     private WayRenderer wayRenderer;
     private double meanLat;
+
+    private double prevMouseX;
+    private double prevMouseY;
+
+    Path2D nearestNeighborPath;
 
 
     //private final ImageView imageView = new ImageView();
@@ -206,6 +214,9 @@ public class App extends DrawingApp {
     }
 
     private void draw() {
+        System.out.println("getTranslateY(): " + superAffine.getTranslateY());
+        System.out.println("getTranslateX(): " + superAffine.getTranslateX());
+
         BoundingBox viewport = getViewportBox();
 
         double scaleX = superAffine.getScaleX(); // Simple LOD, setup
@@ -255,6 +266,24 @@ public class App extends DrawingApp {
     private void handleMousePressed(MouseEvent event) {
         this.screenX = event.getX();
         this.screenY = event.getY();
+
+        if (Math.abs(this.screenX - event.getX()) < 10 && Math.abs(this.screenY - event.getY()) < 10) {
+            Coordinate c = pixelToCoordinate(event.getX(),event.getY());
+            Node n = relationTree.getNearestNode(c);
+            if (n != null) {
+                System.out.println("nearestNode: lat = " + n.getLat() + ", lon = " + n.getLon() + ", dist = " + Math.round(Math.sqrt(Math.pow(c.getLat() - n.getLat(),2) * Math.pow(c.getLon() - n.getLon(),2))));
+            }
+        }
+    }
+
+    private Coordinate pixelToCoordinate(double screenX, double screenY) {
+        Point2D world = superAffine.inverseTransform(screenX, screenY);
+
+        double cosMeanLat = Math.cos(Math.toRadians(meanLat));
+        double lon = world.getX() / cosMeanLat;
+        double lat = -world.getY();
+
+        return new Coordinate(lat,lon);
     }
 
     private void handleMouseDragged(MouseEvent event) {
