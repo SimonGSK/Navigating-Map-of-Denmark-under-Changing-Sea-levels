@@ -7,7 +7,7 @@ public class GraphBuilder {
         return edge;
     }
 
-    public Edge[] connect(Node from, Node to) {
+    public Edge[] connectTwoWay(Node from, Node to) {
         Edge forward = connectOneWay(from, to);
         Edge backward = connectOneWay(to, from);
         return new Edge[]{forward, backward};

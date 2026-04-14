@@ -25,11 +25,11 @@ public class TestDijkstra {
         e = new Node(5, 55.0003, 15.0000); // ~11m north of D
 
         GraphBuilder graphBuilder = new GraphBuilder();
-        graphBuilder.connect(a, b);
-        graphBuilder.connect(b, d);
-        graphBuilder.connect(a, c);
-        graphBuilder.connect(c, e);
-        graphBuilder.connect(d, e);
+        graphBuilder.connectTwoWay(a, b);
+        graphBuilder.connectTwoWay(b, d);
+        graphBuilder.connectTwoWay(a, c);
+        graphBuilder.connectTwoWay(c, e);
+        graphBuilder.connectTwoWay(d, e);
 
         allNodes = Set.of(a, b, c, d, e);
         dijkstra = new Dijkstra();
