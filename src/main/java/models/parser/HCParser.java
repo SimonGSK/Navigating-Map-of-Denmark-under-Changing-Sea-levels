@@ -25,7 +25,7 @@ public class HCParser {
         List<HeightCurve> allCurves = new ArrayList<>();
 
         try {
-            InputStream is = HCParser.class.getResourceAsStream("/data/" + fileName);
+            InputStream is = HCParser.class.getResourceAsStream("/data/bornholm/" + fileName);
             if (is == null) {
                 throw new IllegalArgumentException("Resource not found: " + fileName);
             }

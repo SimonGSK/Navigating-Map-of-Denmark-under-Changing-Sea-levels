@@ -1,7 +1,11 @@
 package models.parser;
 
 import Interfaces.IParser;
-import models.osm.*;
+import models.geometry.BoundingBox;
+import models.osm.Member;
+import models.osm.Node;
+import models.osm.Relation;
+import models.osm.Way;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,20 +16,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Parser implements IParser {
+import static models.geometry.BoundingBox.computeMbr;
 
+public class Parser implements IParser {
     private final String fileName;
-    private final List<Double> boundingBox = new ArrayList<>();
     private final HashMap<Long, Node> nodeMap = new HashMap<>();
     private final HashMap<Long, Way> wayMap = new HashMap<>();
     private final HashMap<Long, Relation> relationMap = new HashMap<>();
+    private BoundingBox mbr;
 
     public Parser(String filename) {
         this.fileName = filename;
     }
 
     @Override
-    public void parse(){
+    public void parse() {
         try {
             InputStream is = Parser.class.getResourceAsStream("/data/" + fileName);
             if (is == null) {
@@ -35,118 +40,119 @@ public class Parser implements IParser {
 
             String line;
 
-            while ((line = br.readLine()) != null){
-                if(line.contains("<bounds")) {
-                    double minlat = getAttributeDouble(line, "minlat");
-                    double minlon = getAttributeDouble(line, "minlon");
-                    double maxlat = getAttributeDouble(line, "maxlat");
-                    double maxlon = getAttributeDouble(line, "maxlon");
-                    boundingBox.add(minlon);
-                    boundingBox.add(minlat);
-                    boundingBox.add(maxlon);
-                    boundingBox.add(maxlat);
-
+            while ((line = br.readLine()) != null) {
+                if (line.contains("<bounds")) {
+                    mbr = extractBounds(line);
                 } else if (line.contains("<node") && !line.contains("</node")) {
-                    double lat = getAttributeDouble(line, "lat");
-                    double lon = getAttributeDouble(line, "lon");
-                    long id = getAttributeLong(line, "id");
-                    Node node = new Node (id, lat, lon);
-                    nodeMap.put(id, node);
-
+                    Node node = extractNode(line);
+                    nodeMap.put(node.getId(), node);
                 } else if (line.contains("<way")) {
-                    List<Node> nodes = new ArrayList<>();
-                    HashMap<String, String> tags = new HashMap<>();
-
-                    long wayID = getAttributeLong(line, "id");
-
-                    while(!line.contains("</way>")){
-                        line = br.readLine().trim();
-                        if(line.contains("<nd")){
-                            long ndID = getAttributeLong(line, "ref");
-                            nodes.add(getOsmNodeMap().get(ndID));
-                        }
-                        if(line.contains("<tag")){
-                            String k = getAttribute(line, "k");
-                            String v = getAttribute(line, "v");
-                            tags.put(k, v);
-                        }
-                    }
-                    Way way = new Way(wayID, nodes, tags);
-                    wayMap.put(wayID, way);
-
+                    Way way = extractWay(line, br);
+                    wayMap.put(way.getId(), way);
                 } else if (line.contains("<relation ") || line.contains("<relation>")) {
-                    List<Member> members = new ArrayList<>();
-                    HashMap<String, String> tags = new HashMap<>();
-
-                    long relationID = getAttributeLong(line, "id");
-
-                    while (!line.contains("</relation>")) {
-                        line = br.readLine().trim();
-
-                        if (line.contains("<member")) {
-                            String type = getAttribute(line, "type");
-                            Long ref = getAttributeLong(line, "ref");
-                            String role = getAttribute(line, "role");
-
-                            if (type.equals("node")) {
-                                if(nodeMap.containsKey(ref)){
-                                    Member member = new Member(nodeMap.get(ref), role);
-                                    members.add(member);
-                                }
-                            } else if (type.equals("way")) {
-                                if(wayMap.containsKey(ref)){
-                                    Member member = new Member(wayMap.get(ref), role);
-                                    members.add(member);
-                                }
-                            } else if (type.equals("relation")) {
-
-                                if (!relationMap.containsKey(ref)) {
-                                    List<Member> newMembers = new ArrayList<>();
-                                    HashMap<String, String> newTags = new HashMap<>();
-                                    Relation newRelation = new Relation(ref, newMembers, newTags);
-                                    relationMap.put(ref, newRelation);
-                                }
-                                Member member = new Member(relationMap.get(ref), role);
-                                members.add(member);
-                            }
-                        } else if (line.contains("<tag")) {
-                            String k = getAttribute(line, "k");
-                            String v = getAttribute(line, "v");
-                            tags.put(k, v);
-                        }
-                    }
-                    if (relationMap.containsKey(relationID)){
-                        Relation existing = relationMap.get(relationID);
-                        existing.setMembers(members);
-                        existing.setTags(tags);
-                    } else {
-                        Relation relation = new Relation(relationID, members, tags);
-                        relationMap.put(relationID, relation);
-                    }
+                    extractRelation(line, br);
                 }
             }
 
-            if(boundingBox.isEmpty()){
-                double minlon = Double.MAX_VALUE;
-                double minlat = Double.MAX_VALUE;
-                double maxlon = Double.MIN_VALUE;
-                double maxlat = Double.MIN_VALUE;
-
-                for(Node node : nodeMap.values()){
-                    if(node.getLat() < minlat){minlat = node.getLat();}
-                    if(node.getLat() > maxlat){maxlat = node.getLat();}
-                    if(node.getLon() < minlon){minlon = node.getLon();}
-                    if(node.getLon() > maxlon){maxlon = node.getLon();}
-                }
-                boundingBox.add(minlon);
-                boundingBox.add(minlat);
-                boundingBox.add(maxlon);
-                boundingBox.add(maxlat);
+            if (mbr == null) {
+                mbr = computeMbr(nodeMap.values().stream().toList());
             }
 
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    private void extractRelation(String line, BufferedReader br) throws IOException {
+        List<Member> members = new ArrayList<>();
+        HashMap<String, String> tags = new HashMap<>();
+        long relationID = getAttributeLong(line, "id");
+
+        while (!line.contains("</relation>")) {
+            line = br.readLine().trim();
+
+            if (line.contains("<member")) {
+                String type = getAttribute(line, "type");
+                Long ref = getAttributeLong(line, "ref");
+                String role = getAttribute(line, "role");
+
+                switch (type) {
+                    case "node" -> {
+                        if (nodeMap.containsKey(ref)) {
+                            Member member = new Member(nodeMap.get(ref), role);
+                            members.add(member);
+                        }
+                    }
+                    case "way" -> {
+                        if (wayMap.containsKey(ref)) {
+                            Member member = new Member(wayMap.get(ref), role);
+                            members.add(member);
+                        }
+                    }
+                    case "relation" -> {
+                        if (!relationMap.containsKey(ref)) {
+                            List<Member> newMembers = new ArrayList<>();
+                            HashMap<String, String> newTags = new HashMap<>();
+                            Relation newRelation = new Relation(ref, newTags, newMembers);
+                            relationMap.put(ref, newRelation);
+                        }
+                        Member member = new Member(relationMap.get(ref), role);
+                        members.add(member);
+                    }
+                }
+            } else if (line.contains("<tag")) {
+                String k = getAttribute(line, "k");
+                String v = getAttribute(line, "v");
+                tags.put(k, v);
+            }
+        }
+
+        if (relationMap.containsKey(relationID)) {
+            Relation existing = relationMap.get(relationID);
+            existing.setMembers(members);
+            existing.setTags(tags);
+            return;
+        }
+        Relation relation = new Relation(relationID, tags, members);
+        relationMap.put(relationID, relation);
+    }
+
+    private Way extractWay(String line, BufferedReader br) throws IOException {
+        List<Node> nodes = new ArrayList<>();
+        HashMap<String, String> tags = new HashMap<>();
+
+        long wayID = getAttributeLong(line, "id");
+
+        while (!line.contains("</way>")) {
+            line = br.readLine().trim();
+            if (line.contains("<nd")) {
+                long ndID = getAttributeLong(line, "ref");
+                nodes.add(getOsmNodeMap().get(ndID));
+            }
+            if (line.contains("<tag")) {
+                String k = getAttribute(line, "k");
+                String v = getAttribute(line, "v");
+                tags.put(k, v);
+            }
+        }
+
+        return new Way(wayID, tags, nodes);
+    }
+
+    private Node extractNode(String line) {
+        double lat = getAttributeDouble(line, "lat");
+        double lon = getAttributeDouble(line, "lon");
+        long id = getAttributeLong(line, "id");
+        return new Node(id, lat, lon); // TODO: Parse tags for Node and add as input
+    }
+
+    private BoundingBox extractBounds(String line) {
+        double minLat = getAttributeDouble(line, "minlat");
+        double minLon = getAttributeDouble(line, "minlon");
+        double maxLat = getAttributeDouble(line, "maxlat");
+        double maxLon = getAttributeDouble(line, "maxlon");
+
+        return new BoundingBox(minLat, minLon, maxLat, maxLon);
     }
 
     public String getAttribute(String s, String key) {
@@ -178,8 +184,8 @@ public class Parser implements IParser {
 
     //DO NOT MODIFY BELOW GETTER METHODS
     @Override
-    public List<Double> getBoundingBox() {
-        return boundingBox;
+    public BoundingBox getBoundingBox() {
+        return mbr;
     }
 
     @Override

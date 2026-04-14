@@ -1,10 +1,11 @@
 package models.parser;
 
-import java.util.*;
-import models.osm.Way;
-import models.osm.Relation;
 import models.osm.Member;
 import models.osm.Node;
+import models.osm.Relation;
+import models.osm.Way;
+
+import java.util.*;
 
 public class MapData {
     public final List<Way> standaloneWays;
@@ -31,7 +32,7 @@ public class MapData {
 
         // Sorterer relations fra størst til mindst
         multiPolygons = polys.stream()
-                .sorted(Comparator.comparingDouble(r -> -estimateArea(r)))
+                .sorted(Comparator.comparingDouble(r -> -r.getArea()))
                 .toList();
 
         // Sorterer ways fra størst til mindst
@@ -47,6 +48,8 @@ public class MapData {
     private double estimateArea(Relation r) {
         double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
         double minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
+
+        // TODO: Use Relation.getMbr() instead
 
         for (Member m : r.getMembers()) {
             if (!(m.getElement() instanceof Way w)) continue;
