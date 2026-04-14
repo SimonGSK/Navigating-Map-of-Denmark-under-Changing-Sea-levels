@@ -2,6 +2,7 @@ package models.ui;
 
 import Interfaces.Drawable;
 import javafx.scene.Scene;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
@@ -16,11 +17,14 @@ import models.RTree.Tree;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.geometry.SuperAffine;
+import models.heightcurve.HeightCurveData;
 import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
 import models.parser.MapData;
 import models.parser.Parser;
+import models.parser.HCParser;
+import models.rendering.HeightCurveRenderer;
 import models.rendering.RelationRenderer;
 import models.rendering.WayRenderer;
 
@@ -75,7 +79,7 @@ public class App extends DrawingApp {
     Path2D nearestNeighborPath;
 
 
-    private final ImageView imageView = new ImageView();
+    //private final ImageView imageView = new ImageView();
 
     @Override
     public void start(Stage stage) {
@@ -89,8 +93,8 @@ public class App extends DrawingApp {
         stage.setHeight(getHEIGHT());
 
         HCParser hcParser = new HCParser("bornholm.hc");
-        HeightCurveData hcData = hcParser.parse();
-        HeightCurveRenderer hcRender = new HeightCurveRenderer(hcData);
+        //HeightCurveData hcData = hcParser.parse();
+        //HeightCurveRenderer hcRender = new HeightCurveRenderer(hcData, meanLat);
 
         Parser parser = new Parser("Bornholm.osm");
         parser.parse();
@@ -290,7 +294,7 @@ public class App extends DrawingApp {
                 .prependScale(scale, scale)
                 .prependTranslation(offsetX, offsetY);
     }
-
+    /*
     private static Shape project(Shape s, HeightCurveData d) {
         double p = 20, c = Math.cos(Math.toRadians((d.minLat + d.maxLat) / 2));
         double w = (d.maxLon - d.minLon) * c, h = d.maxLat - d.minLat;
@@ -302,6 +306,6 @@ public class App extends DrawingApp {
         t.translate(-d.minLon, -d.minLat);
         return t.createTransformedShape(s);
     }
-
+    */
 
 }
