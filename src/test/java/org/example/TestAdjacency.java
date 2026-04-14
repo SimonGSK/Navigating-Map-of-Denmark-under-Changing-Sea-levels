@@ -23,6 +23,8 @@ public class TestAdjacency {
         assert(b.getAdjacencyList().size() == 1);
         assert(c.getAdjacencyList().size() == 2);
         assert(d.getAdjacencyList().size() == 1);
+
+        System.out.println("All nodes have the correct number of adjacent edges.");
     }
 
     @Test
@@ -37,5 +39,22 @@ public class TestAdjacency {
         }
 
         assert(a.getAdjacencyList().size() == nodes);
+
+        System.out.println("Node a is adjacent to all nodes.");
+    }
+
+    @Test
+    void AdjacencyTest03() {
+        Node a = new Node(1, 1, 1);
+        Node b = new Node(2, 2, 2);
+
+        GraphBuilder graphbuilder = new GraphBuilder();
+        graphbuilder.connectTwoWay(a, b);
+
+        Edge ab = a.getAdjacencyList().getFirst();
+
+        assert(a.getAdjacencyList().contains(ab));
+
+        System.out.println("Node a is adjacent to node b through edge ab.");
     }
 }

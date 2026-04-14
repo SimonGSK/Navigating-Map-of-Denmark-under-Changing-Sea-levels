@@ -12,7 +12,7 @@ import java.io.PrintStream;
 import java.util.Set;
 import java.util.function.IntToDoubleFunction;
 public class Benchmark {
-    public static void main(String[] args) { new 3Benchmark(); }
+    public static void main(String[] args) { new Benchmark(); }
 
     public Benchmark() {
         SystemInfo();
