@@ -71,6 +71,7 @@ public class App extends DrawingApp {
 
     private RelationRenderer relationRenderer;
     private WayRenderer wayRenderer;
+    private HeightCurveRenderer hcRenderer;
     private double meanLat;
 
     private double prevMouseX;
@@ -89,15 +90,15 @@ public class App extends DrawingApp {
         stage.setWidth(getWIDTH());
         stage.setHeight(getHEIGHT());
 
-        HCParser hcParser = new HCParser("bornholm.hc");
-        //HeightCurveData hcData = hcParser.parse();
-        //HeightCurveRenderer hcRenderer = new HeightCurveRenderer(hcData, meanLat);
-
         Parser parser = new Parser("Bornholm.osm");
         parser.parse();
 
         BoundingBox mbr = parser.getBoundingBox();
         meanLat = (mbr.maxLat() + mbr.minLat()) / 2.0; // (minLat + maxLat) / 2
+
+        HCParser hcParser = new HCParser("bornholm.hc");
+        HeightCurveData hcData = hcParser.parse();
+        hcRenderer = new HeightCurveRenderer(hcData, meanLat);
 
         MapData mapData = new MapData(parser.getOsmWayMap(), parser.getOsmRelationMap());
 
@@ -123,9 +124,9 @@ public class App extends DrawingApp {
         relationRenderer = new RelationRenderer(visibleRelations, meanLat);
         wayRenderer = new WayRenderer(visibleWays, meanLat);
 
-        //drawables.add(hcRenderer);
-        drawables.add(relationRenderer);             // 2. Relations/multipolygons - skove, søer osv.
-        drawables.add(wayRenderer);                  // 3. Ways - veje, bygninger
+        drawables.add(hcRenderer);                 // 1. Height curves - topografi
+        /// drawables.add(relationRenderer);             // 2. Relations/multipolygons - skove, søer osv.
+       //  drawables.add(wayRenderer);                  // 3. Ways - veje, bygninger
 
         long nonemptyWays = parser.getOsmWayMap().values().stream().filter(w -> w.getNodes() != null && !w.getNodes().isEmpty()).count();
         System.out.println("Non-empty ways in parser map=" + nonemptyWays);
