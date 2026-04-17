@@ -2,17 +2,22 @@ package models.ui;
 
 import Interfaces.Drawable;
 import javafx.scene.Scene;
+import javafx.scene.control.Slider;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
 import models.geometry.SuperAffine;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import models.RTree.Tree;
 import models.geometry.BoundingBox;
@@ -50,7 +55,6 @@ public class App extends DrawingApp {
     private static final int HEIGHT = 800;
     private static final Color WATER_COLOR = Color.decode("#2b8cbe");
     private final SuperAffine superAffine = new SuperAffine();
-    private final List<Drawable> drawables = new ArrayList<>();
     private final PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer<>(
             WIDTH, HEIGHT,
             IntBuffer.allocate(WIDTH * HEIGHT),
@@ -75,7 +79,7 @@ public class App extends DrawingApp {
     private HeightCurveRenderer hcRenderer;
     private HeightCurveData hcData;
     private double meanLat;
-
+    private boolean showHeightCurves = false;
 
     private double prevMouseX;
     private double prevMouseY;
@@ -91,7 +95,6 @@ public class App extends DrawingApp {
         }
         stage.setResizable(false);
         stage.setWidth(getWIDTH());
-        stage.setHeight(getHEIGHT());
 
         Parser parser = new Parser("Bornholm.osm");
         parser.parse();
@@ -99,8 +102,8 @@ public class App extends DrawingApp {
         BoundingBox mbr = parser.getBoundingBox();
         meanLat = (mbr.maxLat() + mbr.minLat()) / 2.0; // (minLat + maxLat) / 2
 
-        HCParser hcParser = new HCParser("bornholm.hc");
-        HeightCurveData hcData = hcParser.parse();
+        HCParser hcParser = new HCParser("bornholm/bornholm.hc");
+        hcData = hcParser.parse();
         hcRenderer = new HeightCurveRenderer(hcData, meanLat);
 
         MapData mapData = new MapData(parser.getOsmWayMap(), parser.getOsmRelationMap());
@@ -127,10 +130,6 @@ public class App extends DrawingApp {
         relationRenderer = new RelationRenderer(visibleRelations, meanLat);
         wayRenderer = new WayRenderer(visibleWays, meanLat);
 
-        drawables.add(hcRenderer);                 // 1. Height curves - topografi
-        //drawables.add(relationRenderer);             // 2. Relations/multipolygons - skove, søer osv.
-        //drawables.add(wayRenderer);                  // 3. Ways - veje, bygninger
-
         long nonemptyWays = parser.getOsmWayMap().values().stream().filter(w -> w.getNodes() != null && !w.getNodes().isEmpty()).count();
         System.out.println("Non-empty ways in parser map=" + nonemptyWays);
 
@@ -151,8 +150,38 @@ public class App extends DrawingApp {
         imageView.setFitHeight(getHEIGHT());
         imageView.setPreserveRatio(false);
 
-        StackPane root = new StackPane(this.imageView, mouseEventComponent);
-        stage.setScene(new Scene(root, getWIDTH(), getHEIGHT()));
+        Button toggleButton = new Button("Vis højdekort");
+        toggleButton.setOnAction(e -> {
+            showHeightCurves = !showHeightCurves;
+            toggleButton.setText(showHeightCurves ? "Vis OSM-kort" : "Vis højdekort");
+            drawAndRender();
+        });
+
+        Slider seaSlider = new Slider(0, 100, 0);
+        seaSlider.setShowTickLabels(true);
+        seaSlider.setMajorTickUnit(10);
+        seaSlider.setPrefWidth(300);
+
+        Label seaLabel = new Label("Havniveau: 0m");
+
+        seaSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            double level = newVal.doubleValue();
+            seaLabel.setText(String.format("Havniveau: %.1fm", level));
+            hcData.updateFlooding(level);
+            hcRenderer.setSeaLevel(level);
+            drawAndRender();
+        });
+
+        HBox controls = new HBox(10.0, toggleButton, seaLabel, seaSlider);
+        controls.setPadding(new Insets(8));
+        controls.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        BorderPane layout = new BorderPane();
+        layout.setCenter(new StackPane(this.imageView, mouseEventComponent));
+        layout.setBottom(controls);
+        controls.setStyle("-fx-background-color: white;");
+
+        stage.setScene(new Scene(layout, getWIDTH(), getHEIGHT() + 50));
         stage.show();
 
         System.out.println("Nodes: " + parser.getOsmNodeMap().size());
@@ -219,10 +248,11 @@ public class App extends DrawingApp {
         // Apply world transform for drawing map geometry.
         gc.setTransform(superAffine);
 
-        System.out.println("Drawing " + drawables.size() + " drawables with transform " + superAffine);
-
-        for (Drawable drawable : drawables) {
-            drawable.draws(gc);
+        if (showHeightCurves) {
+            hcRenderer.draws(gc);
+        } else {
+            relationRenderer.draws(gc);
+            wayRenderer.draws(gc);
         }
     }
 

@@ -13,10 +13,12 @@ import java.util.List;
 public class HeightCurveRenderer implements Drawable {
     private final HeightCurveData data;
     private final double cosMeanLat;
+    private double seaLevel;
 
     public HeightCurveRenderer(HeightCurveData data, double meanLat) {
         this.data = data;
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
+
     }
 
     @Override
@@ -37,7 +39,7 @@ public class HeightCurveRenderer implements Drawable {
                 } else path.lineTo(x, y);
             }
             path.closePath();
-            gc.setColor(curve.getFillColor(0.0));
+            gc.setColor(curve.getFillColor(seaLevel));
             gc.fill(path);
         }
     }
@@ -51,5 +53,8 @@ public class HeightCurveRenderer implements Drawable {
             if (coord.getLon() > maxLon) maxLon = coord.getLon();
         }
         return (maxLat - minLat) * (maxLon - minLon);
+    }
+    public void setSeaLevel(double level) {
+        this.seaLevel = level;
     }
 }
