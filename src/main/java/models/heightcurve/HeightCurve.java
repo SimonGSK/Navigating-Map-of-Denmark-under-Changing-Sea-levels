@@ -14,31 +14,32 @@ public class HeightCurve {
     private List<HeightCurve> children;
     private boolean submerged;
 
-    public Path2D getBoundaryPath() {
-
+    public Path2D getBoundaryPath(double cosMeanLat) {
         Path2D.Double p = new Path2D.Double();
 
         Coordinate coordinate1 = coords.getFirst();
-        double x1 = coordinate1.getLon();
-        double y1 = coordinate1.getLat();
+        double x1 = coordinate1.getLon() * cosMeanLat;
+        double y1 = -coordinate1.getLat();
         p.moveTo(x1, y1);
 
         for (int i = 1; i < coords.size(); i++) {
             Coordinate coordinate = coords.get(i);
-            double x = coordinate.getLon();
-            double y = coordinate.getLat();
+            double x = coordinate.getLon() * cosMeanLat;
+            double y = -coordinate.getLat();
             p.lineTo(x, y);
         }
 
+        p.closePath();
         return p;
     }
 
-    public Path2D getRegionPath() {
+    public Path2D getRegionPath(double cosMeanLat) {
         Path2D.Double p = new Path2D.Double(Path2D.WIND_EVEN_ODD);
 
-        p.append(getBoundaryPath(), false);
+        p.append(getBoundaryPath(cosMeanLat), false);
+
         for(HeightCurve child : children){
-            p.append(child.getBoundaryPath(), false);
+            p.append(child.getBoundaryPath(cosMeanLat), false);
         }
         return p;
     }

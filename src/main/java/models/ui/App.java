@@ -151,17 +151,17 @@ public class App extends DrawingApp {
         imageView.setFitHeight(getHEIGHT());
         imageView.setPreserveRatio(false);
 
-        Button toggleButton = new Button("Vis højdekort");
+        Button toggleButton = new Button("Show elevation map");
         toggleButton.setOnAction(e -> {
             showHeightCurves = !showHeightCurves;
-            toggleButton.setText(showHeightCurves ? "Vis OSM-kort" : "Vis højdekort");
+            toggleButton.setText(showHeightCurves ? "Show regular map" : "Show elevation map");
             drawAndRender();
         });
 
-        Button heightLinesButton = new Button("Vis højdekurver");
+        Button heightLinesButton = new Button("Show height curves");
         heightLinesButton.setOnAction(e -> {
             showHeightLines = !showHeightLines;
-            heightLinesButton.setText(showHeightLines ? "Skjul højdekurver" : "Vis højdekurver");
+            heightLinesButton.setText(showHeightLines ? "Hide height curves" : "Show height curves");
             drawAndRender();
         });
 
@@ -170,11 +170,11 @@ public class App extends DrawingApp {
         seaSlider.setMajorTickUnit(10);
         seaSlider.setPrefWidth(300);
 
-        Label seaLabel = new Label("Havniveau: 0m");
+        Label seaLabel = new Label("Sea level: 0m");
 
         seaSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             double level = newVal.doubleValue();
-            seaLabel.setText(String.format("Havniveau: %.1fm", level));
+            seaLabel.setText(String.format("Sea level: %.1fm", level));
             hcData.updateFlooding(level);
             hcRenderer.setSeaLevel(level);
             drawAndRender();
@@ -258,7 +258,7 @@ public class App extends DrawingApp {
 
 
         if (showHeightCurves) {
-            hcRenderer.draws(gc);
+            hcRenderer.draws2(gc);
         } else {
             relationRenderer.draws(gc);
             wayRenderer.draws(gc);

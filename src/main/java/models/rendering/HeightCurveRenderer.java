@@ -29,24 +29,17 @@ public class HeightCurveRenderer implements Drawable {
        sorted.sort((a, b) -> Double.compare(boundingArea(b), boundingArea(a)));
 
        for (HeightCurve curve: sorted) {
-            Path2D path = new Path2D.Double();
-            boolean first = true;
-            for (Coordinate coord: curve.getCoords()) {
-                double x = coord.getLon() * cosMeanLat;
-                double y = -coord.getLat();
-                if (first) {
-                    path.moveTo(x, y);
-                    first = false;
-                } else path.lineTo(x, y);
-            }
-            path.closePath();
-            if (toFill){
-                gc.setColor(curve.getFillColor(seaLevel));
-                gc.fill(path);
-            } else{
-                gc.setColor(Color.black);
-                gc.draw(path);
-            }
+           if (!curve.getChildren().isEmpty()) {
+               Path2D path = curve.getRegionPath(cosMeanLat);
+
+               if (toFill) {
+                   gc.setColor(curve.getFillColor(seaLevel));
+                   gc.fill(path);
+               } else {
+                   gc.setColor(Color.black);
+                   gc.draw(path);
+               }
+           }
        }
         this.toFill = true;
     }
@@ -71,6 +64,8 @@ public class HeightCurveRenderer implements Drawable {
         this.seaLevel = level;
     }
 
+    //Bruges kun til OSM-kortet så hver height curve fyldes helt og ikke tager højde for children
+    //Ser bedre ud
     public void draws2(Graphics2D gc) {
         List<HeightCurve> sorted = new ArrayList<>(data.curves);
         sorted.remove(data.sea);
