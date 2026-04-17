@@ -80,6 +80,7 @@ public class App extends DrawingApp {
     private HeightCurveData hcData;
     private double meanLat;
     private boolean showHeightCurves = false;
+    private boolean showHeightLines = false;
 
     private double prevMouseX;
     private double prevMouseY;
@@ -157,6 +158,13 @@ public class App extends DrawingApp {
             drawAndRender();
         });
 
+        Button heightLinesButton = new Button("Vis højdekurver");
+        heightLinesButton.setOnAction(e -> {
+            showHeightLines = !showHeightLines;
+            heightLinesButton.setText(showHeightLines ? "Skjul højdekurver" : "Vis højdekurver");
+            drawAndRender();
+        });
+
         Slider seaSlider = new Slider(0, 100, 0);
         seaSlider.setShowTickLabels(true);
         seaSlider.setMajorTickUnit(10);
@@ -172,7 +180,7 @@ public class App extends DrawingApp {
             drawAndRender();
         });
 
-        HBox controls = new HBox(10.0, toggleButton, seaLabel, seaSlider);
+        HBox controls = new HBox(10.0, toggleButton, heightLinesButton, seaLabel, seaSlider);
         controls.setPadding(new Insets(8));
         controls.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
@@ -248,11 +256,16 @@ public class App extends DrawingApp {
         // Apply world transform for drawing map geometry.
         gc.setTransform(superAffine);
 
+
         if (showHeightCurves) {
             hcRenderer.draws(gc);
         } else {
             relationRenderer.draws(gc);
             wayRenderer.draws(gc);
+
+            if(showHeightLines){
+                hcRenderer.draws(gc, false);
+            }
         }
     }
 

@@ -14,11 +14,12 @@ public class HeightCurveRenderer implements Drawable {
     private final HeightCurveData data;
     private final double cosMeanLat;
     private double seaLevel;
+    private boolean toFill;
 
     public HeightCurveRenderer(HeightCurveData data, double meanLat) {
         this.data = data;
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
-
+        toFill = true;
     }
 
     @Override
@@ -39,10 +40,22 @@ public class HeightCurveRenderer implements Drawable {
                 } else path.lineTo(x, y);
             }
             path.closePath();
-            gc.setColor(curve.getFillColor(seaLevel));
-            gc.fill(path);
-        }
+            if (toFill){
+                gc.setColor(curve.getFillColor(seaLevel));
+                gc.fill(path);
+            } else{
+                gc.setColor(Color.black);
+                gc.draw(path);
+            }
+       }
+        this.toFill = true;
     }
+
+    public void draws(Graphics2D gc, boolean toFill){
+        this.toFill = toFill;
+        draws(gc);
+    }
+
     private double boundingArea(HeightCurve hc) {
         double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
         double minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
