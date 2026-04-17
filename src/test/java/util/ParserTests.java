@@ -37,7 +37,7 @@ public class ParserTests {
 
     static {
         try {
-            parserResults.add(new ParserResults("bornholm.osm", "bornholm.json"));
+            parserResults.add(new ParserResults("bornholm.osm", "Bornholm.json"));
         } catch (Exception e) {
             throw new  ExceptionInInitializerError("An exception occured while creating parser");
 
@@ -195,7 +195,7 @@ public class ParserTests {
 
                 for(String tag:  expectedTags.keySet()) {
                     assertTrue(actualTags.containsKey(tag), () -> String.format("[ERROR - %s] : Tag key '%s' not present on Way #%d", pr.getName(), tag, way.getId()));
-                    assertEquals(expectedTags.get(tag), actualTags.get(tag), () -> String.format("[ERROR - %s] : On Way #%d, tag key '%s' has value '%s', should be '%s', pr.getName(), way.getId(), tag, actualTags.get(tag), expectedTags.get(tag))"));
+                    assertEquals(expectedTags.get(tag), actualTags.get(tag), () -> String.format("[ERROR - %s] : On Way #%d, tag key '%s' has value '%s', should be '%s'", pr.getName(), way.getId(), tag, actualTags.get(tag), expectedTags.get(tag)));
                 }
             }
          } catch(Exception e) {
@@ -235,7 +235,7 @@ public class ParserTests {
                 assertTrue(actualRelations.containsKey(expected.getId()), () -> String.format("[ERROR - %s] : Relation #%d was missing in OsmRelationMap", pr.getName(), expected.getId()));
 
                 Relation actual = actualRelations.get(expected.getId());
-                assertEquals(expected.getId(), actual.getId(), () -> String.format("[ERROR - %  s] : ID mismatch between key-value pair in OsmRelationMap. Key %d mapped to object with id %d", pr.getName(), expected.getId(), actual.getId()));
+                assertEquals(expected.getId(), actual.getId(), () -> String.format("[ERROR - %s] : ID mismatch between key-value pair in OsmRelationMap. Key %d mapped to object with id %d", pr.getName(), expected.getId(), actual.getId()));
             }
         } catch  (Exception e) {
             fail(e.getMessage());
@@ -296,7 +296,7 @@ public class ParserTests {
                     assertTrue(actualMembers.stream().anyMatch(m -> m.getElement().getId() == memberElement.getId() && m.getElement().getClass().equals(memberElement.getClass()) && m.getRole().equals(member.getRole())), () -> String.format("[ERROR - %s] : Member with id %d and role '%s' was missing on Relation #%d", pr.getName(), memberElement.getId(), member.getRole(), expectedRelation.getId()));
 
                     String expectedRole = member.getRole();
-                    String actualRole = actualMembers.stream().filter(p -> p.getElement().getId() == memberElement.getId()).findFirst().get().getRole();
+                    String actualRole = actualMembers.stream().filter(p -> p.getElement().getId() == memberElement.getId()).findFirst().orElseThrow(() -> new RuntimeException("Member not found")).getRole();
 
                     assertEquals(expectedRole, actualRole, () -> String.format("[ERROR - %s] : Member with id %d on Relation #%d has role '%s', should be '%s'", pr.getName(), memberElement.getId(), expectedRelation.getId(), actualRole, expectedRole));
                 }
@@ -313,19 +313,17 @@ public class ParserTests {
            IParser expectedParser = pr.getExpectedParser();
            IParser actualParser = pr.getActualParser();
 
-           List<Double> actualBounds = actualParser.getBoundingBox();
-           List<Double> expectedBounds = expectedParser.getBoundingBox();
+           models.geometry.BoundingBox actualBounds = actualParser.getBoundingBox();
+           models.geometry.BoundingBox expectedBounds = expectedParser.getBoundingBox();
 
-           assertEquals(expectedBounds.size(), actualBounds.size());
-
-           Double expectedMinLat = expectedBounds.get(0);
-           Double expectedMinLon = expectedBounds.get(1);
-           Double expectedMaxLat = expectedBounds.get(2);
-           Double expectedMaxLon = expectedBounds.get(3);
-           Double actualMinLat = actualBounds.get(0);
-           Double actualMinLon = actualBounds.get(1);
-           Double actualMaxLat = actualBounds.get(2);
-           Double actualMaxLon = actualBounds.get(3);
+           double expectedMinLat = expectedBounds.minLat();
+           double expectedMinLon = expectedBounds.minLon();
+           double expectedMaxLat = expectedBounds.maxLat();
+           double expectedMaxLon = expectedBounds.maxLon();
+           double actualMinLat = actualBounds.minLat();
+           double actualMinLon = actualBounds.minLon();
+           double actualMaxLat = actualBounds.maxLat();
+           double actualMaxLon = actualBounds.maxLon();
 
            assertEquals(expectedMinLat, actualMinLat, () -> String.format("[ERROR - %s] : Minimum latitude should be %f, was %f", pr.getName(), expectedMinLat, actualMinLat));
            assertEquals(expectedMaxLat, actualMaxLat, () -> String.format("[ERROR - %s] : Maximum latitude should be %f, was %f", pr.getName(), expectedMaxLat, actualMaxLat));

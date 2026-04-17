@@ -1,10 +1,10 @@
 package util;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,151 +33,208 @@ public class TestParser implements IParser {
 
     @Override
     public void parse() {
-    try {
-        InputStream is = TestParser.class.getClassLoader().getResourceAsStream("jsonData/" + fileName);
-        if (is == null) {
-            System.out.println("File " + fileName + " not found");
-            return;
-        }
-        JsonNode root = mapper.readTree(is);
+        try {
+            InputStream is = loadResource("jsonData/" + fileName);
+            if (is == null) {
+                System.out.println("File " + fileName + " not found using any method");
+                return;
+            }
+            JsonNode root = mapper.readTree(is);
+            is.close();
 
-        parseBoundingBox(root);
-        parseNodes(root);
-        parseWays(root);
-        parseRelations(root);
-    } catch (IOException e) {
-        System.out.println(e.getMessage());
+            parseBoundingBox(root);
+            parseNodes(root);
+
+            if (boundingBox.isEmpty()) {
+                computeBoundingBoxFromNodes();
+            }
+            parseWays(root);
+            parseRelations(root);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
+
+    private InputStream loadResource(String resourcePath) throws IOException {
+        // Try 1: Thread context classloader
+        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourcePath);
+        if (is != null) {
+            System.out.println("Loaded " + resourcePath + " via context classloader");
+            return is;
+        }
+
+        // Try 2: TestParser classloader
+        is = TestParser.class.getClassLoader().getResourceAsStream(resourcePath);
+        if (is != null) {
+            System.out.println("Loaded " + resourcePath + " via TestParser classloader");
+            return is;
+        }
+
+        // Try 3: Direct file system (for IDE testing)
+        String[] possiblePaths = {
+            "src/test/resources/" + resourcePath,
+            System.getProperty("user.dir") + "/src/test/resources/" + resourcePath,
+            System.getProperty("user.dir") + "\\src\\test\\resources\\" + resourcePath
+        };
+
+        for (String path : possiblePaths) {
+            File file = new File(path);
+            if (file.exists()) {
+                System.out.println("Loaded " + resourcePath + " from file system: " + file.getAbsolutePath());
+                return new FileInputStream(file);
+            }
+        }
+
+        return null;
     }
 
     private void parseBoundingBox(JsonNode root) {
-        JsonNode bounds = root.path("osm").path("bounds");
+        JsonNode bounds = root.path("meta").path("bounds");
+        System.out.println("Meta exists: " + !bounds.isMissingNode());
+        if (bounds.isMissingNode() || bounds.isNull()) {
+            bounds = root.path("bounds");
+        }
 
-        double minLat = bounds.path("@minLat").asDouble();
-        double maxLat = bounds.path("@maxLat").asDouble();
-        double minLon = bounds.path("@minLon").asDouble();
-        double maxLon = bounds.path("@maxLon").asDouble();
+        if (!bounds.isMissingNode() && bounds.isNull()) {
 
-        boundingBox.addAll(List.of(minLat, minLon, maxLat, maxLon));
+            double minLat = bounds.has("minLat") ? bounds.path("minLat").asDouble()
+                                                           : bounds.path("minLat").asDouble();
+            double maxLat = bounds.has("maxLat") ? bounds.path("minLat").asDouble()
+                                                           :  bounds.path("maxLat").asDouble();
+            double minLon = bounds.has("minLon") ? bounds.path("minLon").asDouble()
+                                                           : bounds.path("minLon").asDouble();
+            double maxLon = bounds.has("maxLon") ? bounds.path("maxLon").asDouble()
+                                                           :  bounds.path("maxLon").asDouble();
 
+            boundingBox.addAll(List.of(minLat, maxLat, minLon, maxLon));
+        }
+    }
+    private void computeBoundingBoxFromNodes() {
+        if (nodeMap.isEmpty()) return;
+
+        double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
+        double minlon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
+
+        for (Node node: nodeMap.values()) {
+            double lat = node.getLat();
+            double lon = node.getLon();
+            if (lat < minLat) minLat = lat;
+            if (lat > maxLat) maxLat = lat;
+            if (lon < minlon) minlon = lon;
+            if (lon > maxLon) maxLon = lon;
+        }
+        boundingBox.addAll(List.of(minLat, maxLat, minlon, maxLon));
     }
 
     private void parseNodes(JsonNode root) {
-        JsonNode nodes =root.path("osm").path("node");
-
-        for (JsonNode node : nodes) {
-            long id = node.path("@id").asLong();
-            double lat = node.path("@lat").asDouble();
-            double lon = node.path("@lon").asDouble();
-
+        for (JsonNode node : root.path("nodes")) {
+            long id = node.path("id").asLong();
+            double lat = node.path("lat").asDouble();
+            double lon = node.path("lon").asDouble();
             nodeMap.put(id, new Node(id, lat, lon));
         }
     }
+    private HashMap<String, String> parseTags(JsonNode tagNode) {
+        HashMap<String, String> tags = new HashMap<>();
+        if (tagNode == null || tagNode.isMissingNode() || tagNode.isNull()) {
+            return tags;
+        }
+        if (tagNode.isObject()) {
+            tagNode.fields().forEachRemaining(entry -> tags.put(entry.getKey(), entry.getValue().asText()));
+        } else if  (tagNode.isArray()) {
+            for (JsonNode tag: tagNode) {
+                String key = tag.path("k").asText();
+                String value = tag.path("v").asText();
+                if (!key.isEmpty()) tags.put(key, value);
+            }
+        }
+        return tags;
+    }
 
     private void parseWays(JsonNode root) {
-        JsonNode ways = root.path("osm").path("way");
-        for (JsonNode way : ways) {
-            long id = way.path("@id").asLong();
+        for (JsonNode way : root.path("ways")) {
+            long id = way.path("id").asLong();
 
-            List<Node> nodesInWay = new ArrayList<>();
-            JsonNode ndNode = way.path("nd");
+            JsonNode ndNode = way.path("nodes");
             if (!ndNode.isArray()) {
                 System.out.println("Way " + id + " has no nodes");
                 continue;
             }
-            for (JsonNode node : ndNode) {
-                long nodeRef = node.path("@ref").asLong();
-                Node n = nodeMap.get(nodeRef);
+            List<Node>  nodesInWay = new ArrayList<>();
+            for (JsonNode ref : ndNode) {
+                Node n = nodeMap.get(ref.asLong());
                 if (n != null) {
                     nodesInWay.add(n);
                 }
             }
-            HashMap<String, String> tagsInWay = new  HashMap<>();
-            JsonNode tagNode = way.path("tag");
+            HashMap<String, String> tagsInWay = parseTags(way.path("tags"));
+            wayMap.put(id, new Way(id, tagsInWay, nodesInWay));
 
-            ArrayNode tagArray = mapper.createArrayNode();
-            if (tagNode.isArray()) {
-                tagArray = (ArrayNode) tagNode;
-            } else {
-                tagArray.add(tagNode);
-            }
-            for (JsonNode tag : tagArray) {
-                String key = tag.path("@k").asText();
-                String value = tag.path("@v").asText();
-                tagsInWay.put(key, value);
-            }
-                wayMap.put(id, new Way(id, tagsInWay, nodesInWay));
         }
     }
 
     private void parseRelations(JsonNode root) {
-        JsonNode relations = root.path("osm").path("relation");
+        JsonNode relations = root.path("relations");
 
+        Set<Long> topLevelIds = new HashSet<>();
+        for (JsonNode relation : relations) {
+            topLevelIds.add(relation.get("id").asLong());
+        }
         for (JsonNode relation: relations) {
-            long id = relation.path("@id").asLong();
+            long id = relation.path("id").asLong();
 
             List<Member> members = new ArrayList<>();
-            JsonNode memberNode = relation.path("member");
-            if (!memberNode.isArray()) {
-                System.out.println("Relation " + id + " has no members");
-                continue;
-            }
-            for (JsonNode member : memberNode) {
-                String type = member.path("@type").asText();
-                long ref = member.path("@ref").asLong();
-                String role = member.path("@role").asText();
+            JsonNode memberNode = relation.path("members");
+            if (memberNode.isArray()) {
+                for (JsonNode member : memberNode) {
+                    String type = member.path("type").asText();
+                    long ref = member.path("ref").asLong();
+                    String role = member.path("role").asText();
 
-                Element element = null;
-                switch (type) {
-                    case ("node") -> {
-                        if (!wayMap.containsKey(ref)) {
-                            continue;
+                    Element element = null;
+                    switch (type) {
+                        case ("node") -> {
+                            if (!nodeMap.containsKey(ref)) continue;
+                                element = nodeMap.get(ref);
                         }
-                        element = nodeMap.get(ref);
-                    }
-                    case "way"  -> {
-                        if (!wayMap.containsKey(ref)) {
-                            continue;
+                        case "way" -> {
+                            if (!wayMap.containsKey(ref)) continue;
+                            element = wayMap.get(ref);
                         }
-                        element = wayMap.get(ref);
-                    }
-                    case "relation" -> {
-                        boolean relationExists = relationMap.containsKey(ref);
-                        if (relationExists) {
-                            element = relationMap.get(ref);
-                        } else {
-                            Relation relation1 = new Relation(ref,new HashMap(), List.of());
-                            relationMap.put(ref, relation1);
-                            element = relation1;
+                        case "relation" -> {
+                            if (relationMap.containsKey(ref)) {
+                                element = relationMap.get(ref);
+                            } else {
+                                if (topLevelIds.contains(ref)) {
+                                Relation placeholder = new Relation(ref, new HashMap<>(), List.of());
+                                relationMap.put(ref, placeholder);
+                                element = placeholder;
+                            } else {
+                                    continue;
+                                }
                         }
                     }
                 }
-                members.add(new Member(element, role));
+                if (element != null) {
+                    members.add(new Member(element, role));
+                }
             }
-            HashMap<String, String> tagsInRelation = new  HashMap<>();
-            JsonNode tagNode = relation.path("tag");
-            if (!tagNode.isArray()) {
-                System.out.println("Relation " + id + " has no tags");
-                continue;
-            }
-            for (JsonNode tag : tagNode) {
-                String key = tag.path("@k").asText();
-                String value = tag.path("@v").asText();
-                tagsInRelation.put(key, value);
-            }
-            boolean relationExists = relationMap.containsKey(id);
-            if (relationExists) {
-                Relation relation1 = relationMap.get(id);
-                relation1.setMembers(members);
-                relation1.setTags(tagsInRelation);
+            HashMap<String, String> tagsInRelation = parseTags(relation.path("tags"));
+            if (relationMap.containsKey(id)) {
+                Relation existing = relationMap.get(id);
+                existing.setMembers(members);
+                existing.setTags(tagsInRelation);
             } else {
                 relationMap.put(id, new Relation(id, tagsInRelation, members));
             }
+            }
+            relationMap.keySet().retainAll(topLevelIds);
         }
     }
 
     @Override
     public BoundingBox getBoundingBox() {
+        if (boundingBox.size() < 4) return new BoundingBox(0,0,0,0);
         return new BoundingBox(boundingBox.get(0), boundingBox.get(1), boundingBox.get(2), boundingBox.get(3));
     }
     @Override
