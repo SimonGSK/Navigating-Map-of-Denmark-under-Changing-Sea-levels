@@ -78,26 +78,24 @@ public class Parser implements IParser {
 
                 switch (type) {
                     case "node" -> {
-                        if (nodeMap.containsKey(ref)) {
-                            Member member = new Member(nodeMap.get(ref), role);
-                            members.add(member);
+                        Node node = nodeMap.get(ref);
+                        if (node != null) {
+                            members.add(new Member(node, role));
                         }
                     }
                     case "way" -> {
-                        if (wayMap.containsKey(ref)) {
-                            Member member = new Member(wayMap.get(ref), role);
-                            members.add(member);
+                        Way way =  wayMap.get(ref);
+                        if (way == null) {
+                            way = new Way(ref, new HashMap<>(), new ArrayList<>());
+                            wayMap.put(ref, way);
                         }
+                        members.add(new Member(way, role));
                     }
                     case "relation" -> {
                         if (!relationMap.containsKey(ref)) {
-                            List<Member> newMembers = new ArrayList<>();
-                            HashMap<String, String> newTags = new HashMap<>();
-                            Relation newRelation = new Relation(ref, newTags, newMembers);
-                            relationMap.put(ref, newRelation);
+                            relationMap.put(ref, new Relation(ref, new HashMap<>(), new ArrayList<>()));
                         }
-                        Member member = new Member(relationMap.get(ref), role);
-                        members.add(member);
+                        members.add(new Member(relationMap.get(ref), role));
                     }
                 }
             } else if (line.contains("<tag")) {
@@ -152,7 +150,7 @@ public class Parser implements IParser {
         double maxLat = getAttributeDouble(line, "maxlat");
         double maxLon = getAttributeDouble(line, "maxlon");
 
-        return new BoundingBox(minLat, minLon, maxLat, maxLon);
+        return new BoundingBox(minLon, minLat, maxLon, maxLat);
     }
 
     public String getAttribute(String s, String key) {
@@ -163,7 +161,12 @@ public class Parser implements IParser {
         }
         int valueStart = start + pattern.length();
         int valueEnd = s.indexOf('"', valueStart);
-        return s.substring(valueStart, valueEnd);
+        String value =  s.substring(valueStart, valueEnd);
+        return value
+                .replace("&amp;", "&")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&quot;", "\"");
     }
 
     public double getAttributeDouble(String s, String key) {

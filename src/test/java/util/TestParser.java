@@ -95,11 +95,11 @@ public class TestParser implements IParser {
             bounds = root.path("bounds");
         }
 
-        if (!bounds.isMissingNode() && bounds.isNull()) {
+        if (!bounds.isMissingNode() && !bounds.isNull()) {
 
             double minLat = bounds.has("minLat") ? bounds.path("minLat").asDouble()
                                                            : bounds.path("minLat").asDouble();
-            double maxLat = bounds.has("maxLat") ? bounds.path("minLat").asDouble()
+            double maxLat = bounds.has("maxLat") ? bounds.path("maxLat").asDouble()
                                                            :  bounds.path("maxLat").asDouble();
             double minLon = bounds.has("minLon") ? bounds.path("minLon").asDouble()
                                                            : bounds.path("minLon").asDouble();
@@ -140,11 +140,17 @@ public class TestParser implements IParser {
             return tags;
         }
         if (tagNode.isObject()) {
-            tagNode.fields().forEachRemaining(entry -> tags.put(entry.getKey(), entry.getValue().asText()));
+            tagNode.fields().forEachRemaining(entry -> {
+                String key = entry.getKey();
+                String value = entry.getValue().asText();
+                value = value.replace("&amp", "&");
+
+                tags.put(key, value);
+            });
         } else if  (tagNode.isArray()) {
             for (JsonNode tag: tagNode) {
                 String key = tag.path("k").asText();
-                String value = tag.path("v").asText();
+                String value = tag.path("v").asText().replace("&amp", "&");
                 if (!key.isEmpty()) tags.put(key, value);
             }
         }
@@ -186,38 +192,35 @@ public class TestParser implements IParser {
             List<Member> members = new ArrayList<>();
             JsonNode memberNode = relation.path("members");
             if (memberNode.isArray()) {
-                for (JsonNode member : memberNode) {
-                    String type = member.path("type").asText();
-                    long ref = member.path("ref").asLong();
-                    String role = member.path("role").asText();
+                for (JsonNode memberNodeEntry : memberNode) {
+                    String type = memberNodeEntry.path("type").asText();
+                    long ref = memberNodeEntry.path("ref").asLong();
+                    String role = memberNodeEntry.path("role").asText();
 
                     Element element = null;
                     switch (type) {
-                        case ("node") -> {
-                            if (!nodeMap.containsKey(ref)) continue;
+                        case ("node"):
                                 element = nodeMap.get(ref);
-                        }
-                        case "way" -> {
-                            if (!wayMap.containsKey(ref)) continue;
+                                break;
+
+                        case "way" :
                             element = wayMap.get(ref);
-                        }
-                        case "relation" -> {
-                            if (relationMap.containsKey(ref)) {
+                            break;
+
+                        case "relation" :
                                 element = relationMap.get(ref);
-                            } else {
-                                if (topLevelIds.contains(ref)) {
-                                Relation placeholder = new Relation(ref, new HashMap<>(), List.of());
-                                relationMap.put(ref, placeholder);
-                                element = placeholder;
-                            } else {
-                                    continue;
+
+                                if (element == null && topLevelIds.contains(ref)) {
+                                    element = new Relation(ref, new HashMap<>(), new ArrayList<>());
+                                    relationMap.put(ref, (Relation) element);
                                 }
-                        }
+                                break;
                     }
+                    if (element == null) {
+                        continue;
                 }
-                if (element != null) {
                     members.add(new Member(element, role));
-                }
+
             }
             HashMap<String, String> tagsInRelation = parseTags(relation.path("tags"));
             if (relationMap.containsKey(id)) {
@@ -249,4 +252,5 @@ public class TestParser implements IParser {
     public HashMap<Long, Relation> getOsmRelationMap() {
         return relationMap;
     }
+
 }

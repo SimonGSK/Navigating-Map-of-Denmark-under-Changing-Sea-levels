@@ -70,4 +70,32 @@ public class HeightCurveRenderer implements Drawable {
     public void setSeaLevel(double level) {
         this.seaLevel = level;
     }
+
+    public void draws2(Graphics2D gc) {
+        List<HeightCurve> sorted = new ArrayList<>(data.curves);
+        sorted.remove(data.sea);
+        sorted.sort((a, b) -> Double.compare(boundingArea(b), boundingArea(a)));
+
+        for (HeightCurve curve: sorted) {
+            Path2D path = new Path2D.Double();
+            boolean first = true;
+            for (Coordinate coord: curve.getCoords()) {
+                double x = coord.getLon() * cosMeanLat;
+                double y = -coord.getLat();
+                if (first) {
+                    path.moveTo(x, y);
+                    first = false;
+                } else path.lineTo(x, y);
+            }
+            path.closePath();
+            if (toFill){
+                gc.setColor(curve.getFillColor(seaLevel));
+                gc.fill(path);
+            } else{
+                gc.setColor(Color.black);
+                gc.draw(path);
+            }
+        }
+        this.toFill = true;
+    }
 }
