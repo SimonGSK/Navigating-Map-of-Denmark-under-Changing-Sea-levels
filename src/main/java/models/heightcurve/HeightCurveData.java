@@ -124,4 +124,11 @@ public class HeightCurveData {
             resetAll(child);
         }
     }
+
+    public double getMaxHeight() {
+        return curves.stream()
+                .mapToDouble(HeightCurve::getHeight)
+                .max()
+                .orElse(100);
+    }
 }
