@@ -8,11 +8,11 @@ import models.geometry.Coordinate;
 
 public class HeightCurve {
 
-    long id;
-    double height;
-    List<Coordinate> coords;
-    List<HeightCurve> children;
-    boolean submerged;
+    private long id;
+    private double height;
+    private List<Coordinate> coords;
+    private List<HeightCurve> children;
+    private boolean submerged;
 
     public Path2D getBoundaryPath() {
 

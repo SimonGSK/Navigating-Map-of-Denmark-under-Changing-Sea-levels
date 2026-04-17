@@ -109,4 +109,19 @@ public class HeightCurveData {
         if (minLat == Double.MAX_VALUE) return 0;
         return (maxLat - minLat) * (maxLon - minLon);
     }
+
+    public void updateFlooding(double seaLevel) {
+        resetAll(sea); //Nulstiller alt for at genberegne oversvømmelserne
+
+        for (HeightCurve child : sea.getChildren()) { //Kalder submerge på havets children
+            child.submerge(seaLevel);
+        }
+    }
+
+    private void resetAll(HeightCurve curve) {
+        curve.resetSubmerged();
+        for (HeightCurve child : curve.getChildren()) {
+            resetAll(child);
+        }
+    }
 }
