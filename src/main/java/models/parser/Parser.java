@@ -79,9 +79,11 @@ public class Parser implements IParser {
                 switch (type) {
                     case "node" -> {
                         Node node = nodeMap.get(ref);
-                        if (node != null) {
-                            members.add(new Member(node, role));
+                        if (node == null) {
+                            node = new Node(ref, 0, 0);
+                            nodeMap.put(ref, node);
                         }
+                        members.add(new Member(node, role));
                     }
                     case "way" -> {
                         Way way =  wayMap.get(ref);
@@ -125,7 +127,14 @@ public class Parser implements IParser {
             line = br.readLine().trim();
             if (line.contains("<nd")) {
                 long ndID = getAttributeLong(line, "ref");
-                nodes.add(getOsmNodeMap().get(ndID));
+                Node node = nodeMap.get(ndID);
+
+                if (node == null) {
+                    node = new Node(ndID, 0, 0);
+                    nodeMap.put(ndID, node);
+                }
+
+                nodes.add(node);
             }
             if (line.contains("<tag")) {
                 String k = getAttribute(line, "k");
@@ -134,7 +143,18 @@ public class Parser implements IParser {
             }
         }
 
-        return new Way(wayID, tags, nodes);
+        Way way;
+
+        if (wayMap.containsKey(wayID)) {
+            way = wayMap.get(wayID);
+            way.setTags(tags);
+            way.setNodes(nodes);
+        } else {
+            way = new Way(wayID, tags, nodes);
+            wayMap.put(wayID, way);
+        }
+
+        return way;
     }
 
     private Node extractNode(String line) {
@@ -150,7 +170,7 @@ public class Parser implements IParser {
         double maxLat = getAttributeDouble(line, "maxlat");
         double maxLon = getAttributeDouble(line, "maxlon");
 
-        return new BoundingBox(minLon, minLat, maxLon, maxLat);
+        return new BoundingBox(minLat, minLon, maxLat, maxLon);
     }
 
     public String getAttribute(String s, String key) {
@@ -205,4 +225,5 @@ public class Parser implements IParser {
     public HashMap<Long, Relation> getOsmRelationMap() {
         return relationMap;
     }
+
 }

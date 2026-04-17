@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Way extends Element {
-    private final List<Node> nodes;
+    private List<Node> nodes;
 
     public Way(long id, HashMap<String, String> tags, List<Node> nodes) {
         super(id, tags, computeMbr(nodes), getAreaShoelace(nodes));
@@ -50,5 +50,9 @@ public class Way extends Element {
     @Override
     public void draws(Graphics2D gc) {
 
+    }
+    public void setNodes(List<Node> nodes) {
+        this.nodes = nodes;
+        setMbr(computeMbr(nodes));
     }
 }
