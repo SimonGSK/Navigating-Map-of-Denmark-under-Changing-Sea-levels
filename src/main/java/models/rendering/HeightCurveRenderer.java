@@ -26,19 +26,18 @@ public class HeightCurveRenderer implements Drawable {
     public void draws(Graphics2D gc) {
        List<HeightCurve> sorted = new ArrayList<>(data.curves);
        sorted.remove(data.sea);
+
        sorted.sort((a, b) -> Double.compare(boundingArea(b), boundingArea(a)));
 
        for (HeightCurve curve: sorted) {
-           if (!curve.getChildren().isEmpty()) {
-               Path2D path = curve.getRegionPath(cosMeanLat);
+           Path2D path = curve.getRegionPath(cosMeanLat);
 
-               if (toFill) {
-                   gc.setColor(curve.getFillColor(seaLevel));
-                   gc.fill(path);
-               } else {
-                   gc.setColor(Color.black);
-                   gc.draw(path);
-               }
+           if (toFill || curve.isSubmerged()) {
+               gc.setColor(curve.getFillColor(seaLevel));
+               gc.fill(path);
+           } else {
+               gc.setColor(Color.black);
+               gc.draw(path);
            }
        }
         this.toFill = true;
@@ -92,5 +91,22 @@ public class HeightCurveRenderer implements Drawable {
             }
         }
         this.toFill = true;
+    }
+
+    public void drawSubmersedCurves(Graphics2D gc) {
+        List<HeightCurve> sorted = new ArrayList<>(data.curves);
+        sorted.remove(data.sea);
+        sorted.sort((a, b) -> Double.compare(boundingArea(b), boundingArea(a)));
+
+        gc.setColor(Color.decode("#2b8cbe"));
+
+        for (HeightCurve curve : sorted) {
+            if (!curve.isSubmerged()) {
+                continue;
+            }
+            
+            Path2D path = curve.getRegionPath(cosMeanLat);
+            gc.fill(path);
+        }
     }
 }

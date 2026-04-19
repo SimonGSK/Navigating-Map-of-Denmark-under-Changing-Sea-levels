@@ -13,6 +13,7 @@ public class HeightCurve {
     private List<Coordinate> coords;
     private List<HeightCurve> children;
     private boolean submerged;
+    private HeightCurve parent;
 
     public Path2D getBoundaryPath(double cosMeanLat) {
         Path2D.Double p = new Path2D.Double();
@@ -81,13 +82,20 @@ public class HeightCurve {
         }
     }
 
-    public void submerge(double seaLevel) {
-        if (this.height < seaLevel){
-            this.submerged = true;
-
-            for (HeightCurve child : this.children) {
-                child.submerge(seaLevel);
-            }
+    /**
+     * Marks this curve and its children as submerged based on the parent-child structure.
+     * A curve is submerged only if its parent is submerged AND its height is below sea level.
+     * 
+     * @param seaLevel the current sea level
+     * @param parentSubmerged whether the parent curve is submerged
+     */
+    public void updateSubmersion(double seaLevel, boolean parentSubmerged) {
+        // This curve is submerged if parent is submerged AND this curve's height is below sea level
+        this.submerged = parentSubmerged && this.height < seaLevel;
+        
+        // Recursively update children
+        for (HeightCurve child : this.children) {
+            child.updateSubmersion(seaLevel, this.submerged);
         }
     }
 
@@ -101,6 +109,7 @@ public class HeightCurve {
         this.coords = coords != null ? coords : new ArrayList<>();
         this.children = children != null ? children : new ArrayList<>();
         this.submerged = false;
+        this.parent = null;
     }
 
     public long getId() {
@@ -121,9 +130,18 @@ public class HeightCurve {
 
     public void addChild(HeightCurve child) {
         this.children.add(child);
+        child.setParent(this);
     }
 
     public boolean isSubmerged() {
         return submerged;
+    }
+
+    public HeightCurve getParent() {
+        return parent;
+    }
+
+    public void setParent(HeightCurve parent) {
+        this.parent = parent;
     }
 }

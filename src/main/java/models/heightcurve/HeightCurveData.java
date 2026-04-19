@@ -113,8 +113,9 @@ public class HeightCurveData {
     public void updateFlooding(double seaLevel) {
         resetAll(sea); //Nulstiller alt for at genberegne oversvømmelserne
 
-        for (HeightCurve child : sea.getChildren()) { //Kalder submerge på havets children
-            child.submerge(seaLevel);
+        // Start from sea's children - sea itself is always the implicit "above water" parent
+        for (HeightCurve child : sea.getChildren()) {
+            child.updateSubmersion(seaLevel, true);
         }
     }
 
@@ -130,5 +131,42 @@ public class HeightCurveData {
                 .mapToDouble(HeightCurve::getHeight)
                 .max()
                 .orElse(100);
+    }
+
+    /**
+     * Checks if a coordinate is inside a submerged height curve.
+     * This is independent of the height curves' drawing and can be used
+     * to determine if OSM features should be rendered as submerged.
+     * 
+     * @param coordinate the coordinate to check
+     * @return true if the coordinate is inside a submerged height curve
+     */
+    public boolean isCoordinateSubmerged(Coordinate coordinate) {
+        // Check each top-level height curve (children of sea)
+        for (HeightCurve curve : sea.getChildren()) {
+            if (isCoordinateInSubmergedCurve(coordinate, curve)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Recursively checks if a coordinate is in a submerged curve or its submerged children.
+     */
+    private boolean isCoordinateInSubmergedCurve(Coordinate coordinate, HeightCurve curve) {
+        // If this curve is submerged and the coordinate is inside it, return true
+        if (curve.isSubmerged() && pointInPolygon(coordinate, curve.getCoords())) {
+            return true;
+        }
+        
+        // Check children recursively
+        for (HeightCurve child : curve.getChildren()) {
+            if (isCoordinateInSubmergedCurve(coordinate, child)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
