@@ -144,4 +144,13 @@ public class HeightCurve {
     public void setParent(HeightCurve parent) {
         this.parent = parent;
     }
+    public void submerge(double seaLevel) {
+        updateSubmersion(seaLevel, true);
+    }
+    public Path2D getBoundaryPath() {
+        return getBoundaryPath(1.0);
+    }
+    public Path2D getRegionPath() {
+        return getRegionPath(1.0);
+    }
 }

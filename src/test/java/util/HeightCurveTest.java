@@ -58,13 +58,13 @@ public class HeightCurveTest {
         List<List<Point>> out = new ArrayList<>(raw.size());
         for (List<Point> points : raw) {
             if (!points.isEmpty()) {
-                out.add(points);
+                out.add(canonicalCycle(points));
             }
         }
         return out;
     }
 
-    private static List<List<Point>> extractSubPaths(Path2D path) {
+    private static List<List<Point>> extractSubpaths(Path2D path) {
         PathIterator it = path.getPathIterator(null);
         double[] buf = new double[6];
         List<List<Point>> out = new ArrayList<>();
@@ -80,7 +80,7 @@ public class HeightCurveTest {
                     current.add(new Point(buf[0], buf[1]));
                 }
                 case PathIterator.SEG_LINETO -> {
-                    if (current != null) {
+                    if (current == null) {
                         current = new ArrayList<>();
                     }
                     current.add(new Point(buf[0], buf[1]));
@@ -126,7 +126,7 @@ public class HeightCurveTest {
         int n = points.size();
         int best = 0;
         for (int i = 0; i < n; i++) {
-            if (comparePointLists(points, i, best) < 0) {
+            if (compareRotation(points, i, best) < 0) {
                 best = i;
             }
         }
@@ -204,7 +204,7 @@ public class HeightCurveTest {
                 new Coordinate(3.0, 4.0),
                 new Coordinate(1.0, 2.0)
         );
-        assertNotNull(c.getBoundaryPath(), "Task 'Construct the boundary path': getBoundaryPath() must return a Path2D (not null)");
+        assertNotNull(c.getBoundaryPath(1.0), "Task 'Construct the boundary path': getBoundaryPath() must return a Path2D (not null)");
     }
 
     @Test
@@ -216,7 +216,7 @@ public class HeightCurveTest {
                 new Coordinate(3.0, 4.0),
                 new Coordinate(1.0, 2.0)
         );
-        assertNotNull(c.getRegionPath(), "Task 'Construct the region path': getRegionPath() must return a Path2D (not null)");
+        assertNotNull(c.getRegionPath(1.0), "Task 'Construct the region path': getRegionPath() must return a Path2D (not null)");
     }
 
     @Test
@@ -266,7 +266,7 @@ public class HeightCurveTest {
         expected.lineTo(12.0, 57.0);
         expected.lineTo(10.0, 55.0);
         assertTrue(
-                pathsEqual(expected, c.getBoundaryPath()),
+                pathsEqual(expected, c.getBoundaryPath(1.0)),
                 "Boundary path should match the expected polygon regardless of start point or direction"
         );
     }
@@ -288,11 +288,11 @@ public class HeightCurveTest {
         expected.lineTo(0.0, 0.0);
         assertEquals(
                 Path2D.WIND_EVEN_ODD,
-                c.getRegionPath().getWindingRule(),
+                c.getRegionPath(1.0).getWindingRule(),
                 "Task 'Construct the region path': use WIND_EVEN_ODD so child curves become holes"
         );
         assertTrue(
-                pathsEqual(expected, c.getRegionPath()),
+                pathsEqual(expected, c.getRegionPath(1.0)),
                 "Region path geometry should match the boundary polygon"
         );
     }
@@ -324,7 +324,7 @@ public class HeightCurveTest {
         expected.lineTo(1.0, 2.0);
         expected.lineTo(1.0, 1.0);
         assertTrue(
-                pathsEqual(expected, parent.getRegionPath()),
+                pathsEqual(expected, parent.getRegionPath(1.0)),
                 "Region path should include the parent boundary and immediate child as a hole"
         );
     }
@@ -364,7 +364,7 @@ public class HeightCurveTest {
         expected.lineTo(1.0, 2.0);
         expected.lineTo(1.0, 1.0);
         assertTrue(
-                pathsEqual(expected, parent.getRegionPath()),
+                pathsEqual(expected, parent.getRegionPath(1.0)),
                 "Region path should include only the parent and immediate child boundaries"
         );
     }
