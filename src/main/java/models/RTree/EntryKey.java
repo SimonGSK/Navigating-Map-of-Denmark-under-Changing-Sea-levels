@@ -1,4 +1,6 @@
 package models.RTree;
 
-public record EntryKey(long key, ElementType type) {
+import models.osm.Element;
+
+public record EntryKey(Element element, ElementType type) {
 }

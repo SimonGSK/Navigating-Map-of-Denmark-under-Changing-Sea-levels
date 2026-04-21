@@ -1,6 +1,8 @@
 package models.parser;
 
 import Interfaces.IParser;
+import models.RTree.ElementType;
+import models.RTree.EntryKey;
 import models.geometry.BoundingBox;
 import models.osm.Member;
 import models.osm.Node;
@@ -79,13 +81,13 @@ public class Parser implements IParser {
                 switch (type) {
                     case "node" -> {
                         if (nodeMap.containsKey(ref)) {
-                            Member member = new Member(nodeMap.get(ref), role);
+                            Member member = new Member(nodeMap.get(ref), ElementType.node, role);
                             members.add(member);
                         }
                     }
                     case "way" -> {
                         if (wayMap.containsKey(ref)) {
-                            Member member = new Member(wayMap.get(ref), role);
+                            Member member = new Member(wayMap.get(ref), ElementType.way, role);
                             members.add(member);
                         }
                     }
@@ -96,7 +98,7 @@ public class Parser implements IParser {
                             Relation newRelation = new Relation(ref, newTags, newMembers);
                             relationMap.put(ref, newRelation);
                         }
-                        Member member = new Member(relationMap.get(ref), role);
+                        Member member = new Member(relationMap.get(ref), ElementType.relation, role);
                         members.add(member);
                     }
                 }

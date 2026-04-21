@@ -3,12 +3,12 @@ package models.osm;
 import models.geometry.BoundingBox;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
+import java.util.stream.Stream;
 
 
-public class Relation extends Element {
+public class Relation extends Element implements Iterable<Member> {
     private List<Member> members;
 
     public Relation(long id, HashMap<String, String> tags, List<Member> members) {
@@ -52,5 +52,13 @@ public class Relation extends Element {
     @Override
     public void draws(Graphics2D gc) {
         // TODO: This should be cleaned up. If the method doesn't do anything, we should look at how we can restructure the purpose of Drawable.
+    }
+
+    @Override
+    public Iterator<Member> iterator() {
+        if (members == null) {
+            return Collections.emptyIterator();
+        }
+        return members.iterator();
     }
 }

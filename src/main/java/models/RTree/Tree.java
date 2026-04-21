@@ -7,7 +7,6 @@ import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
 
-import javax.swing.*;
 import java.util.*;
 
 public class Tree {
@@ -15,14 +14,16 @@ public class Tree {
     private final int min = 1; // Must be >= 1
     private final int max = 30; // Must be
     private BoundingBox mbr;
-    private DataMap dataMap;
+    private final TreeData treeData;
 
     public Tree(BoundingBox mbr, Map<Long,Node> nodeMap, Map<Long, Way> wayMap, Map<Long, Relation> relationMap) {
         if (mbr == null || nodeMap == null || wayMap == null || relationMap == null) {
             throw new RuntimeException("nodeWay, wayMap, and relationMap must not be null");
         }
         this.mbr = mbr;
-        this.dataMap = new DataMap(nodeMap, wayMap, relationMap);
+        this.treeData = new TreeData(nodeMap, wayMap, relationMap);
+
+        this.treeData.forEach(Element -> );
     }
 
     public void updateTreeNodeMbr(TreeNode node) {
@@ -49,9 +50,9 @@ public class Tree {
         for (ElementType type : ElementType.values()) {
             for (Long key : keyMap.get(type)) {
                 switch (type) {
-                    case ElementType.node -> searchResults.add(type, dataMap.nodes().get(key));
-                    case ElementType.way -> searchResults.add(type, dataMap.ways().get(key));
-                    case ElementType.relation -> searchResults.add(type, dataMap.relations().get(key));
+                    case ElementType.node -> searchResults.add(type, treeData.nodes().get(key));
+                    case ElementType.way -> searchResults.add(type, treeData.ways().get(key));
+                    case ElementType.relation -> searchResults.add(type, treeData.relations().get(key));
                 }
             }
         }
@@ -64,7 +65,7 @@ public class Tree {
             if (entry.overlaps(searchArea)) {
                 switch (entry) {
                     case LeafEntry leaf -> {
-                        Long key = leaf.entryKey().key();
+                        Long key = leaf.entryKey().element();
                         ElementType type = leaf.entryKey().type();
                         searchResults.get(type).add(key);
                     }
@@ -99,7 +100,7 @@ public class Tree {
         return nearestNode;
     }
 
-    public void insert(Element element) {
+    public void insert(Element element, ElementType type) {
         if (root == null) {
             root = new TreeNode(true);
         }

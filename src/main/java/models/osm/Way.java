@@ -3,10 +3,12 @@ package models.osm;
 import models.geometry.BoundingBox;
 
 import java.awt.*;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
-public class Way extends Element {
+public class Way extends Element implements Iterable<Node> {
     private final List<Node> nodes;
 
     public Way(long id, HashMap<String, String> tags, List<Node> nodes) {
@@ -50,5 +52,13 @@ public class Way extends Element {
     @Override
     public void draws(Graphics2D gc) {
 
+    }
+
+    @Override
+    public Iterator<Node> iterator() {
+        if (nodes == null) {
+            return Collections.emptyIterator();
+        }
+        return nodes.iterator();
     }
 }

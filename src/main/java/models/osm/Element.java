@@ -1,6 +1,7 @@
 package models.osm;
 
 import Interfaces.Drawable;
+import models.RTree.ElementType;
 import models.geometry.BoundingBox;
 import models.geometry.SpatialElement;
 
@@ -9,17 +10,20 @@ import java.util.HashMap;
 
 public abstract class Element extends SpatialElement implements Drawable {
     final private long id;
+    final private ElementType type;
     protected HashMap<String, String> tags;
 
-    public Element(long id, HashMap<String, String> tags, BoundingBox mbr) {
+    public Element(long id, ElementType type, HashMap<String, String> tags, BoundingBox mbr) {
         this.id = id;
+        this.type = type;
         this.tags = tags;
         setMbr(mbr);
         setArea(mbr.area());
     }
 
-    public Element(long id, HashMap<String, String> tags, BoundingBox mbr, double area) {
+    public Element(long id, ElementType type, HashMap<String, String> tags, BoundingBox mbr, double area) {
         this.id = id;
+        this.type = type;
         this.tags = tags;
         setMbr(mbr);
         setArea(area);
