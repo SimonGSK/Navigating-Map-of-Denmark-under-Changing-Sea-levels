@@ -51,10 +51,8 @@ import models.parser.MapData;
 
 public class App extends DrawingApp {
     private static final boolean USE_EXAMPLE_ISLAND = false;
-    private static final double SEA_LEVEL = 0.0;
     private static final int WIDTH = 800;
     private static final int HEIGHT = 800;
-    private static final Color WATER_COLOR = Color.decode("#2b8cbe");
     private final SuperAffine superAffine = new SuperAffine();
     private final PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer<>(
             WIDTH, HEIGHT,
@@ -186,7 +184,13 @@ public class App extends DrawingApp {
 
         zoomLabel = new Label("Zoom: 1.00x");
 
-        HBox controls = new HBox(10.0, toggleButton, heightLinesButton, seaLabel, seaSlider, zoomLabel);
+        Button zoomOutButton = new Button("-");
+        zoomOutButton.setOnAction(e -> applyZoom(1 / 1.5, getWIDTH() / 2.0, getHEIGHT() / 2.0));
+
+        Button zoomInButton = new Button("+");
+        zoomInButton.setOnAction(e -> applyZoom(1.5, getWIDTH() / 2.0, getHEIGHT() / 2.0));
+
+        HBox controls = new HBox(10.0, toggleButton, heightLinesButton, seaLabel, seaSlider, zoomLabel, zoomOutButton, zoomInButton);
         controls.setPadding(new Insets(8));
         controls.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
@@ -313,15 +317,8 @@ public class App extends DrawingApp {
     }
 
     private void handleScroll(ScrollEvent event) {
-        double zoom = event.getDeltaY() > 0 ? 1.05 : 1 / 1.05;
-        superAffine
-                .prependTranslation(-event.getX(), -event.getY())
-                .prependScale(zoom, zoom)
-                .prependTranslation(event.getX(), event.getY());
-
-        updateZoomLabel();
-
-        drawAndRender();
+        double factor = event.getDeltaY() > 0 ? 1.05 : 1 / 1.05;
+        applyZoom(factor, event.getX(), event.getY());
     }
 
     public void reCenter(BoundingBox mbr, double meanLat) {
@@ -357,18 +354,13 @@ public class App extends DrawingApp {
         }
     }
 
-    /*
-    private static Shape project(Shape s, HeightCurveData d) {
-        double p = 20, c = Math.cos(Math.toRadians((d.minLat + d.maxLat) / 2));
-        double w = (d.maxLon - d.minLon) * c, h = d.maxLat - d.minLat;
-        double k = Math.min((WIDTH - 2 * p) / w, (HEIGHT - 2 * p) / h);
-        AffineTransform t = new AffineTransform();
-        t.translate(p + (WIDTH - 2 * p - w * k) / 2, p + (HEIGHT - 2 * p - h * k) / 2 + h * k);
-        t.scale(k, -k);
-        t.scale(c, 1);
-        t.translate(-d.minLon, -d.minLat);
-        return t.createTransformedShape(s);
-    }
-    */
+    private void applyZoom(double factor, double x, double y) {
+        superAffine
+                .prependTranslation(-x, -y)
+                .prependScale(factor, factor)
+                .prependTranslation(x, y);
 
+        updateZoomLabel();
+        drawAndRender();
+    }
 }

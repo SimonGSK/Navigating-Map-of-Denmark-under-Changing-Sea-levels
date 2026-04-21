@@ -62,7 +62,7 @@ public class HeightCurve {
          */
 
         //Hvad siger i til disse farver i stedet for?
-        if (altitude < 0 && submerged) return Color.decode("#2b8cbe");   // water
+        if (altitude < 0 && submerged) return Color.decode("#a9d3de");   // water
         if (altitude < 0 && !submerged) return Color.decode("#ffffcc");  // below sea but not submerged
         if (altitude < 10) return Color.decode("#5E7F5A");  // very light yellow-green
         if (altitude < 20) return Color.decode("#7FA878");  // light green
