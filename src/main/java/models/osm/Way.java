@@ -1,5 +1,6 @@
 package models.osm;
 
+import models.RTree.ElementType;
 import models.geometry.BoundingBox;
 
 import java.awt.*;
@@ -12,7 +13,7 @@ public class Way extends Element implements Iterable<Node> {
     private final List<Node> nodes;
 
     public Way(long id, HashMap<String, String> tags, List<Node> nodes) {
-        super(id, tags, computeMbr(nodes), getAreaShoelace(nodes));
+        super(id, ElementType.way, tags, computeMbr(nodes), getAreaShoelace(nodes));
         this.nodes = nodes;
     }
 

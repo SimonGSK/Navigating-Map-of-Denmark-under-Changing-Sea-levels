@@ -1,5 +1,6 @@
 package models.osm;
 
+import models.RTree.ElementType;
 import models.geometry.BoundingBox;
 
 import java.awt.*;
@@ -12,12 +13,16 @@ public class Relation extends Element implements Iterable<Member> {
     private List<Member> members;
 
     public Relation(long id, HashMap<String, String> tags, List<Member> members) {
-        super(id, tags, computeMbr(members));
+        super(id, ElementType.relation, tags, computeMbr(members));
         this.members = members;
     }
 
     static private BoundingBox computeMbr(List<Member> members) {
         return BoundingBox.computeMbr(members.stream().map(Member::getElement).toList());
+    }
+
+    public boolean isEmpty() {
+        return members.isEmpty();
     }
 
     public boolean addMember(Member member) {
@@ -39,6 +44,10 @@ public class Relation extends Element implements Iterable<Member> {
     public void setMembers(List<Member> members) {
         this.members = members;
         setMbr(updateMbr(this.members));
+    }
+
+    public void updateMbr() {
+        setMbr(updateMbr(members));
     }
 
     private BoundingBox updateMbr(List<Member> members) {

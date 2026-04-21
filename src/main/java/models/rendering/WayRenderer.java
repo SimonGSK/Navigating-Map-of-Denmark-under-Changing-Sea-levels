@@ -1,27 +1,22 @@
 package models.rendering;
 
+import Interfaces.AbstractRenderer;
 import Interfaces.Drawable;
 import models.osm.Node;
 import models.osm.Way;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class WayRenderer implements Drawable {
-    private static final double MAX_WAY_SPAN = 0.7;
-    private static final double MAX_SEGMENT_LENGTH = 0.25;
-    private final double cosMeanLat;
-    private Collection<Way> ways; // TODO: Why do we use Collection<Way> and not List<Way>? Collection could be a Set, List, Map, etc.
+public class WayRenderer extends AbstractRenderer<Way> {
+    private static final double MAX_WAY_SPAN = 0.7; // TODO: Remove unused variables
+    private static final double MAX_SEGMENT_LENGTH = 0.25; // TODO: Remove unused variables
 
-    public WayRenderer(Collection<Way> ways, double meanLat) {
-        this.ways = ways;
-        this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
-    }
-
-    public void setWays(Collection<Way> ways) {
-        this.ways = ways;
+    public WayRenderer(double meanLat) {
+        super(meanLat);
     }
 
     private Path2D buildPath(List<Node> nodes, boolean closePath) {
@@ -51,7 +46,7 @@ public class WayRenderer implements Drawable {
         int drawnWays = 0;
         int totalWays = 0;
 
-        for (Way way : ways) {
+        for (Way way : elements) {
             totalWays++;
 
             Color c = way.getColor();

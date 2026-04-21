@@ -1,5 +1,6 @@
 package models.osm;
 
+import models.RTree.ElementType;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 
@@ -9,7 +10,7 @@ public class Node extends Element {
     private final Coordinate coord;
 
     public Node(long id, double lat, double lon) {
-        super(id, null, new BoundingBox(lat, lon, lat, lon));
+        super(id, ElementType.node, null, new BoundingBox(lat, lon, lat, lon));
         this.coord = new Coordinate(lat, lon);
     }
 

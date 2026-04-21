@@ -22,8 +22,7 @@ public class Tree {
         }
         this.mbr = mbr;
         this.treeData = new TreeData(nodeMap, wayMap, relationMap);
-
-        this.treeData.forEach(Element -> );
+        this.treeData.forEach(this::insert);
     }
 
     public void updateTreeNodeMbr(TreeNode node) {
@@ -38,36 +37,21 @@ public class Tree {
     }
 
     public SearchResults search(BoundingBox searchArea) {
-        EnumMap<ElementType, Set<Long>> keySearch = new EnumMap<>(ElementType.class);
-        if (root != null) {
-            searchRecursive(root, searchArea, keySearch);
-        }
-        return materialize(keySearch);
-    }
-
-    private SearchResults materialize(EnumMap<ElementType, Set<Long>> keyMap) {
         SearchResults searchResults = new SearchResults();
-        for (ElementType type : ElementType.values()) {
-            for (Long key : keyMap.get(type)) {
-                switch (type) {
-                    case ElementType.node -> searchResults.add(type, treeData.nodes().get(key));
-                    case ElementType.way -> searchResults.add(type, treeData.ways().get(key));
-                    case ElementType.relation -> searchResults.add(type, treeData.relations().get(key));
-                }
-            }
+        if (root != null) {
+            searchRecursive(root, searchArea, searchResults);
         }
         searchResults.sort();
         return searchResults;
     }
 
-    private void searchRecursive(TreeNode node, BoundingBox searchArea, EnumMap<ElementType, Set<Long>> searchResults) {
+    private void searchRecursive(TreeNode node, BoundingBox searchArea, SearchResults searchResults) {
         for (TreeEntry entry : node.entries) {
             if (entry.overlaps(searchArea)) {
                 switch (entry) {
                     case LeafEntry leaf -> {
-                        Long key = leaf.entryKey().element();
-                        ElementType type = leaf.entryKey().type();
-                        searchResults.get(type).add(key);
+                        // TODO: Implement LOD-logic here
+                        searchResults.add(leaf.element().getType(), leaf.element());
                     }
                     case NodeEntry nonLeaf -> searchRecursive(nonLeaf.child(), searchArea, searchResults);
                 }
@@ -75,7 +59,8 @@ public class Tree {
         }
     }
 
-    public Node getNearestNode(Coordinate cursor) {
+    public Node getNearestNode(Coordinate cursor, float radius) {
+/*
         float searchRadius = 1; // 1 lat/lon
         BoundingBox searchArea = new BoundingBox(cursor.getLat() - 1, cursor.getLon() - 1, cursor.getLat() + 1, cursor.getLon() + 1);
         
@@ -98,16 +83,18 @@ public class Tree {
         }
 
         return nearestNode;
+*/
+        return null;
     }
 
-    public void insert(Element element, ElementType type) {
+    public void insert(Element element) {
         if (root == null) {
             root = new TreeNode(true);
         }
 
         List<TreeNode> path = new ArrayList<>();
         TreeNode leaf = chooseLeaf(root, element.getMbr(), path);
-        leaf.entries.add(new LeafEntry(element.getMbr(), element));
+        leaf.entries.add(new LeafEntry(element));
         updateTreeNodeMbr(leaf);
 
         TreeNode splitResult = null;

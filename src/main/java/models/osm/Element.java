@@ -29,6 +29,10 @@ public abstract class Element extends SpatialElement implements Drawable {
         setArea(area);
     }
 
+    public ElementType getType() {
+        return type;
+    }
+
     public long getId() {
         return id;
     }
