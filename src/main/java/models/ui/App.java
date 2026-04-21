@@ -268,14 +268,14 @@ public class App extends DrawingApp {
 
 
         if (showHeightCurves) {
-            hcRenderer.draws2(gc); //Kan også bruge den normale draws(), men denne simple funktion ser bedre ud
+            hcRenderer.drawHcMap(gc); //Kan også bruge den normale draws(), men denne simple funktion ser bedre ud
         } else {
             relationRenderer.draws(gc);
             wayRenderer.draws(gc);
             hcRenderer.drawSubmersedCurves(gc);
 
             if(showHeightLines){
-                hcRenderer.draws(gc, false);
+                hcRenderer.drawHcLines(gc);
             }
         }
     }

@@ -24,7 +24,8 @@ public class HeightCurveRenderer implements Drawable {
 
     @Override
     public void draws(Graphics2D gc) {
-       List<HeightCurve> sorted = new ArrayList<>(data.curves);
+
+        List<HeightCurve> sorted = new ArrayList<>(data.curves);
        sorted.remove(data.sea);
 
        sorted.sort((a, b) -> Double.compare(boundingArea(b), boundingArea(a)));
@@ -40,11 +41,11 @@ public class HeightCurveRenderer implements Drawable {
                gc.draw(path);
            }
        }
-        this.toFill = true;
+       this.toFill = true;
     }
 
-    public void draws(Graphics2D gc, boolean toFill){
-        this.toFill = toFill;
+    public void drawHcLines(Graphics2D gc){
+        this.toFill = false;
         draws(gc);
     }
 
@@ -65,7 +66,7 @@ public class HeightCurveRenderer implements Drawable {
 
     //Bruges kun til OSM-kortet så hver height curve fyldes helt og ikke tager højde for children
     //Ser bedre ud
-    public void draws2(Graphics2D gc) {
+    public void drawHcMap(Graphics2D gc) {
         List<HeightCurve> sorted = new ArrayList<>(data.curves);
         sorted.remove(data.sea);
         sorted.sort((a, b) -> Double.compare(boundingArea(b), boundingArea(a)));
@@ -95,7 +96,7 @@ public class HeightCurveRenderer implements Drawable {
 
     public void drawSubmersedCurves(Graphics2D gc) {
         List<HeightCurve> sorted = new ArrayList<>(data.curves);
-        sorted.remove(data.sea);
+        //sorted.remove(data.sea);
         sorted.sort((a, b) -> Double.compare(boundingArea(b), boundingArea(a)));
 
         gc.setColor(Color.decode("#a9d3de"));
@@ -104,7 +105,7 @@ public class HeightCurveRenderer implements Drawable {
             if (!curve.isSubmerged()) {
                 continue;
             }
-            
+
             Path2D path = curve.getRegionPath(cosMeanLat);
             gc.fill(path);
         }

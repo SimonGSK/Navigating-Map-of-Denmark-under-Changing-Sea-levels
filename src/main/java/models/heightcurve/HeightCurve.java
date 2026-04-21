@@ -63,16 +63,16 @@ public class HeightCurve {
 
         //Hvad siger i til disse farver i stedet for?
         if (altitude < 0 && submerged) return Color.decode("#a9d3de");   // water
-        if (altitude < 0 && !submerged) return Color.decode("#ffffcc");  // below sea but not submerged
-        if (altitude < 10) return Color.decode("#5E7F5A");  // very light yellow-green
-        if (altitude < 20) return Color.decode("#7FA878");  // light green
-        if (altitude < 35) return Color.decode("#A3C18A");  // light teal
-        if (altitude < 55) return Color.decode("#C9D6A3");  // medium green
-        if (altitude < 75) return Color.decode("#E6D39A");  // green
-        if (altitude < 95) return Color.decode("#E5B97A");  // darker green
-        if (altitude < 115) return Color.decode("#D9985C"); // dark green
-        if (altitude < 135) return Color.decode("#C5743E"); // brown
-        return Color.decode("#8F3F2B"); // dark brown (160m+)
+        if (altitude < 0) return Color.decode("#ffffcc");  // below sea but not submerged
+        if (altitude < 10) return Color.decode("#5E7F5A");
+        if (altitude < 20) return Color.decode("#7FA878");
+        if (altitude < 35) return Color.decode("#A3C18A");
+        if (altitude < 55) return Color.decode("#C9D6A3");
+        if (altitude < 75) return Color.decode("#E6D39A");
+        if (altitude < 95) return Color.decode("#E5B97A");
+        if (altitude < 115) return Color.decode("#D9985C");
+        if (altitude < 135) return Color.decode("#C5743E");
+        return Color.decode("#8F3F2B");
     }
 
     public void resetSubmerged() {
