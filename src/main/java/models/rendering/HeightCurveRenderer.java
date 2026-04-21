@@ -98,7 +98,7 @@ public class HeightCurveRenderer implements Drawable {
         sorted.remove(data.sea);
         sorted.sort((a, b) -> Double.compare(boundingArea(b), boundingArea(a)));
 
-        gc.setColor(Color.decode("#2b8cbe"));
+        gc.setColor(Color.decode("#a9d3de"));
 
         for (HeightCurve curve : sorted) {
             if (!curve.isSubmerged()) {

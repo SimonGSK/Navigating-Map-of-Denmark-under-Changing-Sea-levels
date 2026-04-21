@@ -51,10 +51,8 @@ import models.parser.MapData;
 
 public class App extends DrawingApp {
     private static final boolean USE_EXAMPLE_ISLAND = false;
-    private static final double SEA_LEVEL = 0.0;
     private static final int WIDTH = 800;
     private static final int HEIGHT = 800;
-    private static final Color WATER_COLOR = Color.decode("#2b8cbe");
     private final SuperAffine superAffine = new SuperAffine();
     private final PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer<>(
             WIDTH, HEIGHT,
@@ -356,19 +354,4 @@ public class App extends DrawingApp {
             zoomLabel.setText(String.format("Zoom: %.0fx", scale));
         }
     }
-
-    /*
-    private static Shape project(Shape s, HeightCurveData d) {
-        double p = 20, c = Math.cos(Math.toRadians((d.minLat + d.maxLat) / 2));
-        double w = (d.maxLon - d.minLon) * c, h = d.maxLat - d.minLat;
-        double k = Math.min((WIDTH - 2 * p) / w, (HEIGHT - 2 * p) / h);
-        AffineTransform t = new AffineTransform();
-        t.translate(p + (WIDTH - 2 * p - w * k) / 2, p + (HEIGHT - 2 * p - h * k) / 2 + h * k);
-        t.scale(k, -k);
-        t.scale(c, 1);
-        t.translate(-d.minLon, -d.minLat);
-        return t.createTransformedShape(s);
-    }
-    */
-
 }
