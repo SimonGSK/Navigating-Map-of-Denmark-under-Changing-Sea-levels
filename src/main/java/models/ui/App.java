@@ -51,19 +51,8 @@ import models.parser.MapData;
 
 public class App extends DrawingApp {
     private static final boolean USE_EXAMPLE_ISLAND = false;
-    private static final int WIDTH = 800;
-    private static final int HEIGHT = 800;
     private final SuperAffine superAffine = new SuperAffine();
-    private final PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer<>(
-            WIDTH, HEIGHT,
-            IntBuffer.allocate(WIDTH * HEIGHT),
-            PixelFormat.getIntArgbPreInstance()
-    );
-    private final BufferedImage bufferedImage = new BufferedImage(
-            WIDTH,
-            HEIGHT,
-            BufferedImage.TYPE_INT_ARGB
-    );
+
     int treeNodeMin = 1;
     int treeNodeMax = 4;
     private double screenX = 0;
@@ -134,12 +123,6 @@ public class App extends DrawingApp {
         long nonemptyWays = parser.getOsmWayMap().values().stream().filter(w -> w.getNodes() != null && !w.getNodes().isEmpty()).count();
         System.out.println("Non-empty ways in parser map=" + nonemptyWays);
 
-        // reCenter(new double[]{10, 50, 15, 55}); // Centers around the bounds given
-        /* // TODO: Commenting this out because I've refactored bb -> mbr, and to use BoundingBox instead of List<Double>
-        if (bb.size() == 4) {
-            reCenter(new double[]{bb.get(0), bb.get(1), bb.get(2), bb.get(3)}, meanLat);
-        }
-         */
         reCenter(mbr, meanLat);
 
         BorderPane mouseEventComponent = new BorderPane();
@@ -338,13 +321,13 @@ public class App extends DrawingApp {
         double offsetX = (getWIDTH() - mapWidth) / 2.0;
         double offsetY = (getHEIGHT() - mapHeight) / 2.0;
 
-        updateZoomLabel();
-
         // WayRenderer y is -latitude, so after translating by maxLat it becomes 0..dataHeight
         superAffine.reset()
                 .prependTranslation(-mbr.minLon() * cosMeanLat, mbr.maxLat())
                 .prependScale(scale, scale)
                 .prependTranslation(offsetX, offsetY);
+
+        updateZoomLabel();
     }
 
     private void updateZoomLabel() {

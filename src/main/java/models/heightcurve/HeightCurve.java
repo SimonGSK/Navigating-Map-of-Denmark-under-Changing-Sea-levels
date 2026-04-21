@@ -47,21 +47,7 @@ public class HeightCurve {
 
     public Color getFillColor(double seaLevel) {
         double altitude = height - seaLevel;
-        /*
-        if (altitude < 0 && submerged) return Color.decode("#2b8cbe");   // water
-        if (altitude < 0 && !submerged) return Color.decode("#ffffcc");  // below sea but not submerged
-        if (altitude < 10) return Color.decode("#edf8b1");  // very light yellow-green
-        if (altitude < 20) return Color.decode("#c2e699");  // light green
-        if (altitude < 30) return Color.decode("#99d8c9");  // light teal
-        if (altitude < 40) return Color.decode("#78c679");  // medium green
-        if (altitude < 60) return Color.decode("#41ab5d");  // green
-        if (altitude < 80) return Color.decode("#238443");  // darker green
-        if (altitude < 100) return Color.decode("#006837"); // dark green
-        if (altitude < 130) return Color.decode("#78503a"); // brown
-        return Color.decode("#5c3d2a"); // dark brown (160m+)
-         */
 
-        //Hvad siger i til disse farver i stedet for?
         if (altitude < 0 && submerged) return Color.decode("#a9d3de");   // water
         if (altitude < 0) return Color.decode("#ffffcc");  // below sea but not submerged
         if (altitude < 10) return Color.decode("#5E7F5A");
@@ -82,13 +68,6 @@ public class HeightCurve {
         }
     }
 
-    /**
-     * Marks this curve and its children as submerged based on the parent-child structure.
-     * A curve is submerged only if its parent is submerged AND its height is below sea level.
-     * 
-     * @param seaLevel the current sea level
-     * @param parentSubmerged whether the parent curve is submerged
-     */
     public void updateSubmersion(double seaLevel, boolean parentSubmerged) {
         // This curve is submerged if parent is submerged AND this curve's height is below sea level
         this.submerged = parentSubmerged && this.height < seaLevel;
