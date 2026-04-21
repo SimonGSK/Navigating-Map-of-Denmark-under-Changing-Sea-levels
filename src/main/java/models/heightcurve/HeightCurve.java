@@ -12,7 +12,7 @@ public class HeightCurve {
     private double height;
     private List<Coordinate> coords;
     private List<HeightCurve> children;
-    private boolean submerged;
+    public boolean submerged;
     private HeightCurve parent;
 
     public Path2D getBoundaryPath(double cosMeanLat) {

@@ -12,4 +12,5 @@ module org.example {
     exports models.osm;
     exports models.parser;
     exports models.ui;
+    exports models.heightcurve;
 }
