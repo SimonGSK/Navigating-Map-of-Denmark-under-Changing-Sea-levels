@@ -47,7 +47,7 @@ public class HeightCurveData {
 
         for (HeightCurve hc : sorted) {
             HeightCurve parent = findParent(hc, sorted, sea);
-            parent.getChildren().add(hc);
+            parent.addChild(hc);
         }
     }
 

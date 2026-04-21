@@ -24,10 +24,8 @@ public class HeightCurveRenderer implements Drawable {
 
     @Override
     public void draws(Graphics2D gc) {
-
         List<HeightCurve> sorted = new ArrayList<>(data.curves);
        sorted.remove(data.sea);
-
        sorted.sort((a, b) -> Double.compare(boundingArea(b), boundingArea(a)));
 
        for (HeightCurve curve: sorted) {
@@ -60,6 +58,7 @@ public class HeightCurveRenderer implements Drawable {
         }
         return (maxLat - minLat) * (maxLon - minLon);
     }
+
     public void setSeaLevel(double level) {
         this.seaLevel = level;
     }
@@ -74,39 +73,41 @@ public class HeightCurveRenderer implements Drawable {
         for (HeightCurve curve: sorted) {
             Path2D path = new Path2D.Double();
             boolean first = true;
+
             for (Coordinate coord: curve.getCoords()) {
                 double x = coord.getLon() * cosMeanLat;
                 double y = -coord.getLat();
+
                 if (first) {
                     path.moveTo(x, y);
                     first = false;
                 } else path.lineTo(x, y);
             }
             path.closePath();
-            if (toFill){
-                gc.setColor(curve.getFillColor(seaLevel));
-                gc.fill(path);
-            } else{
-                gc.setColor(Color.black);
-                gc.draw(path);
-            }
+            gc.setColor(curve.getFillColor(seaLevel));
+            gc.fill(path);
         }
-        this.toFill = true;
     }
 
+    //Bruges til at farve oversvømmede height curves på OSM-kortet
     public void drawSubmersedCurves(Graphics2D gc) {
+        if (seaLevel <= 0) return;
+
+        //Farver området mellem havet og yderste height curve
+        Path2D coastArea = data.sea.getRegionPath(cosMeanLat);
+        gc.setColor(Color.decode("#a9d3de"));
+        gc.fill(coastArea);
+
         List<HeightCurve> sorted = new ArrayList<>(data.curves);
-        //sorted.remove(data.sea);
+        sorted.remove(data.sea);
         sorted.sort((a, b) -> Double.compare(boundingArea(b), boundingArea(a)));
 
-        gc.setColor(Color.decode("#a9d3de"));
-
+        //Farver alle oversvømmede height curves
         for (HeightCurve curve : sorted) {
-            if (!curve.isSubmerged()) {
-                continue;
-            }
+            if (!curve.isSubmerged()) continue;
 
             Path2D path = curve.getRegionPath(cosMeanLat);
+            gc.setColor(curve.getFillColor(seaLevel));
             gc.fill(path);
         }
     }
