@@ -184,7 +184,13 @@ public class App extends DrawingApp {
 
         zoomLabel = new Label("Zoom: 1.00x");
 
-        HBox controls = new HBox(10.0, toggleButton, heightLinesButton, seaLabel, seaSlider, zoomLabel);
+        Button zoomOutButton = new Button("-");
+        zoomOutButton.setOnAction(e -> applyZoom(1 / 1.5, getWIDTH() / 2.0, getHEIGHT() / 2.0));
+
+        Button zoomInButton = new Button("+");
+        zoomInButton.setOnAction(e -> applyZoom(1.5, getWIDTH() / 2.0, getHEIGHT() / 2.0));
+
+        HBox controls = new HBox(10.0, toggleButton, heightLinesButton, seaLabel, seaSlider, zoomLabel, zoomOutButton, zoomInButton);
         controls.setPadding(new Insets(8));
         controls.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
@@ -311,15 +317,8 @@ public class App extends DrawingApp {
     }
 
     private void handleScroll(ScrollEvent event) {
-        double zoom = event.getDeltaY() > 0 ? 1.05 : 1 / 1.05;
-        superAffine
-                .prependTranslation(-event.getX(), -event.getY())
-                .prependScale(zoom, zoom)
-                .prependTranslation(event.getX(), event.getY());
-
-        updateZoomLabel();
-
-        drawAndRender();
+        double factor = event.getDeltaY() > 0 ? 1.05 : 1 / 1.05;
+        applyZoom(factor, event.getX(), event.getY());
     }
 
     public void reCenter(BoundingBox mbr, double meanLat) {
@@ -353,5 +352,15 @@ public class App extends DrawingApp {
         if (zoomLabel != null){
             zoomLabel.setText(String.format("Zoom: %.0fx", scale));
         }
+    }
+
+    private void applyZoom(double factor, double x, double y) {
+        superAffine
+                .prependTranslation(-x, -y)
+                .prependScale(factor, factor)
+                .prependTranslation(x, y);
+
+        updateZoomLabel();
+        drawAndRender();
     }
 }
