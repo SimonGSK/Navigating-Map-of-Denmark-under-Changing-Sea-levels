@@ -23,6 +23,7 @@ import models.RTree.Tree;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.geometry.SuperAffine;
+import models.heightcurve.HeightCurve;
 import models.heightcurve.HeightCurveData;
 import models.osm.Node;
 import models.osm.Relation;
@@ -79,6 +80,7 @@ public class App extends DrawingApp {
     private HeightCurveRenderer hcRenderer;
     private HeightCurveData hcData;
     private double meanLat;
+    private Label zoomLabel;
     private boolean showHeightCurves = false;
     private boolean showHeightLines = false;
 
@@ -151,36 +153,40 @@ public class App extends DrawingApp {
         imageView.setFitHeight(getHEIGHT());
         imageView.setPreserveRatio(false);
 
-        Button toggleButton = new Button("Vis højdekort");
+        Button toggleButton = new Button("Show elevation map");
         toggleButton.setOnAction(e -> {
             showHeightCurves = !showHeightCurves;
-            toggleButton.setText(showHeightCurves ? "Vis OSM-kort" : "Vis højdekort");
+            toggleButton.setText(showHeightCurves ? "Show regular map" : "Show elevation map");
             drawAndRender();
         });
 
-        Button heightLinesButton = new Button("Vis højdekurver");
+        Button heightLinesButton = new Button("Show height curves");
         heightLinesButton.setOnAction(e -> {
             showHeightLines = !showHeightLines;
-            heightLinesButton.setText(showHeightLines ? "Skjul højdekurver" : "Vis højdekurver");
+            heightLinesButton.setText(showHeightLines ? "Hide height curves" : "Show height curves");
             drawAndRender();
         });
 
-        Slider seaSlider = new Slider(0, 100, 0);
+        double maxH = Math.ceil(hcData.getMaxHeight());
+
+        Slider seaSlider = new Slider(0, maxH, 0);
         seaSlider.setShowTickLabels(true);
-        seaSlider.setMajorTickUnit(10);
+        seaSlider.setMajorTickUnit(Math.ceil(maxH / 100) * 10);
         seaSlider.setPrefWidth(300);
 
-        Label seaLabel = new Label("Havniveau: 0m");
+        Label seaLabel = new Label("Sea level: 0m");
 
         seaSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             double level = newVal.doubleValue();
-            seaLabel.setText(String.format("Havniveau: %.1fm", level));
+            seaLabel.setText(String.format("Sea level: %.0fm", level));
             hcData.updateFlooding(level);
             hcRenderer.setSeaLevel(level);
             drawAndRender();
         });
 
-        HBox controls = new HBox(10.0, toggleButton, heightLinesButton, seaLabel, seaSlider);
+        zoomLabel = new Label("Zoom: 1.00x");
+
+        HBox controls = new HBox(10.0, toggleButton, heightLinesButton, seaLabel, seaSlider, zoomLabel);
         controls.setPadding(new Insets(8));
         controls.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
@@ -258,10 +264,11 @@ public class App extends DrawingApp {
 
 
         if (showHeightCurves) {
-            hcRenderer.draws(gc);
+            hcRenderer.draws2(gc); //Kan også bruge den normale draws(), men denne simple funktion ser bedre ud
         } else {
             relationRenderer.draws(gc);
             wayRenderer.draws(gc);
+            hcRenderer.drawSubmersedCurves(gc);
 
             if(showHeightLines){
                 hcRenderer.draws(gc, false);
@@ -312,6 +319,8 @@ public class App extends DrawingApp {
                 .prependScale(zoom, zoom)
                 .prependTranslation(event.getX(), event.getY());
 
+        updateZoomLabel();
+
         drawAndRender();
     }
 
@@ -332,12 +341,22 @@ public class App extends DrawingApp {
         double offsetX = (getWIDTH() - mapWidth) / 2.0;
         double offsetY = (getHEIGHT() - mapHeight) / 2.0;
 
+        updateZoomLabel();
+
         // WayRenderer y is -latitude, so after translating by maxLat it becomes 0..dataHeight
         superAffine.reset()
                 .prependTranslation(-mbr.minLon() * cosMeanLat, mbr.maxLat())
                 .prependScale(scale, scale)
                 .prependTranslation(offsetX, offsetY);
     }
+
+    private void updateZoomLabel() {
+        double scale = Math.log(superAffine.getScaleX()) / Math.log(2);
+        if (zoomLabel != null){
+            zoomLabel.setText(String.format("Zoom: %.0fx", scale));
+        }
+    }
+
     /*
     private static Shape project(Shape s, HeightCurveData d) {
         double p = 20, c = Math.cos(Math.toRadians((d.minLat + d.maxLat) / 2));
