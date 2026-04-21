@@ -106,24 +106,24 @@ public class TestParser implements IParser {
             double maxLon = bounds.has("maxLon") ? bounds.path("maxLon").asDouble()
                                                            :  bounds.path("maxLon").asDouble();
 
-            boundingBox.addAll(List.of(minLat, maxLat, minLon, maxLon));
+            boundingBox.addAll(List.of(minLat, minLon, maxLat, maxLon));
         }
     }
     private void computeBoundingBoxFromNodes() {
         if (nodeMap.isEmpty()) return;
 
         double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
-        double minlon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
+        double minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
 
         for (Node node: nodeMap.values()) {
             double lat = node.getLat();
             double lon = node.getLon();
             if (lat < minLat) minLat = lat;
             if (lat > maxLat) maxLat = lat;
-            if (lon < minlon) minlon = lon;
+            if (lon < minLon) minLon = lon;
             if (lon > maxLon) maxLon = lon;
         }
-        boundingBox.addAll(List.of(minLat, maxLat, minlon, maxLon));
+        boundingBox.addAll(List.of(minLat, minLon, maxLat, maxLon));
     }
 
     private void parseNodes(JsonNode root) {

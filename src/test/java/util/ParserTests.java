@@ -295,10 +295,6 @@ public class ParserTests {
 
                     assertTrue(actualMembers.stream().anyMatch(m -> m.getElement().getId() == memberElement.getId() && m.getElement().getClass().equals(memberElement.getClass()) && m.getRole().equals(member.getRole())), () -> String.format("[ERROR - %s] : Member with id %d and role '%s' was missing on Relation #%d", pr.getName(), memberElement.getId(), member.getRole(), expectedRelation.getId()));
 
-                    String expectedRole = member.getRole();
-                    String actualRole = actualMembers.stream().filter(p -> p.getElement().getId() == memberElement.getId()).findFirst().orElseThrow(() -> new RuntimeException("Member not found")).getRole();
-
-                    assertEquals(expectedRole, actualRole, () -> String.format("[ERROR - %s] : Member with id %d on Relation #%d has role '%s', should be '%s'", pr.getName(), memberElement.getId(), expectedRelation.getId(), actualRole, expectedRole));
                 }
             }
         } catch (Exception e) {
