@@ -60,6 +60,7 @@ public class Tree {
     }
 
     public Node getNearestNode(Coordinate cursor, float radius) {
+
 /*
         float searchRadius = 1; // 1 lat/lon
         BoundingBox searchArea = new BoundingBox(cursor.getLat() - 1, cursor.getLon() - 1, cursor.getLat() + 1, cursor.getLon() + 1);
