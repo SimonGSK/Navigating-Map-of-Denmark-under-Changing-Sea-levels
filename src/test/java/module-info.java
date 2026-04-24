@@ -1,4 +1,8 @@
-module org.example {
+open module org.example.test {
+    requires org.example;
+    requires org.junit.jupiter.api;
+    requires org.junit.jupiter.params;
+    requires org.junit.platform.commons;
     requires javafx.controls;
     requires javafx.graphics;
     requires javafx.base;
@@ -7,10 +11,6 @@ module org.example {
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.annotation;
 
-    exports Interfaces;
-    exports models.geometry;
-    exports models.osm;
-    exports models.parser;
-    exports models.ui;
-    exports models.heightcurve;
+    exports util.extensions;
 }
+

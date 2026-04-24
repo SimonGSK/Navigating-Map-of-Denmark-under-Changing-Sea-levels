@@ -78,26 +78,26 @@ public class Parser implements IParser {
 
                 switch (type) {
                     case "node" -> {
-                        if (nodeMap.containsKey(ref)) {
-                            Member member = new Member(nodeMap.get(ref), role);
-                            members.add(member);
+                        Node node = nodeMap.get(ref);
+                        if (node == null) {
+                            node = new Node(ref, 0, 0);
+                            nodeMap.put(ref, node);
                         }
+                        members.add(new Member(node, role));
                     }
                     case "way" -> {
-                        if (wayMap.containsKey(ref)) {
-                            Member member = new Member(wayMap.get(ref), role);
-                            members.add(member);
+                        Way way =  wayMap.get(ref);
+                        if (way == null) {
+                            way = new Way(ref, new HashMap<>(), new ArrayList<>());
+                            wayMap.put(ref, way);
                         }
+                        members.add(new Member(way, role));
                     }
                     case "relation" -> {
                         if (!relationMap.containsKey(ref)) {
-                            List<Member> newMembers = new ArrayList<>();
-                            HashMap<String, String> newTags = new HashMap<>();
-                            Relation newRelation = new Relation(ref, newTags, newMembers);
-                            relationMap.put(ref, newRelation);
+                            relationMap.put(ref, new Relation(ref, new HashMap<>(), new ArrayList<>()));
                         }
-                        Member member = new Member(relationMap.get(ref), role);
-                        members.add(member);
+                        members.add(new Member(relationMap.get(ref), role));
                     }
                 }
             } else if (line.contains("<tag")) {
@@ -127,7 +127,14 @@ public class Parser implements IParser {
             line = br.readLine().trim();
             if (line.contains("<nd")) {
                 long ndID = getAttributeLong(line, "ref");
-                nodes.add(getOsmNodeMap().get(ndID));
+                Node node = nodeMap.get(ndID);
+
+                if (node == null) {
+                    node = new Node(ndID, 0, 0);
+                    nodeMap.put(ndID, node);
+                }
+
+                nodes.add(node);
             }
             if (line.contains("<tag")) {
                 String k = getAttribute(line, "k");
@@ -136,7 +143,18 @@ public class Parser implements IParser {
             }
         }
 
-        return new Way(wayID, tags, nodes);
+        Way way;
+
+        if (wayMap.containsKey(wayID)) {
+            way = wayMap.get(wayID);
+            way.setTags(tags);
+            way.setNodes(nodes);
+        } else {
+            way = new Way(wayID, tags, nodes);
+            wayMap.put(wayID, way);
+        }
+
+        return way;
     }
 
     private Node extractNode(String line) {
@@ -163,7 +181,12 @@ public class Parser implements IParser {
         }
         int valueStart = start + pattern.length();
         int valueEnd = s.indexOf('"', valueStart);
-        return s.substring(valueStart, valueEnd);
+        String value =  s.substring(valueStart, valueEnd);
+        return value
+                .replace("&amp;", "&")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&quot;", "\"");
     }
 
     public double getAttributeDouble(String s, String key) {
@@ -202,4 +225,5 @@ public class Parser implements IParser {
     public HashMap<Long, Relation> getOsmRelationMap() {
         return relationMap;
     }
+
 }
