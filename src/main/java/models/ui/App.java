@@ -1,11 +1,18 @@
 package models.ui;
 
+import Interfaces.Drawable;
 import javafx.scene.Scene;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelBuffer;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.geometry.Insets;
 import models.geometry.SuperAffine;
+import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
@@ -16,7 +23,13 @@ import models.RTree.SearchResults;
 import models.RTree.Tree;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
+import models.geometry.SuperAffine;
+import models.heightcurve.HeightCurve;
 import models.heightcurve.HeightCurveData;
+import models.osm.Node;
+import models.osm.Relation;
+import models.osm.Way;
+import models.parser.MapData;
 import models.parser.Parser;
 import models.rendering.NodeRenderer;
 import models.parser.HCParser;
@@ -27,6 +40,14 @@ import models.rendering.WayRenderer;
 import java.awt.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import models.ui.DrawingUtils;
+import models.parser.MapData;
 
 //import static com.sun.javafx.scene.CameraHelper.project;
 
@@ -233,7 +254,7 @@ public class App extends DrawingApp {
         }*/
     }
 
-    private Coordinate getCursorCoordinate(double screenX, double screenY) {
+    private Coordinate pixelToCoordinate(double screenX, double screenY) {
         Point2D world = superAffine.inverseTransform(screenX, screenY);
 
         double cosMeanLat = Math.cos(Math.toRadians(meanLat));
@@ -279,10 +300,10 @@ public class App extends DrawingApp {
                 .prependScale(scale, scale)
                 .prependTranslation(offsetX, offsetY);
 
-        getZoomLevel();
+        updateZoomLabel();
     }
 
-    private void getZoomLevel() {
+    private void updateZoomLabel() {
         double scale = Math.log(superAffine.getScaleX()) / Math.log(2);
         if (zoomLabel != null){
             zoomLabel.setText(String.format("Zoom: %.1fx", scale));
@@ -295,7 +316,7 @@ public class App extends DrawingApp {
                 .prependScale(factor, factor)
                 .prependTranslation(x, y);
 
-        getZoomLevel();
+        updateZoomLabel();
         drawAndRender();
     }
 }
