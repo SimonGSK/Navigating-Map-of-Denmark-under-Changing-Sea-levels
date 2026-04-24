@@ -39,6 +39,8 @@ public class Dijkstra {
 
                 if (visited.contains(neighbour)) continue;
 
+                if (neighbour.isFlooded()) continue;
+
                 double newDist = distances.get(current) + edge.getWeight();
 
                 if (newDist < distances.getOrDefault(neighbour, Double.MAX_VALUE)) {

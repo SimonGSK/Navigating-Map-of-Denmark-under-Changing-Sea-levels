@@ -28,6 +28,7 @@ import java.util.List;
 public class Node extends Element implements Comparable<Node> {
     private final Coordinate coord;
     private final List<Edge> adjacencyList;
+    private boolean flooded = false;
 
     /**
      * Constructs a node at the specified geographic location.
@@ -41,6 +42,18 @@ public class Node extends Element implements Comparable<Node> {
         this.coord = new Coordinate(lat, lon);
         this.adjacencyList = new ArrayList<>();
     }
+
+
+
+    public void resolveFlooding(HeightCurveData heightCurveData) {
+        this.flooded = heightCurveData.isCoordinateSubmerged(this.coord);
+    }
+
+    public boolean isFlooded() {
+        return flooded;
+    }
+
+
 
     public List<Edge> getAdjacencyList() {
         return adjacencyList;
@@ -63,4 +76,4 @@ public class Node extends Element implements Comparable<Node> {
     public int compareTo(Node other) {
         return Long.compare(this.getId(), other.getId());
     }
-}
+
