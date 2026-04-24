@@ -118,6 +118,7 @@ public abstract class Element extends SpatialElement implements Drawable {
             if ("wetland".equals(natural)) return Color.decode("#638040");
             if ("heath".equals(natural)) return Color.decode("#638040");
             if ("coastline".equals(natural)) return Color.decode("#c7b687");
+            if ("beach".equals(natural)) return Color.decode("#c9b383");
             return Color.decode("#0b4f14"); // Mørkegrøn
         }
 
@@ -127,6 +128,7 @@ public abstract class Element extends SpatialElement implements Drawable {
             if ("grass".equals(surface)) return Color.decode("#0b4f14"); // Grøn
             if ("paved".equals(surface) || "paving_stones".equals(surface)) return Color.decode("#4e524f"); // Grå
             if ("gravel".equals(surface)) return Color.decode("#4a4437"); // Gråbrun
+            if ("sand".equals(surface)) return Color.decode("#c9b383"); // Sandfarvet
             return Color.decode("#171716"); // Mørkegrå
         }
 
@@ -165,27 +167,26 @@ public abstract class Element extends SpatialElement implements Drawable {
             return Color.decode("#825e35");
         }
 
+        //AMENITY AND LEISURE
+        if (tags.containsKey("amenity") || tags.containsKey("leisure")){
+            if (tags.containsValue("dog_park")) return Color.decode("#6a8a57");
+            if (tags.containsValue("golf_course")) return Color.decode("#6a8a57");
+            if (tags.containsValue("hospital")) return Color.decode("#c9b09d");
+            return Color.decode("#471309"); // Brun-rød
+        }
+
         //OTHER TAGS
-        if (tags.containsKey("man_made")) {
-            return Color.decode("#75716d");
-        } //Grå
-        if (tags.containsKey("tourism")) {
-            return Color.decode("#8c6239");
-        } //Muted brown
-        if (tags.containsKey("historic")) {
-            return Color.decode("#8a7355");
-        } //Slightly lighter sandy brown
+        if (tags.containsKey("man_made")) return Color.decode("#75716d"); //Grå
+        if (tags.containsKey("tourism")) return Color.decode("#8c6239"); //Muted brown
+        if (tags.containsKey("historic")) return Color.decode("#8a7355"); //Slightly lighter sandy brown
         if (tags.containsKey("building") || tags.containsKey("building:part")) return Color.decode("#a34018"); // Orange
-        if (tags.containsKey("amenity") || tags.containsKey("leisure")) return Color.decode("#471309"); // Brun-rød
         if (tags.containsKey("waterway")) return Color.decode("#184e85"); // Blå
         if (tags.containsKey("landcover")) return Color.decode("#1a3d0a"); //Mørkegrøn
         if (tags.containsKey("grassland")) return Color.decode("#6b8c3a"); //Grøn
-        if (tags.containsKey("place")) return Color.decode("#4e524f"); //Paved grey
-
 
         //FALLBACK COLOR
         System.out.println(tags);
-        return Color.decode("#e3dad1");
+        return Color.decode("#9c9083");
     }
     //TODO: Find farver til de elementer der får fallback color
 

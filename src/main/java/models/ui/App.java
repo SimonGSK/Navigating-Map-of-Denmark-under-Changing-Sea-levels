@@ -2,24 +2,38 @@ package models.ui;
 
 import Interfaces.Drawable;
 import javafx.scene.Scene;
+import javafx.scene.control.Slider;
+import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import models.geometry.SuperAffine;
+import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import models.RTree.SearchResults;
 import models.RTree.Tree;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.geometry.SuperAffine;
+import models.heightcurve.HeightCurve;
+import models.heightcurve.HeightCurveData;
 import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
 import models.parser.MapData;
 import models.parser.Parser;
 import models.rendering.NodeRenderer;
+import models.parser.HCParser;
+import models.rendering.HeightCurveRenderer;
 import models.rendering.RelationRenderer;
 import models.rendering.WayRenderer;
 
@@ -27,19 +41,18 @@ import java.awt.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import models.ui.DrawingUtils;
+import models.parser.MapData;
 
 //import static com.sun.javafx.scene.CameraHelper.project;
 
 public class App extends DrawingApp {
     private static final boolean USE_EXAMPLE_ISLAND = false;
-    private static final double SEA_LEVEL = 0.0;
-    private static final int WIDTH = 800;
-    private static final int HEIGHT = 800;
-    private static final Color WATER_COLOR = Color.decode("#2b8cbe");
     private final SuperAffine superAffine = new SuperAffine();
     private final PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer<>(
             WIDTH, HEIGHT,
@@ -58,8 +71,13 @@ public class App extends DrawingApp {
 
     private RelationRenderer relationRenderer;
     private WayRenderer wayRenderer;
+    private HeightCurveRenderer hcRenderer;
+    private HeightCurveData hcData;
     private NodeRenderer nodeRenderer;
     private double meanLat;
+    private Label zoomLabel;
+    private boolean showHeightCurves = false;
+    private boolean showHeightLines = false;
 
     private double prevMouseX;
     private double prevMouseY;
@@ -78,14 +96,6 @@ public class App extends DrawingApp {
         }
         stage.setResizable(false);
         stage.setWidth(getWIDTH());
-        stage.setHeight(getHEIGHT());
-
-        /*
-
-        HCParser hcParser = new HCParser("bornholm.hc");
-        HeightCurveData hcData = hcParser.parse();
-        HeightCurveRenderer hcRender = new HeightCurveRenderer(hcData);
-         */
 
         Parser parser = new Parser("Bornholm.osm");
         parser.parse();
@@ -118,48 +128,62 @@ public class App extends DrawingApp {
         imageView.setFitHeight(getHEIGHT());
         imageView.setPreserveRatio(false);
 
-        StackPane root = new StackPane(this.imageView, mouseEventComponent);
-        stage.setScene(new Scene(root, getWIDTH(), getHEIGHT()));
+        // TODO: Make this into a separate object or function
+        Button toggleButton = new Button("Show elevation map");
+        toggleButton.setOnAction(e -> {
+            showHeightCurves = !showHeightCurves;
+            toggleButton.setText(showHeightCurves ? "Show regular map" : "Show elevation map");
+            drawAndRender();
+        });
+
+        Button heightLinesButton = new Button("Show height curves");
+        heightLinesButton.setOnAction(e -> {
+            showHeightLines = !showHeightLines;
+            heightLinesButton.setText(showHeightLines ? "Hide height curves" : "Show height curves");
+            drawAndRender();
+        });
+
+        double maxH = Math.ceil(hcData.getMaxHeight());
+
+        Slider seaSlider = new Slider(0, maxH, 0);
+        seaSlider.setShowTickLabels(true);
+        seaSlider.setMajorTickUnit(Math.ceil(maxH / 100) * 10);
+        seaSlider.setPrefWidth(300);
+
+        Label seaLabel = new Label("Sea level: 0m");
+
+        seaSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            double level = newVal.doubleValue();
+            seaLabel.setText(String.format("Sea level: %.0fm", level));
+            hcData.updateFlooding(level);
+            hcRenderer.setSeaLevel(level);
+            drawAndRender();
+        });
+
+        zoomLabel = new Label("Zoom: 1.00x");
+
+        Button zoomOutButton = new Button("-");
+        zoomOutButton.setOnAction(e -> applyZoom(1 / 1.5, getWIDTH() / 2.0, getHEIGHT() / 2.0));
+
+        Button zoomInButton = new Button("+");
+        zoomInButton.setOnAction(e -> applyZoom(1.5, getWIDTH() / 2.0, getHEIGHT() / 2.0));
+
+        HBox controls = new HBox(10.0, toggleButton, heightLinesButton, seaLabel, seaSlider, zoomLabel, zoomOutButton, zoomInButton);
+        controls.setPadding(new Insets(8));
+        controls.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        BorderPane layout = new BorderPane();
+        layout.setCenter(new StackPane(this.imageView, mouseEventComponent));
+        layout.setBottom(controls);
+        controls.setStyle("-fx-background-color: white;");
+
+        stage.setScene(new Scene(layout, getWIDTH(), getHEIGHT() + 50));
         stage.show();
 
-        /*
-        Graphics2D gc = bufferedImage.createGraphics();
-        gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        gc.setBackground(WATER_COLOR);
-        gc.fillRect(0, 0, getWIDTH(), getHEIGHT());
-
-
-        HeightCurveData data;
-        if (USE_EXAMPLE_ISLAND) {
-           data = ExampleIsland.create();
-        } else {
-            data = bornholm.create();
-        }
-
-        HeightCurve sea = data.sea;
-        sea.resetSubmerged();
-        sea.submerge(SEA_LEVEL);
-
-        for (HeightCurve curve: data.curves) {
-            if (curve == sea) {
-                continue;
-            }
-            gc.setColor(curve.getFillColor(SEA_LEVEL));
-            gc.fill(project(curve.getRegionPath(), data));
-        }
-        for (HeightCurve  curve: data.curves) {
-            if (curve == sea) {
-                continue;
-            }
-            gc.setColor(Color.BLACK);
-            gc.draw(project(curve.getBoundaryPath(), data));
-        }
-
-        int[] pixels = ((DataBufferInt) bufferedImage.getRaster().getDataBuffer()).getData();
-        System.arraycopy(pixels, 0, pixelBuffer.getBuffer().array(), 0, pixels.length);
-        imageView.setImage(new WritableImage(pixelBuffer));
-
-         */
+        System.out.println("Nodes: " + parser.getOsmNodeMap().size());
+        System.out.println("Ways: " + parser.getOsmWayMap().size());
+        System.out.println("Relations: " + parser.getOsmRelationMap().size());
+        System.out.println("Bounding box: " + parser.getBoundingBox());
 
         // Initial draw and render
         draw();
@@ -203,9 +227,19 @@ public class App extends DrawingApp {
         // Apply world transform for drawing map geometry.
         gc.setTransform(superAffine);
 
-        // nodeRenderer.draws(gc); // TODO: Implement draws() in NodeRenderer to draw trees, etc.
-        relationRenderer.draws(gc);
-        wayRenderer.draws(gc);
+
+        if (showHeightCurves) {
+            hcRenderer.drawHcMap(gc); //Kan også bruge den normale draws(), men denne simple funktion ser bedre ud
+        } else {
+            // nodeRenderer.draws(gc); // TODO: Implement draws() in NodeRenderer to draw trees, etc.
+            relationRenderer.draws(gc);
+            wayRenderer.draws(gc);
+            hcRenderer.drawSubmersedCurves(gc);
+
+            if(showHeightLines){
+                hcRenderer.drawHcLines(gc);
+            }
+        }
     }
 
     private void drawAndRender() {
@@ -245,13 +279,8 @@ public class App extends DrawingApp {
     }
 
     private void handleScroll(ScrollEvent event) {
-        double zoom = event.getDeltaY() > 0 ? 1.05 : 1 / 1.05;
-        superAffine
-                .prependTranslation(-event.getX(), -event.getY())
-                .prependScale(zoom, zoom)
-                .prependTranslation(event.getX(), event.getY());
-
-        drawAndRender();
+        double factor = event.getDeltaY() > 0 ? 1.05 : 1 / 1.05;
+        applyZoom(factor, event.getX(), event.getY());
     }
 
     public void reCenter(BoundingBox mbr, double meanLat) {
@@ -276,19 +305,24 @@ public class App extends DrawingApp {
                 .prependTranslation(-mbr.minLon() * cosMeanLat, mbr.maxLat())
                 .prependScale(scale, scale)
                 .prependTranslation(offsetX, offsetY);
-    }
-    /*
-    private static Shape project(Shape s, HeightCurveData d) {
-        double p = 20, c = Math.cos(Math.toRadians((d.minLat + d.maxLat) / 2));
-        double w = (d.maxLon - d.minLon) * c, h = d.maxLat - d.minLat;
-        double k = Math.min((WIDTH - 2 * p) / w, (HEIGHT - 2 * p) / h);
-        AffineTransform t = new AffineTransform();
-        t.translate(p + (WIDTH - 2 * p - w * k) / 2, p + (HEIGHT - 2 * p - h * k) / 2 + h * k);
-        t.scale(k, -k);
-        t.scale(c, 1);
-        t.translate(-d.minLon, -d.minLat);
-        return t.createTransformedShape(s);
+
+        updateZoomLabel();
     }
 
-     */
+    private void updateZoomLabel() {
+        double scale = Math.log(superAffine.getScaleX()) / Math.log(2);
+        if (zoomLabel != null){
+            zoomLabel.setText(String.format("Zoom: %.1fx", scale));
+        }
+    }
+
+    private void applyZoom(double factor, double x, double y) {
+        superAffine
+                .prependTranslation(-x, -y)
+                .prependScale(factor, factor)
+                .prependTranslation(x, y);
+
+        updateZoomLabel();
+        drawAndRender();
+    }
 }

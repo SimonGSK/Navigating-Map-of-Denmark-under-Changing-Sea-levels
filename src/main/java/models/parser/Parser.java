@@ -93,10 +93,7 @@ public class Parser implements IParser {
                     }
                     case "relation" -> {
                         if (!relationMap.containsKey(ref)) {
-                            List<Member> newMembers = new ArrayList<>();
-                            HashMap<String, String> newTags = new HashMap<>();
-                            Relation newRelation = new Relation(ref, newTags, newMembers);
-                            relationMap.put(ref, newRelation);
+                            relationMap.put(ref, new Relation(ref, new HashMap<>(), new ArrayList<>()));
                         }
                         Member member = new Member(relationMap.get(ref), ElementType.relation, role);
                         members.add(member);
@@ -165,7 +162,12 @@ public class Parser implements IParser {
         }
         int valueStart = start + pattern.length();
         int valueEnd = s.indexOf('"', valueStart);
-        return s.substring(valueStart, valueEnd);
+        String value =  s.substring(valueStart, valueEnd);
+        return value
+                .replace("&amp;", "&")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&quot;", "\"");
     }
 
     public double getAttributeDouble(String s, String key) {
