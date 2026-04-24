@@ -220,7 +220,7 @@ public class TestParser implements IParser {
                                 break;
                     }
                     if (element == null) {
-                        continue;
+                       continue;
                 }
                     models.RTree.ElementType elementType;
                     try {
