@@ -1,4 +1,4 @@
-package Elements;
+package models.pathfinding;
 
 public class Edge {
     private Node targetNode;

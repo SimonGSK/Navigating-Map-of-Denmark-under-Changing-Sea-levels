@@ -1,7 +1,7 @@
 package org.example;
 
-import Elements.Edge;
-import Elements.GraphBuilder;
+import models.pathfinding.Edge;
+import models.pathfinding.GraphBuilder;
 import Elements.Node;
 import org.junit.jupiter.api.Test;
 

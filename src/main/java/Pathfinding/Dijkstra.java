@@ -1,6 +1,6 @@
 package Pathfinding;
 
-import Elements.Edge;
+import models.pathfinding.Edge;
 import Elements.Node;
 
 import java.util.*;

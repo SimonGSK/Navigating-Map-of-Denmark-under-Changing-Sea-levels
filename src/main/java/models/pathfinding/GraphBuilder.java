@@ -1,4 +1,6 @@
-package Elements;
+package models.pathfinding;
+
+import models.pathfinding.Edge;
 
 public class GraphBuilder {
     public Edge connectOneWay(Node from, Node to) {

@@ -3,7 +3,7 @@ package Pathfinding;
 // sestoft@itu.dk * 2013-06-02, 2015-09-15
 // jst@itu.dk * 2021-09-05 Moved code to Benchmark contructor
 
-import Elements.GraphBuilder;
+import models.pathfinding.GraphBuilder;
 import Elements.Node;
 
 import java.io.FileOutputStream;

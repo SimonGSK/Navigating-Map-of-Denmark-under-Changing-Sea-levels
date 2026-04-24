@@ -1,9 +1,9 @@
 package org.example;
 
 
-import Elements.Edge;
-import Elements.GraphBuilder;
-import Elements.Node;
+import models.pathfinding.Edge;
+import models.pathfinding.GraphBuilder;
+import models.osm.Node;
 import Pathfinding.Dijkstra;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
