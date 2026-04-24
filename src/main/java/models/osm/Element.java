@@ -107,13 +107,13 @@ public abstract class Element extends SpatialElement implements Drawable {
         if (tags.containsKey("proposed")) return null;
         if ("pipeline".equals(tags.get("man_made"))) return null;
         if (tags.containsKey("demolished:building")) return null;
+        if ("traffic_separation_scheme".equals(tags.get("type"))) return null;
 
         //NATURAL
         if (tags.containsKey("natural")) {
             String natural = tags.get("natural");
             if ("water".equals(natural) || "spring".equals(natural)) return Color.decode("#184e85"); // Blå
             if ("rock".equals(natural) || "stone".equals(natural)) return Color.decode("#2b2a2a"); // Mørkegrå
-            if ("coastline".equals(natural)) return Color.decode("#a19875");
             if ("shoal".equals(natural)) return Color.decode("#7c9ea6");
             if ("wetland".equals(natural)) return Color.decode("#638040");
             if ("heath".equals(natural)) return Color.decode("#638040");

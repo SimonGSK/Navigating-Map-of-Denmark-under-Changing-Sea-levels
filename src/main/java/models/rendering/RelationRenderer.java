@@ -71,6 +71,18 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
     // at længdegrader er tættere på hinanden jo længere fra ækvator man er, og invertere latitude fordi skærm-y-aksen peger nedad.
     private void appendNodes(Path2D path, List<Node> nodes) {
         if (nodes == null || nodes.isEmpty()) return;
+
+        // Filtrer null-nodes fra og log hvis der er nogen
+        List<Node> validNodes = nodes.stream()
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (validNodes.size() != nodes.size()) {
+            System.out.println("appendNodes: " + (nodes.size() - validNodes.size())
+                    + " null-nodes fjernet");
+            return; // Spring hele ringen over hvis der mangler nodes
+        }
+
         boolean first = true; // TODO: Use "is"-naming convention for boolean flags: first -> isFirst
         for (Node node : nodes) {
             if (node == null) continue;
