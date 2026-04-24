@@ -72,7 +72,7 @@ public class App extends DrawingApp {
         stage.setResizable(false);
         stage.setWidth(getWIDTH());
 
-        Parser parser = new Parser("Bornholm.osm");
+        Parser parser = new Parser("bornholm/bornholm.osm");
         parser.parse();
 
         HCParser hcparser = new HCParser("bornholm/bornholm.hc");
@@ -231,7 +231,8 @@ public class App extends DrawingApp {
         this.screenY = event.getY();
 
         Node nn = tree.getNearestNode(getCursorCoordinate(screenX,screenY));
-        System.out.println(nn.getCoordinate());
+        System.out.println(nn.getCoordinate().getLat());
+        System.out.println(nn.getCoordinate().getLon());
 
 /*        if (Math.abs(this.screenX - event.getX()) < 10 && Math.abs(this.screenY - event.getY()) < 10) {
             Coordinate c = pixelToCoordinate(event.getX(),event.getY());
