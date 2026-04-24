@@ -19,6 +19,7 @@ import models.RTree.Tree;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurveData;
+import models.osm.Node;
 import models.parser.Parser;
 import models.rendering.NodeRenderer;
 import models.rendering.HeightCurveRenderer;
@@ -233,6 +234,9 @@ public class App extends DrawingApp {
         this.screenX = event.getX();
         this.screenY = event.getY();
 
+        Node nn = tree.getNearestNode(getCursorCoordinate(screenX,screenY));
+        System.out.println(nn.getCoordinate());
+
 /*        if (Math.abs(this.screenX - event.getX()) < 10 && Math.abs(this.screenY - event.getY()) < 10) {
             Coordinate c = pixelToCoordinate(event.getX(),event.getY());
             Node n = tree.getNearestNode(c);
@@ -251,8 +255,6 @@ public class App extends DrawingApp {
 
         return new Coordinate(lat,lon);
     }
-
-    private getClickRadius()
 
     private void handleMouseDragged(MouseEvent event) {
         double dx = event.getX() - this.screenX, dy = event.getY() - this.screenY;

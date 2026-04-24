@@ -20,6 +20,10 @@ public record BoundingBox(double minLat, double minLon, double maxLat, double ma
         return new BoundingBox(minLat, minLon, maxLat, maxLon);
     }
 
+    public Coordinate getCenter() {
+        return new Coordinate(minLat + maxLat/2, minLon + maxLon/2);
+    }
+
     public boolean isInside(BoundingBox other) {
         return this.minLat >= other.minLat && this.minLon >= other.minLon && this.maxLat <= other.maxLat && this.maxLon <= other.maxLon;
     }
