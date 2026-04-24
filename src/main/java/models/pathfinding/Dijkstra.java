@@ -1,8 +1,6 @@
-package Pathfinding;
+package models.pathfinding;
 
-import models.pathfinding.Edge;
-import Elements.Node;
-
+import models.osm.Node;
 import java.util.*;
 
 public class Dijkstra {
@@ -50,7 +48,6 @@ public class Dijkstra {
                 }
             }
         }
-
         return new Result(distances, previousNodes);
     }
 

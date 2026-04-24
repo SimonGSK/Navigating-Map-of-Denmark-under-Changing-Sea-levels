@@ -1,5 +1,7 @@
 package models.pathfinding;
 
+import models.osm.Node;
+
 public class Edge {
     private Node targetNode;
     private double weight;
@@ -30,10 +32,10 @@ public class Edge {
      */
     private static double calcDist(Node v, Node w) {
         final double R = 6371000; // Earth radius in metres
-        double lat1 = Math.toRadians(v.getCoord().lat());
-        double lat2 = Math.toRadians(w.getCoord().lat());
-        double dLat = Math.toRadians(w.getCoord().lat() - v.getCoord().lat());
-        double dLon = Math.toRadians(w.getCoord().lon() - v.getCoord().lon());
+        double lat1 = Math.toRadians(v.getCoordinate().getLat());
+        double lat2 = Math.toRadians(w.getCoordinate().getLat());
+        double dLat = Math.toRadians(w.getCoordinate().getLat() - v.getCoordinate().getLat());
+        double dLon = Math.toRadians(w.getCoordinate().getLon() - v.getCoordinate().getLon());
 
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
                 + Math.cos(lat1) * Math.cos(lat2)

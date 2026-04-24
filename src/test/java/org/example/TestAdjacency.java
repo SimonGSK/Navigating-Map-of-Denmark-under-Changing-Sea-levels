@@ -1,8 +1,8 @@
 package org.example;
 
+import models.osm.Node;
 import models.pathfinding.Edge;
 import models.pathfinding.GraphBuilder;
-import Elements.Node;
 import org.junit.jupiter.api.Test;
 
 public class TestAdjacency {

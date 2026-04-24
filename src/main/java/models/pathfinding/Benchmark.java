@@ -1,10 +1,9 @@
-package Pathfinding;
+package models.pathfinding;
 // Microbenchmark setups
 // sestoft@itu.dk * 2013-06-02, 2015-09-15
 // jst@itu.dk * 2021-09-05 Moved code to Benchmark contructor
 
-import models.pathfinding.GraphBuilder;
-import Elements.Node;
+import models.osm.Node;
 
 import java.io.FileOutputStream;
 import java.io.PrintStream;

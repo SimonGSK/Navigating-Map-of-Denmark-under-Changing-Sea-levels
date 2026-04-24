@@ -1,10 +1,10 @@
 package org.example;
 
 
+import models.osm.Node;
+import models.pathfinding.Dijkstra;
 import models.pathfinding.Edge;
 import models.pathfinding.GraphBuilder;
-import models.osm.Node;
-import Pathfinding.Dijkstra;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

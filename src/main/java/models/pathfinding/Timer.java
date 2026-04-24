@@ -1,4 +1,4 @@
-package Pathfinding;
+package models.pathfinding;
 
 public class Timer {
     private long start;
