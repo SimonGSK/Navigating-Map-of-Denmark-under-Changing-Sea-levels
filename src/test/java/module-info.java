@@ -11,6 +11,7 @@ open module org.example.test {
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.annotation;
 
+
     exports util.extensions;
 }
 

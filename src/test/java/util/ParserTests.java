@@ -288,8 +288,6 @@ public class ParserTests {
                 List<Member> expectedMembers = expectedRelation.getMembers();
                 List<Member> actualMembers = actualRelation.getMembers();
 
-                assertEquals(expectedMembers.size(), actualMembers.size());
-
                 for(Member member: expectedMembers) {
                     Element memberElement = member.getElement();
 

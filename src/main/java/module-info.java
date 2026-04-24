@@ -13,4 +13,5 @@ module org.example {
     exports models.parser;
     exports models.ui;
     exports models.heightcurve;
+    exports models.RTree;
 }
