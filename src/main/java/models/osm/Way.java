@@ -1,16 +1,19 @@
 package models.osm;
 
+import models.RTree.ElementType;
 import models.geometry.BoundingBox;
 
 import java.awt.*;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
-public class Way extends Element {
-    private List<Node> nodes;
+public class Way extends Element implements Iterable<Node> {
+    private final List<Node> nodes;
 
     public Way(long id, HashMap<String, String> tags, List<Node> nodes) {
-        super(id, tags, computeMbr(nodes), getAreaShoelace(nodes));
+        super(id, ElementType.way, tags, computeMbr(nodes), getAreaShoelace(nodes));
         this.nodes = nodes;
     }
 
@@ -51,8 +54,12 @@ public class Way extends Element {
     public void draws(Graphics2D gc) {
 
     }
-    public void setNodes(List<Node> nodes) {
-        this.nodes = nodes;
-        setMbr(computeMbr(nodes));
+
+    @Override
+    public Iterator<Node> iterator() {
+        if (nodes == null) {
+            return Collections.emptyIterator();
+        }
+        return nodes.iterator();
     }
 }

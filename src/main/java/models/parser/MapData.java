@@ -19,9 +19,10 @@ public class MapData {
         waysInRelations = new HashSet<>();
         List<Relation> polys = new ArrayList<>();
 
+        // Add all ways that are part of a relation to a set, to filter them out later
         for (Relation r : relationMap.values()) {
             String type = r.getTag("type");
-            if (!"multipolygon".equals(type) && !"boundary".equals(type) && type != null) continue;
+            if (type != null && !type.equals("multipolygon") && !type.equals("boundary")) continue;
             polys.add(r);
             for (Member m : r.getMembers()) {
                 if (m.getElement() instanceof Way w) {
@@ -40,30 +41,5 @@ public class MapData {
                 .filter(w -> !waysInRelations.contains(w.getId()))
                 .sorted(Comparator.comparingDouble(w -> -w.getArea()))
                 .toList();
-    }
-
-    // Estimerer arealet af en relation ved at finde den mindste afgrænsende rektangel (bounding box) rundt om alle outer-ways.
-    // Bruges udelukkende til sortering – ikke til præcise beregninger.
-    // Returnerer 0 hvis relationen ingen outer-ways med nodes har.
-    private double estimateArea(Relation r) {
-        double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
-        double minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
-
-        // TODO: Use Relation.getMbr() instead
-
-        for (Member m : r.getMembers()) {
-            if (!(m.getElement() instanceof Way w)) continue;
-            if (!"outer".equals(m.getRole())) continue;
-            for (Node n : w.getNodes()) {
-                if (n == null) continue;
-                if (n.getLat() < minLat) minLat = n.getLat();
-                if (n.getLat() > maxLat) maxLat = n.getLat();
-                if (n.getLon() < minLon) minLon = n.getLon();
-                if (n.getLon() > maxLon) maxLon = n.getLon();
-            }
-        }
-
-        if (minLat == Double.MAX_VALUE) return 0;
-        return (maxLat - minLat) * (maxLon - minLon);
     }
 }

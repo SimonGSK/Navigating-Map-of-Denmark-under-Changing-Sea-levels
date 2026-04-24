@@ -19,6 +19,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import models.RTree.SearchResults;
 import models.RTree.Tree;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
@@ -30,6 +31,7 @@ import models.osm.Relation;
 import models.osm.Way;
 import models.parser.MapData;
 import models.parser.Parser;
+import models.rendering.NodeRenderer;
 import models.parser.HCParser;
 import models.rendering.HeightCurveRenderer;
 import models.rendering.RelationRenderer;
@@ -52,20 +54,26 @@ import models.parser.MapData;
 public class App extends DrawingApp {
     private static final boolean USE_EXAMPLE_ISLAND = false;
     private final SuperAffine superAffine = new SuperAffine();
+    private final PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer<>(
+            WIDTH, HEIGHT,
+            IntBuffer.allocate(WIDTH * HEIGHT),
+            PixelFormat.getIntArgbPreInstance()
+    );
+    private final BufferedImage bufferedImage = new BufferedImage(
+            WIDTH,
+            HEIGHT,
+            BufferedImage.TYPE_INT_ARGB
+    );
 
-    int treeNodeMin = 1;
-    int treeNodeMax = 4;
     private double screenX = 0;
     private double screenY = 0;
-    private List<Relation> visibleRelations;
-    private List<Way> visibleWays;
-    private Tree relationTree = new Tree(treeNodeMin, treeNodeMax);
-    private Tree wayTree = new Tree(treeNodeMin, treeNodeMax);
+    private Tree tree;
 
     private RelationRenderer relationRenderer;
     private WayRenderer wayRenderer;
     private HeightCurveRenderer hcRenderer;
     private HeightCurveData hcData;
+    private NodeRenderer nodeRenderer;
     private double meanLat;
     private Label zoomLabel;
     private boolean showHeightCurves = false;
@@ -75,6 +83,9 @@ public class App extends DrawingApp {
     private double prevMouseY;
 
     Path2D nearestNeighborPath;
+
+
+    //private final ImageView imageView = new ImageView();
 
     @Override
     public void start(Stage stage) {
@@ -89,41 +100,24 @@ public class App extends DrawingApp {
         Parser parser = new Parser("Bornholm.osm");
         parser.parse();
 
-        BoundingBox mbr = parser.getBoundingBox();
-        meanLat = (mbr.maxLat() + mbr.minLat()) / 2.0; // (minLat + maxLat) / 2
+        tree = new Tree(
+                parser.getBoundingBox(),
+                parser.getOsmNodeMap(),
+                parser.getOsmWayMap(),
+                parser.getOsmRelationMap()
+            );
 
-        HCParser hcParser = new HCParser("bornholm/bornholm.hc");
-        hcData = hcParser.parse();
-        hcRenderer = new HeightCurveRenderer(hcData, meanLat);
+        meanLat = (tree.getMbr().maxLat() + tree.getMbr().minLat()) / 2.0; // (minLat + maxLat) / 2
+        relationRenderer = new RelationRenderer(meanLat);
+        wayRenderer = new WayRenderer(meanLat);
+        nodeRenderer = new NodeRenderer(meanLat);
 
-        MapData mapData = new MapData(parser.getOsmWayMap(), parser.getOsmRelationMap());
+/*      TODO: Remove drawables and call draws() on relationRenderer and wayRenderer manually
+        // 1. Baggrund - landets baggrund
+        drawables.add(relationRenderer);             // 2. Relations/multipolygons - skove, søer osv.
+        drawables.add(wayRenderer);                 // 3. Ways - veje, bygninger*/
 
-        // Build Rtree for relations and ways
-        for (Relation r : mapData.multiPolygons) {
-            relationTree.insert(r);
-        }
-        for (Way w : mapData.standaloneWays) {
-            wayTree.insert(w);
-        }
-
-        // Create updatable lists for relations and ways
-        visibleRelations = relationTree.search(getViewportBox()).stream()
-                .filter(Relation.class::isInstance)
-                .map(Relation.class::cast)
-                .toList();
-        visibleWays = relationTree.search(getViewportBox()).stream()
-                .filter(Way.class::isInstance)
-                .map(Way.class::cast)
-                .toList();
-
-
-        relationRenderer = new RelationRenderer(visibleRelations, meanLat);
-        wayRenderer = new WayRenderer(visibleWays, meanLat);
-
-        long nonemptyWays = parser.getOsmWayMap().values().stream().filter(w -> w.getNodes() != null && !w.getNodes().isEmpty()).count();
-        System.out.println("Non-empty ways in parser map=" + nonemptyWays);
-
-        reCenter(mbr, meanLat);
+        reCenter(tree.getMbr(), meanLat);
 
         BorderPane mouseEventComponent = new BorderPane();
         mouseEventComponent.setOnMousePressed(this::handleMousePressed);
@@ -134,6 +128,7 @@ public class App extends DrawingApp {
         imageView.setFitHeight(getHEIGHT());
         imageView.setPreserveRatio(false);
 
+        // TODO: Make this into a separate object or function
         Button toggleButton = new Button("Show elevation map");
         toggleButton.setOnAction(e -> {
             showHeightCurves = !showHeightCurves;
@@ -212,32 +207,15 @@ public class App extends DrawingApp {
     }
 
     private void draw() {
-        System.out.println("getTranslateY(): " + superAffine.getTranslateY());
-        System.out.println("getTranslateX(): " + superAffine.getTranslateX());
-
         BoundingBox viewport = getViewportBox();
 
         double scaleX = superAffine.getScaleX(); // Simple LOD, setup
-        double scaleY = superAffine.getScaleX(); // Simple LOD, setup
+        double scaleY = superAffine.getScaleY(); // Simple LOD, setup
         double minGeoArea = 256.0 / (scaleX * scaleY); // Simple LOD, step 1; Elements rendering less than 16x16 px are skipped
 
-        visibleWays = wayTree.search(viewport).stream()
-                .filter(e -> e instanceof Way)
-                .map(e -> (Way) e)
-                .filter(w -> w.getMbr().area() > minGeoArea) // Simple LOD, step 2
-                .sorted(Comparator.comparingDouble(e -> -e.getArea()))
-                .toList();
-
-        visibleRelations = relationTree.search(viewport).stream()
-                .filter(e -> e instanceof Relation)
-                .map(e -> (Relation) e)
-                .filter(r -> r.getArea() > minGeoArea) // Simple LOD, step 2
-                .sorted(Comparator.comparingDouble(e -> -e.getArea()))
-                .toList();
-
-        wayRenderer.setWays(visibleWays);
-        relationRenderer.setRelations(visibleRelations);
-
+        SearchResults searchResults = tree.search(viewport);
+        wayRenderer.set(searchResults.wayList());
+        relationRenderer.set(searchResults.relationList());
 
         Graphics2D gc = getNewGraphicsContext();
 
@@ -253,6 +231,7 @@ public class App extends DrawingApp {
         if (showHeightCurves) {
             hcRenderer.drawHcMap(gc); //Kan også bruge den normale draws(), men denne simple funktion ser bedre ud
         } else {
+            // nodeRenderer.draws(gc); // TODO: Implement draws() in NodeRenderer to draw trees, etc.
             relationRenderer.draws(gc);
             wayRenderer.draws(gc);
             hcRenderer.drawSubmersedCurves(gc);
@@ -272,13 +251,13 @@ public class App extends DrawingApp {
         this.screenX = event.getX();
         this.screenY = event.getY();
 
-        if (Math.abs(this.screenX - event.getX()) < 10 && Math.abs(this.screenY - event.getY()) < 10) {
+/*        if (Math.abs(this.screenX - event.getX()) < 10 && Math.abs(this.screenY - event.getY()) < 10) {
             Coordinate c = pixelToCoordinate(event.getX(),event.getY());
-            Node n = relationTree.getNearestNode(c);
+            Node n = tree.getNearestNode(c);
             if (n != null) {
                 System.out.println("nearestNode: lat = " + n.getLat() + ", lon = " + n.getLon() + ", dist = " + Math.round(Math.sqrt(Math.pow(c.getLat() - n.getLat(),2) * Math.pow(c.getLon() - n.getLon(),2))));
             }
-        }
+        }*/
     }
 
     private Coordinate pixelToCoordinate(double screenX, double screenY) {

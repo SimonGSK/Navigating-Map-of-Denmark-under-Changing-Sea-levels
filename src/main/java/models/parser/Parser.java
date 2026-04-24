@@ -1,6 +1,8 @@
 package models.parser;
 
 import Interfaces.IParser;
+import models.RTree.ElementType;
+import models.RTree.EntryKey;
 import models.geometry.BoundingBox;
 import models.osm.Member;
 import models.osm.Node;
@@ -78,26 +80,23 @@ public class Parser implements IParser {
 
                 switch (type) {
                     case "node" -> {
-                        Node node = nodeMap.get(ref);
-                        if (node == null) {
-                            node = new Node(ref, 0, 0);
-                            nodeMap.put(ref, node);
+                        if (nodeMap.containsKey(ref)) {
+                            Member member = new Member(nodeMap.get(ref), ElementType.node, role);
+                            members.add(member);
                         }
-                        members.add(new Member(node, role));
                     }
                     case "way" -> {
-                        Way way =  wayMap.get(ref);
-                        if (way == null) {
-                            way = new Way(ref, new HashMap<>(), new ArrayList<>());
-                            wayMap.put(ref, way);
+                        if (wayMap.containsKey(ref)) {
+                            Member member = new Member(wayMap.get(ref), ElementType.way, role);
+                            members.add(member);
                         }
-                        members.add(new Member(way, role));
                     }
                     case "relation" -> {
                         if (!relationMap.containsKey(ref)) {
                             relationMap.put(ref, new Relation(ref, new HashMap<>(), new ArrayList<>()));
                         }
-                        members.add(new Member(relationMap.get(ref), role));
+                        Member member = new Member(relationMap.get(ref), ElementType.relation, role);
+                        members.add(member);
                     }
                 }
             } else if (line.contains("<tag")) {
@@ -127,14 +126,7 @@ public class Parser implements IParser {
             line = br.readLine().trim();
             if (line.contains("<nd")) {
                 long ndID = getAttributeLong(line, "ref");
-                Node node = nodeMap.get(ndID);
-
-                if (node == null) {
-                    node = new Node(ndID, 0, 0);
-                    nodeMap.put(ndID, node);
-                }
-
-                nodes.add(node);
+                nodes.add(getOsmNodeMap().get(ndID));
             }
             if (line.contains("<tag")) {
                 String k = getAttribute(line, "k");
@@ -143,18 +135,7 @@ public class Parser implements IParser {
             }
         }
 
-        Way way;
-
-        if (wayMap.containsKey(wayID)) {
-            way = wayMap.get(wayID);
-            way.setTags(tags);
-            way.setNodes(nodes);
-        } else {
-            way = new Way(wayID, tags, nodes);
-            wayMap.put(wayID, way);
-        }
-
-        return way;
+        return new Way(wayID, tags, nodes);
     }
 
     private Node extractNode(String line) {
@@ -225,5 +206,4 @@ public class Parser implements IParser {
     public HashMap<Long, Relation> getOsmRelationMap() {
         return relationMap;
     }
-
 }

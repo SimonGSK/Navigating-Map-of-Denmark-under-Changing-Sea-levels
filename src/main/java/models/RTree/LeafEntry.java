@@ -3,14 +3,18 @@ package models.RTree;
 import models.geometry.BoundingBox;
 import models.osm.Element;
 
-public record LeafEntry(BoundingBox mbr, Element data) implements TreeEntry {
+public record LeafEntry(Element element) implements TreeEntry {
     @Override
     public boolean overlaps(BoundingBox box) {
-        return mbr.isOverlappingOther(box);
+        return element.getMbr().isOverlappingOther(box);
     }
 
     @Override
     public BoundingBox getMbr() {
-        return mbr;
+        return element.getMbr();
+    }
+
+    public Long getId() {
+        return element.getId();
     }
 }

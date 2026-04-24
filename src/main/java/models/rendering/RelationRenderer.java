@@ -1,6 +1,6 @@
 package models.rendering;
 
-import Interfaces.Drawable;
+import Interfaces.AbstractRenderer;
 import models.osm.Member;
 import models.osm.Node;
 import models.osm.Relation;
@@ -12,25 +12,18 @@ import java.util.*;
 import java.util.List;
 
 
-public class RelationRenderer implements Drawable {
+public class RelationRenderer extends AbstractRenderer<Relation> {
     private static final double SNAP_THRESHOLD = 0.0001;
-    private final double cosMeanLat;
-    private List<Relation> relations;
 
-    public RelationRenderer(List<Relation> relations, double meanLat) {
-        this.relations = relations;
-        this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
-    }
-
-    public void setRelations(List<Relation> relations) {
-        this.relations = relations;
+    public RelationRenderer(double meanLat) {
+        super(meanLat);
     }
 
     // Tegner alle multipolygon-relations som fyldte områder på kortet.
     // Relations tegnes i den rækkefølge de ligger i listen – det forventes at listen allerede er sorteret fra størst til mindst areal.
     @Override
     public void draws(Graphics2D gc) {
-        for (Relation relation : relations) {
+        for (Relation relation : elements) {
             if (relation.getColor() == null) continue;
             drawMultiPolygon(gc, relation);
         }
