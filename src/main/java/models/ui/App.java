@@ -37,16 +37,7 @@ import java.nio.IntBuffer;
 public class App extends DrawingApp {
     private static final boolean USE_EXAMPLE_ISLAND = false;
     private final SuperAffine superAffine = new SuperAffine();
-    private final PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer<>(
-            WIDTH, HEIGHT,
-            IntBuffer.allocate(WIDTH * HEIGHT),
-            PixelFormat.getIntArgbPreInstance()
-    );
-    private final BufferedImage bufferedImage = new BufferedImage(
-            WIDTH,
-            HEIGHT,
-            BufferedImage.TYPE_INT_ARGB
-    );
+
 
     private double screenX = 0;
     private double screenY = 0;
@@ -83,6 +74,9 @@ public class App extends DrawingApp {
         Parser parser = new Parser("Bornholm.osm");
         parser.parse();
 
+        HCParser hcparser = new HCParser("bornholm/bornholm.hc");
+        hcData = hcparser.parse();
+
         tree = new Tree(
                 parser.getBoundingBox(),
                 parser.getOsmNodeMap(),
@@ -94,6 +88,7 @@ public class App extends DrawingApp {
         relationRenderer = new RelationRenderer(meanLat);
         wayRenderer = new WayRenderer(meanLat);
         nodeRenderer = new NodeRenderer(meanLat);
+        hcRenderer = new HeightCurveRenderer(hcData, meanLat);
 
 /*      TODO: Remove drawables and call draws() on relationRenderer and wayRenderer manually
         // 1. Baggrund - landets baggrund

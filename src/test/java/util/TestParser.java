@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.ElementType;
 import java.util.*;
+
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +19,7 @@ import models.osm.Element;
 import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
+
 
 public class TestParser implements IParser {
     String fileName;
@@ -217,9 +220,15 @@ public class TestParser implements IParser {
                                 break;
                     }
                     if (element == null) {
-                        continue;
+                       continue;
                 }
-                    members.add(new Member(element, role));
+                    models.RTree.ElementType elementType;
+                    try {
+                        elementType = models.RTree.ElementType.valueOf(type.toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        continue;
+                    }
+                    members.add(new Member(element, elementType, role));
 
             }
             HashMap<String, String> tagsInRelation = parseTags(relation.path("tags"));
