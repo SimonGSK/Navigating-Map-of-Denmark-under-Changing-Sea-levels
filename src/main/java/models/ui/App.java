@@ -54,16 +54,6 @@ import models.parser.MapData;
 public class App extends DrawingApp {
     private static final boolean USE_EXAMPLE_ISLAND = false;
     private final SuperAffine superAffine = new SuperAffine();
-    private final PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer<>(
-            WIDTH, HEIGHT,
-            IntBuffer.allocate(WIDTH * HEIGHT),
-            PixelFormat.getIntArgbPreInstance()
-    );
-    private final BufferedImage bufferedImage = new BufferedImage(
-            WIDTH,
-            HEIGHT,
-            BufferedImage.TYPE_INT_ARGB
-    );
 
     private double screenX = 0;
     private double screenY = 0;
@@ -142,7 +132,7 @@ public class App extends DrawingApp {
             heightLinesButton.setText(showHeightLines ? "Hide height curves" : "Show height curves");
             drawAndRender();
         });
-
+        
         double maxH = Math.ceil(hcData.getMaxHeight());
 
         Slider seaSlider = new Slider(0, maxH, 0);
