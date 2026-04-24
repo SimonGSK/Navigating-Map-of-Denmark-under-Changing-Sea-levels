@@ -1,18 +1,13 @@
 package models.ui;
 
-import Interfaces.Drawable;
 import javafx.scene.Scene;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Button;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.geometry.Insets;
 import models.geometry.SuperAffine;
-import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
@@ -23,16 +18,11 @@ import models.RTree.SearchResults;
 import models.RTree.Tree;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
-import models.geometry.SuperAffine;
-import models.heightcurve.HeightCurve;
 import models.heightcurve.HeightCurveData;
 import models.osm.Node;
-import models.osm.Relation;
-import models.osm.Way;
-import models.parser.MapData;
+import models.parser.HCParser;
 import models.parser.Parser;
 import models.rendering.NodeRenderer;
-import models.parser.HCParser;
 import models.rendering.HeightCurveRenderer;
 import models.rendering.RelationRenderer;
 import models.rendering.WayRenderer;
@@ -41,13 +31,7 @@ import java.awt.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import models.ui.DrawingUtils;
-import models.parser.MapData;
 
 //import static com.sun.javafx.scene.CameraHelper.project;
 
@@ -88,7 +72,7 @@ public class App extends DrawingApp {
         stage.setResizable(false);
         stage.setWidth(getWIDTH());
 
-        Parser parser = new Parser("Bornholm.osm");
+        Parser parser = new Parser("bornholm/bornholm.osm");
         parser.parse();
 
         HCParser hcparser = new HCParser("bornholm/bornholm.hc");
@@ -246,6 +230,10 @@ public class App extends DrawingApp {
         this.screenX = event.getX();
         this.screenY = event.getY();
 
+        Node nn = tree.getNearestNode(getCursorCoordinate(screenX,screenY));
+        System.out.println(nn.getCoordinate().getLat());
+        System.out.println(nn.getCoordinate().getLon());
+
 /*        if (Math.abs(this.screenX - event.getX()) < 10 && Math.abs(this.screenY - event.getY()) < 10) {
             Coordinate c = pixelToCoordinate(event.getX(),event.getY());
             Node n = tree.getNearestNode(c);
@@ -255,7 +243,7 @@ public class App extends DrawingApp {
         }*/
     }
 
-    private Coordinate pixelToCoordinate(double screenX, double screenY) {
+    private Coordinate getCursorCoordinate(double screenX, double screenY) {
         Point2D world = superAffine.inverseTransform(screenX, screenY);
 
         double cosMeanLat = Math.cos(Math.toRadians(meanLat));
@@ -301,10 +289,10 @@ public class App extends DrawingApp {
                 .prependScale(scale, scale)
                 .prependTranslation(offsetX, offsetY);
 
-        updateZoomLabel();
+        getZoomLevel();
     }
 
-    private void updateZoomLabel() {
+    private void getZoomLevel() {
         double scale = Math.log(superAffine.getScaleX()) / Math.log(2);
         if (zoomLabel != null){
             zoomLabel.setText(String.format("Zoom: %.1fx", scale));
@@ -317,7 +305,7 @@ public class App extends DrawingApp {
                 .prependScale(factor, factor)
                 .prependTranslation(x, y);
 
-        updateZoomLabel();
+        getZoomLevel();
         drawAndRender();
     }
 }

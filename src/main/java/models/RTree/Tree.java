@@ -59,32 +59,33 @@ public class Tree {
         }
     }
 
-    public Node getNearestNode(Coordinate cursor, float radius) {
-/*
-        float searchRadius = 1; // 1 lat/lon
-        BoundingBox searchArea = new BoundingBox(cursor.getLat() - 1, cursor.getLon() - 1, cursor.getLat() + 1, cursor.getLon() + 1);
-        
-        List<Element> searchResults = search(searchArea).stream()
-                .filter(e -> e instanceof Node)
-                .toList();
-        
-        Node nearestNode = null;
-        double nearestDist = Double.POSITIVE_INFINITY;
-        
-        for (Element e : searchResults) {
-            if (e instanceof Node node) {
-                double euclideanDist = Math.sqrt(Math.pow(nearestNode.getLat() - cursor.getLat(),2) + Math.pow(nearestNode.getLon() - cursor.getLon(),2));
+    public Node getNearestNode(Coordinate cursor) {
+        if (root == null) {
+            return null;
+        }
 
-                if (nearestNode == null || euclideanDist < nearestDist) {
-                    nearestNode = node;
-                    nearestDist = euclideanDist;
-                }
+        List<TreeNode> path = new ArrayList<>();
+        TreeNode nearestTreeNode = chooseLeaf(root,new BoundingBox(cursor.getLat(), cursor.getLon(), cursor.getLat(),cursor.getLon()),path);
+
+        List<Node> nodeList = nearestTreeNode.entries.stream().map(e -> (LeafEntry) e).map(LeafEntry::element).filter(e -> e.getType() == ElementType.node).map(e -> (Node) e).toList();
+
+        Node nearestNode = null;
+        double nearestDist = Float.POSITIVE_INFINITY;
+
+        for (Node n : nodeList) {
+            Coordinate center = n.getCoordinate();
+            double dist = Math.sqrt(
+                    Math.pow(cursor.getLat() + center.getLat(),2)
+                    + Math.pow(cursor.getLon() + center.getLon(),2)
+            );
+
+            if (dist < nearestDist) {
+                nearestNode = n;
+                nearestDist = dist;
             }
         }
 
         return nearestNode;
-*/
-        return null;
     }
 
     public void insert(Element element) {
