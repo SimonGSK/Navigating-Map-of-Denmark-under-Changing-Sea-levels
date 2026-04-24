@@ -22,6 +22,7 @@ public class HeightCurveRenderer implements Drawable {
         toFill = true;
     }
 
+    //Kan både bruges til at tegne og fylde height curves, men brugs pt. kun til at tegne, da højdekortet bruger drawHcMap() i stedet
     @Override
     public void draws(Graphics2D gc) {
         List<HeightCurve> sorted = new ArrayList<>(data.curves);
@@ -42,6 +43,7 @@ public class HeightCurveRenderer implements Drawable {
        this.toFill = true;
     }
 
+    //Bruges til at tegne height curves uden at fylde dem ud
     public void drawHcLines(Graphics2D gc){
         this.toFill = false;
         draws(gc);

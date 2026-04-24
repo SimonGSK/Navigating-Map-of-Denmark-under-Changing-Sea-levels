@@ -333,7 +333,7 @@ public class App extends DrawingApp {
     private void updateZoomLabel() {
         double scale = Math.log(superAffine.getScaleX()) / Math.log(2);
         if (zoomLabel != null){
-            zoomLabel.setText(String.format("Zoom: %.0fx", scale));
+            zoomLabel.setText(String.format("Zoom: %.1fx", scale));
         }
     }
 
