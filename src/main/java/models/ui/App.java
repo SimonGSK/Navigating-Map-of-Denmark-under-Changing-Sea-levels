@@ -90,6 +90,9 @@ public class App extends DrawingApp {
         Parser parser = new Parser("Bornholm.osm");
         parser.parse();
 
+        HCParser hcparser = new HCParser("bornholm/bornholm.hc");
+        hcData = hcparser.parse();
+
         tree = new Tree(
                 parser.getBoundingBox(),
                 parser.getOsmNodeMap(),
@@ -101,6 +104,7 @@ public class App extends DrawingApp {
         relationRenderer = new RelationRenderer(meanLat);
         wayRenderer = new WayRenderer(meanLat);
         nodeRenderer = new NodeRenderer(meanLat);
+        hcRenderer = new HeightCurveRenderer(hcData, meanLat);
 
 /*      TODO: Remove drawables and call draws() on relationRenderer and wayRenderer manually
         // 1. Baggrund - landets baggrund
@@ -132,7 +136,7 @@ public class App extends DrawingApp {
             heightLinesButton.setText(showHeightLines ? "Hide height curves" : "Show height curves");
             drawAndRender();
         });
-        
+
         double maxH = Math.ceil(hcData.getMaxHeight());
 
         Slider seaSlider = new Slider(0, maxH, 0);
