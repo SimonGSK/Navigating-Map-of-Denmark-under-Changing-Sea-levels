@@ -20,6 +20,7 @@ import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurveData;
 import models.osm.Node;
+import models.parser.HCParser;
 import models.parser.Parser;
 import models.rendering.NodeRenderer;
 import models.rendering.HeightCurveRenderer;
