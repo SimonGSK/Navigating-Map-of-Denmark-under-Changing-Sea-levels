@@ -28,7 +28,7 @@ public class Edge {
     }
 
     /**
-     * Haversine formula to calculate distance between two nodes based on their coordinates.
+     * Haversine formula to calculate the distance between two nodes based on their coordinates.
      */
     private static double calcDist(Node v, Node w) {
         final double R = 6371000; // Earth radius in metres

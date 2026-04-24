@@ -44,7 +44,7 @@ public class Dijkstra {
                 if (newDist < distances.getOrDefault(neighbour, Double.MAX_VALUE)) {
                     distances.put(neighbour, newDist);
                     previousNodes.put(neighbour, current);
-                    queue.add(neighbour); // lazy: old entry stays, will be skipped
+                    queue.add(neighbour); // lazy: old entry stays will be skipped
                 }
             }
         }
