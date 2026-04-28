@@ -14,15 +14,13 @@ public class HeightCurveRenderer implements Drawable {
     private final HeightCurveData data;
     private final double cosMeanLat;
     private double seaLevel;
-    private boolean toFill;
 
     public HeightCurveRenderer(HeightCurveData data, double meanLat) {
         this.data = data;
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
-        toFill = true;
     }
 
-    //Kan både bruges til at tegne og fylde height curves, men brugs pt. kun til at tegne, da højdekortet bruger drawHcMap() i stedet
+    //Bruges til at tegne height curves uden at fylde dem ud
     @Override
     public void draws(Graphics2D gc) {
         List<HeightCurve> sorted = new ArrayList<>(data.curves);
@@ -32,7 +30,7 @@ public class HeightCurveRenderer implements Drawable {
        for (HeightCurve curve: sorted) {
            Path2D path = curve.getRegionPath(cosMeanLat);
 
-           if (toFill || curve.isSubmerged()) {
+           if (curve.isSubmerged()) {
                gc.setColor(curve.getFillColor(seaLevel));
                gc.fill(path);
            } else {
@@ -40,13 +38,6 @@ public class HeightCurveRenderer implements Drawable {
                gc.draw(path);
            }
        }
-       this.toFill = true;
-    }
-
-    //Bruges til at tegne height curves uden at fylde dem ud
-    public void drawHcLines(Graphics2D gc){
-        this.toFill = false;
-        draws(gc);
     }
 
     private double boundingArea(HeightCurve hc) {
@@ -110,6 +101,7 @@ public class HeightCurveRenderer implements Drawable {
 
             Path2D path = curve.getRegionPath(cosMeanLat);
             gc.setColor(curve.getFillColor(seaLevel));
+            gc.draw(path);
             gc.fill(path);
         }
     }
