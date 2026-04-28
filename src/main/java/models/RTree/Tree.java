@@ -89,6 +89,9 @@ public class Tree {
     }
 
     public void insert(Element element) {
+        if (element == null || element.getMbr() == null) return;
+        BoundingBox mbr = element.getMbr();
+        if (Double.isNaN(mbr.minLat()) || Double.isNaN(mbr.minLon()) || Double.isNaN(mbr.maxLat()) || Double.isNaN(mbr.maxLon())) return;
         if (root == null) {
             root = new TreeNode(true);
         }
@@ -241,7 +244,7 @@ public class Tree {
             throw new IllegalArgumentException("pickSeeds needs at least 2 entries");
         }
         SeedPack seeds = null;
-        double maxDeadSace = Double.NEGATIVE_INFINITY;
+        double maxDeadSpace = Double.NEGATIVE_INFINITY;
 
         for (int i = 0; i < entries.size() - 1; i++) {
             for (int j = i + 1; j < entries.size(); j++) {
@@ -253,12 +256,16 @@ public class Tree {
                 double aArea = a.getMbr().area();
                 double bArea = b.getMbr().area();
                 double deadSpace = containerArea - aArea - bArea;
+                if (Double.isNaN(deadSpace)) continue;
 
-                if (deadSpace > maxDeadSace) {
-                    maxDeadSace = deadSpace;
+                if (deadSpace > maxDeadSpace) {
+                    maxDeadSpace = deadSpace;
                     seeds = new SeedPack(a, b);
                 }
             }
+        }
+        if (seeds == null) {
+            seeds = new SeedPack(entries.get(0), entries.get(1));
         }
 
         return seeds;

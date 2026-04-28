@@ -80,7 +80,7 @@ public class App extends DrawingApp {
         HashMap<Long, Relation> relationMap;
 
         try {
-            MapData mapData = BinaryReader.load("/data/tuna/tuna.bin");
+            MapData mapData = BinaryReader.load("/data/samso/samso.bin");
             hcData = mapData.hcData;
             boundingBox = mapData.mbr;
             nodeMap = (HashMap<Long, Node>) mapData.nodeMap;
@@ -89,9 +89,9 @@ public class App extends DrawingApp {
             System.out.println("Loaded from binary");
         } catch (Exception e) {
            e.printStackTrace();
-            Parser parser = new Parser("tuna/tuna.osm");
+            Parser parser = new Parser("samso/samso.osm");
             parser.parse();
-            HCParser hcparser = new HCParser("tuna/tuna.hc");
+            HCParser hcparser = new HCParser("samso/samso.hc");
             hcData = hcparser.parse();
             boundingBox = parser.getBoundingBox();
             nodeMap = parser.getOsmNodeMap();
@@ -100,7 +100,7 @@ public class App extends DrawingApp {
 
 
             try {
-                BinaryWriter.write(parser, hcData, "src/main/resources/data/bornholm/bornholm.bin");
+                BinaryWriter.write(parser, hcData, "src/main/resources/data/samso/samso.bin");
                 System.out.println("Binary written for next startup");
             } catch (Exception ex) {
                 System.out.println("Could not write binary" + ex.getMessage());
