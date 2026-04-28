@@ -20,8 +20,9 @@ import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurveData;
 import models.osm.Node;
-import models.parser.HCParser;
-import models.parser.Parser;
+import models.osm.Relation;
+import models.osm.Way;
+import models.parser.*;
 import models.rendering.NodeRenderer;
 import models.rendering.HeightCurveRenderer;
 import models.rendering.RelationRenderer;
@@ -32,6 +33,7 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.nio.IntBuffer;
+import java.util.HashMap;
 
 //import static com.sun.javafx.scene.CameraHelper.project;
 
@@ -72,18 +74,40 @@ public class App extends DrawingApp {
         stage.setResizable(false);
         stage.setWidth(getWIDTH());
 
-        Parser parser = new Parser("bornholm/bornholm.osm");
-        parser.parse();
+        BoundingBox boundingBox;
+        HashMap<Long, Node> nodeMap;
+        HashMap<Long, Way> wayMap;
+        HashMap<Long, Relation> relationMap;
 
-        HCParser hcparser = new HCParser("bornholm/bornholm.hc");
-        hcData = hcparser.parse();
+        try {
+            MapData mapData = BinaryReader.load("/data/tuna/tuna.bin");
+            hcData = mapData.hcData;
+            boundingBox = mapData.mbr;
+            nodeMap = (HashMap<Long, Node>) mapData.nodeMap;
+            wayMap = (HashMap<Long, Way>) mapData.wayMap;
+            relationMap = (HashMap<Long, Relation>) mapData.relationMap;
+            System.out.println("Loaded from binary");
+        } catch (Exception e) {
+           e.printStackTrace();
+            Parser parser = new Parser("tuna/tuna.osm");
+            parser.parse();
+            HCParser hcparser = new HCParser("tuna/tuna.hc");
+            hcData = hcparser.parse();
+            boundingBox = parser.getBoundingBox();
+            nodeMap = parser.getOsmNodeMap();
+            wayMap = parser.getOsmWayMap();
+            relationMap = parser.getOsmRelationMap();
 
-        tree = new Tree(
-                parser.getBoundingBox(),
-                parser.getOsmNodeMap(),
-                parser.getOsmWayMap(),
-                parser.getOsmRelationMap()
-            );
+
+            try {
+                BinaryWriter.write(parser, hcData, "src/main/resources/data/bornholm/bornholm.bin");
+                System.out.println("Binary written for next startup");
+            } catch (Exception ex) {
+                System.out.println("Could not write binary" + ex.getMessage());
+            }
+        }
+
+        tree = new Tree(boundingBox, nodeMap, wayMap, relationMap);
 
         meanLat = (tree.getMbr().maxLat() + tree.getMbr().minLat()) / 2.0; // (minLat + maxLat) / 2
         relationRenderer = new RelationRenderer(meanLat);
@@ -158,11 +182,6 @@ public class App extends DrawingApp {
 
         stage.setScene(new Scene(layout, getWIDTH(), getHEIGHT() + 50));
         stage.show();
-
-        System.out.println("Nodes: " + parser.getOsmNodeMap().size());
-        System.out.println("Ways: " + parser.getOsmWayMap().size());
-        System.out.println("Relations: " + parser.getOsmRelationMap().size());
-        System.out.println("Bounding box: " + parser.getBoundingBox());
 
         // Initial draw and render
         draw();

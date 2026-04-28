@@ -4,12 +4,13 @@ import models.RTree.ElementType;
 import models.geometry.BoundingBox;
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-public class Way extends Element implements Iterable<Node> {
+public class Way extends Element implements Iterable<Node>, Serializable {
     private final List<Node> nodes;
 
     public Way(long id, HashMap<String, String> tags, List<Node> nodes) {
