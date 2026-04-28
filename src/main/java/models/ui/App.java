@@ -1,5 +1,6 @@
 package models.ui;
 
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Button;
@@ -38,7 +39,6 @@ import java.util.HashMap;
 //import static com.sun.javafx.scene.CameraHelper.project;
 
 public class App extends DrawingApp {
-    private static final boolean USE_EXAMPLE_ISLAND = false;
     private final SuperAffine superAffine = new SuperAffine();
 
 
@@ -66,11 +66,15 @@ public class App extends DrawingApp {
 
     @Override
     public void start(Stage stage) {
-        if (USE_EXAMPLE_ISLAND) {
-            stage.setTitle("Example ISLAND");
-        } else {
-            stage.setTitle("Drawing App");
+        StartupDialog dialog =  new StartupDialog();
+        StartupDialog.MapChoice choice = dialog.show();
+        if (choice == null) {
+            Platform.exit();
+            return;
         }
+
+        stage.setTitle("Drawing App");
+
         stage.setResizable(false);
         stage.setWidth(getWIDTH());
 
@@ -79,33 +83,50 @@ public class App extends DrawingApp {
         HashMap<Long, Way> wayMap;
         HashMap<Long, Relation> relationMap;
 
-        try {
-            MapData mapData = BinaryReader.load("/data/samso/samso.bin");
-            hcData = mapData.hcData;
-            boundingBox = mapData.mbr;
-            nodeMap = (HashMap<Long, Node>) mapData.nodeMap;
-            wayMap = (HashMap<Long, Way>) mapData.wayMap;
-            relationMap = (HashMap<Long, Relation>) mapData.relationMap;
-            System.out.println("Loaded from binary");
-        } catch (Exception e) {
-           e.printStackTrace();
-            Parser parser = new Parser("samso/samso.osm");
+        if (choice.binPath() != null) {
+            MapData loadedData = null;
+            try {
+                loadedData = BinaryReader.load(choice.binPath());
+                System.out.println("Loaded from binary");
+            } catch (Exception e) {
+                System.out.println("Binary not found, parsing instead" + e.getMessage());
+            }
+            if (loadedData != null) {
+                hcData = loadedData.hcData;
+                boundingBox = loadedData.mbr;
+                nodeMap = (HashMap<Long, Node>) loadedData.nodeMap;
+                wayMap = (HashMap<Long, Way>) loadedData.wayMap;
+                relationMap = (HashMap<Long, Relation>) loadedData.relationMap;
+            } else {
+                Parser parser = new Parser(choice.osmPath());
+                parser.parse();
+                HCParser hcparser = new HCParser(choice.hcPath());
+                hcData = hcparser.parse();
+                boundingBox = parser.getBoundingBox();
+                nodeMap = parser.getOsmNodeMap();
+                wayMap = parser.getOsmWayMap();
+                relationMap = parser.getOsmRelationMap();
+
+                try {
+                    String binWritePath = "src/main/resources/data/" + choice.osmPath().replace(".osm", ".bin");
+                    BinaryWriter.write(parser, hcData, binWritePath);
+                    System.out.println("Binary written for next startup");
+                } catch (Exception ex) {
+                    System.out.println("Could not write binary" + ex.getMessage());
+                }
+            }
+        } else {
+            Parser parser = new Parser (choice.osmPath());
             parser.parse();
-            HCParser hcparser = new HCParser("samso/samso.hc");
+            HCParser hcparser = new HCParser(choice.hcPath());
             hcData = hcparser.parse();
             boundingBox = parser.getBoundingBox();
             nodeMap = parser.getOsmNodeMap();
             wayMap = parser.getOsmWayMap();
             relationMap = parser.getOsmRelationMap();
-
-
-            try {
-                BinaryWriter.write(parser, hcData, "src/main/resources/data/samso/samso.bin");
-                System.out.println("Binary written for next startup");
-            } catch (Exception ex) {
-                System.out.println("Could not write binary" + ex.getMessage());
-            }
         }
+
+
 
         tree = new Tree(boundingBox, nodeMap, wayMap, relationMap);
 
