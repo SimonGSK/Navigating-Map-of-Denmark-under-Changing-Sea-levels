@@ -12,6 +12,7 @@ public abstract class Element extends SpatialElement implements Drawable {
     final private long id;
     final private ElementType type;
     protected HashMap<String, String> tags;
+    private Color color = null;
 
     public Element(long id, ElementType type, HashMap<String, String> tags, BoundingBox mbr) {
         this.id = id;
@@ -81,7 +82,14 @@ public abstract class Element extends SpatialElement implements Drawable {
         this.tags = tags;
     }
 
-    public Color getColor() {
+    public Color getColor(){
+        if (color == null){
+            color = findColor();
+        }
+        return color;
+    }
+
+    public Color findColor() {
         var tags = getTags();
         if (tags == null) return Color.BLACK;
 
