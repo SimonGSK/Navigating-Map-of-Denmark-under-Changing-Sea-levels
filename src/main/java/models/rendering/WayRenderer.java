@@ -49,12 +49,16 @@ public class WayRenderer extends AbstractRenderer<Way> {
         for (Way way : elements) {
             totalWays++;
 
+            if (!way.isVisible(currentZoomLevel)) continue;
+
             Color c = way.getColor();
             if (c == null) continue;
 
             List<Node> nodes = way.getNodes();
             if (nodes == null || nodes.size() < 2) continue;
             boolean isClosed = nodes.getFirst().getId() == nodes.getLast().getId();
+
+            if (isClosed && way.getArea() < minGeoArea) continue; // Springes over hvis der er for lille til at blive tegnet
 
             Path2D path = buildPath(nodes, isClosed);
 

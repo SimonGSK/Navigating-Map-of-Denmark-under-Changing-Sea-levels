@@ -110,9 +110,11 @@ public class Parser implements IParser {
             Relation existing = relationMap.get(relationID);
             existing.setMembers(members);
             existing.setTags(tags);
+            existing.setMinZoomLevel(calculateZoomLevelForRelation(tags));
             return;
         }
         Relation relation = new Relation(relationID, tags, members);
+        relation.setMinZoomLevel(calculateZoomLevelForRelation(tags));
         relationMap.put(relationID, relation);
     }
 
@@ -135,7 +137,9 @@ public class Parser implements IParser {
             }
         }
 
-        return new Way(wayID, tags, nodes);
+        Way way = new Way(wayID, tags, nodes);
+        way.setMinZoomLevel(calculateZoomLevelForWay(tags));
+        return way;
     }
 
     private Node extractNode(String line) {
@@ -184,6 +188,84 @@ public class Parser implements IParser {
             return 0L;
         }
         return Long.parseLong(val);
+    }
+
+    //TODO: Måske også bruge area til at forbedre LOD
+
+    private double calculateZoomLevelForWay(HashMap<String, String> tags) {
+        if (tags == null) return 0;
+
+        String highway = tags.get("highway");
+        if (highway != null) {
+            return switch (highway) {
+                case "motorway", "motorway_link",
+                     "trunk",    "trunk_link"       -> 8.0;
+                case "primary",   "primary_link"    -> 10.0;
+                case "secondary", "secondary_link"  -> 11.0;
+                case "tertiary",  "tertiary_link"   -> 12.0;
+                case "residential", "unclassified",
+                     "living_street"                -> 13.0;
+                case "service", "track"             -> 14.0;
+                case "path", "footway", "cycleway",
+                     "steps", "bridleway"           -> 14.5;
+                default -> 13.0;
+            };
+        }
+
+        if (tags.containsKey("building") || tags.containsKey("building:part")) return 14.0;
+
+        String waterway = tags.get("waterway");
+        if (waterway != null) {
+            return switch (waterway) {
+                case "river", "canal" -> 0.0; // Store vandveje altid synlige
+                case "stream"         -> 12.0;
+                default               -> 13.0;
+            };
+        }
+
+        String landuse = tags.get("landuse");
+        if (landuse != null) {
+            return switch (landuse) {
+                case "forest", "grass",
+                     "farmland", "farmyard" -> 0.0; // Baggrundslandskab altid synligt
+                case "industrial"           -> 9.0;
+                default                     -> 0.0;
+            };
+        }
+
+        // Naturlag — kystlinje og store naturområder SKAL altid renderes
+        if (tags.containsKey("natural"))   return 0.0;
+        if (tags.containsKey("aeroway"))   return 10.0;
+        if (tags.containsKey("amenity")
+                || tags.containsKey("leisure"))   return 11.0;
+        if (tags.containsKey("man_made"))  return 13.0;
+        if (tags.containsKey("tourism")
+                || tags.containsKey("historic"))  return 13.0;
+        if (tags.containsKey("barrier"))   return 14.0;
+
+        return 0.0; // Fallback: vis hellere for meget end for lidt
+    }
+
+    private double calculateZoomLevelForRelation(HashMap<String, String> tags) {
+        if (tags == null) return 0;
+
+        String natural = tags.get("natural");
+        if (natural != null) return 0.0; // Kystlinje, vand, strand — altid synlig
+
+        String landuse = tags.get("landuse");
+        if (landuse != null) {
+            return switch (landuse) {
+                case "forest", "grass",
+                     "farmland"          -> 0.0; // Baggrundslandskab
+                case "industrial"        -> 9.0;
+                default                  -> 0.0;
+            };
+        }
+
+        if (tags.containsKey("building") || tags.containsKey("building:part")) return 14.0;
+        if (tags.containsKey("amenity") || tags.containsKey("leisure"))        return 11.0;
+
+        return 0.0;
     }
 
     //DO NOT MODIFY BELOW GETTER METHODS

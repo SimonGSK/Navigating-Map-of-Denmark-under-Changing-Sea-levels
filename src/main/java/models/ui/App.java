@@ -67,7 +67,7 @@ public class App extends DrawingApp {
     private NodeRenderer nodeRenderer;
     private double meanLat;
     private Label zoomLabel;
-    private boolean showHeightCurves = false;
+    private boolean showHeightCurveMap = false;
     private boolean showHeightLines = false;
 
     private double prevMouseX;
@@ -126,8 +126,8 @@ public class App extends DrawingApp {
         // TODO: Make this into a separate object or function
         Button toggleButton = new Button("Show elevation map");
         toggleButton.setOnAction(e -> {
-            showHeightCurves = !showHeightCurves;
-            toggleButton.setText(showHeightCurves ? "Show regular map" : "Show elevation map");
+            showHeightCurveMap = !showHeightCurveMap;
+            toggleButton.setText(showHeightCurveMap ? "Show regular map" : "Show elevation map");
             drawAndRender();
         });
 
@@ -206,11 +206,18 @@ public class App extends DrawingApp {
 
         double scaleX = superAffine.getScaleX(); // Simple LOD, setup
         double scaleY = superAffine.getScaleY(); // Simple LOD, setup
-        double minGeoArea = 256.0 / (scaleX * scaleY); // Simple LOD, step 1; Elements rendering less than 16x16 px are skipped
+        double minGeoArea = 4 / (scaleX * scaleY); // Simple LOD, step 1; Elements rendering less than 16x16 px are skipped
 
         SearchResults searchResults = tree.search(viewport);
         wayRenderer.set(searchResults.wayList());
         relationRenderer.set(searchResults.relationList());
+
+        double currentZoomLevel = Math.log(scaleX) / Math.log(2);
+        wayRenderer.setCurrentZoomLevel(currentZoomLevel);
+        relationRenderer.setCurrentZoomLevel(currentZoomLevel);
+
+        wayRenderer.setMinGeoArea(minGeoArea);
+        relationRenderer.setMinGeoArea(minGeoArea);
 
         Graphics2D gc = getNewGraphicsContext();
 
@@ -223,7 +230,7 @@ public class App extends DrawingApp {
         gc.setTransform(superAffine);
 
 
-        if (showHeightCurves) {
+        if (showHeightCurveMap) {
             hcRenderer.drawHcMap(gc); //Kan også bruge den normale draws(), men denne simple funktion ser bedre ud
         } else {
             // nodeRenderer.draws(gc); // TODO: Implement draws() in NodeRenderer to draw trees, etc.
@@ -232,7 +239,7 @@ public class App extends DrawingApp {
             hcRenderer.drawSubmersedCurves(gc);
 
             if(showHeightLines){
-                hcRenderer.drawHcLines(gc);
+                hcRenderer.draws(gc);
             }
         }
     }

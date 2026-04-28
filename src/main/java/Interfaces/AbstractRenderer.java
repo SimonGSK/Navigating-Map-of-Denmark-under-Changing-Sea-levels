@@ -8,6 +8,8 @@ import java.util.List;
 public abstract class AbstractRenderer<T extends Element> implements Drawable {
     protected final double cosMeanLat;
     protected List<T> elements = new ArrayList<>();
+    protected double currentZoomLevel = 0;
+    protected double minGeoArea = 0;
 
     public AbstractRenderer(double meanLat) {
         cosMeanLat = Math.cos(Math.toRadians(meanLat));
@@ -25,5 +27,13 @@ public abstract class AbstractRenderer<T extends Element> implements Drawable {
             return;
         }
         this.elements = elements;
+    }
+
+    public void setCurrentZoomLevel(double zoomLevel) {
+        this.currentZoomLevel = zoomLevel;
+    }
+
+    public void setMinGeoArea(double minGeoArea) {
+        this.minGeoArea = minGeoArea;
     }
 }
