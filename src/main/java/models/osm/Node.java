@@ -1,9 +1,9 @@
 package models.osm;
 
-import models.RTree.ElementType;
+import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
-import models.heightcurve.HeightCurveData;
+import models.parser.HeightCurveData;
 import models.pathfinding.Edge;
 
 import java.awt.*;

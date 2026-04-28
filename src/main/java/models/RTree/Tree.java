@@ -1,5 +1,6 @@
 package models.RTree;
 
+import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.osm.Element;

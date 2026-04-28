@@ -1,16 +1,16 @@
 package util.models;
 
-import models.parser.Parser;
-import Interfaces.IParser;
+import models.parser.OsmParser;
+import Interfaces.AbstractParser;
 import util.TestParser;
 
 public class ParserResults {
-    IParser actualParser;
-    IParser expectedParser;
+    AbstractParser actualParser;
+    AbstractParser expectedParser;
     String name;
 
     public ParserResults(String osmFile, String jsonFile){
-        actualParser = new Parser(osmFile);
+        actualParser = new OsmParser(osmFile);
         expectedParser = new TestParser(jsonFile);
         name = osmFile;
 
@@ -18,10 +18,10 @@ public class ParserResults {
         expectedParser.parse();
     }
 
-    public IParser getActualParser() {
+    public AbstractParser getActualParser() {
         return actualParser;
     }
-    public IParser getExpectedParser() {
+    public AbstractParser getExpectedParser() {
         return expectedParser;
     }
     public String getName() {

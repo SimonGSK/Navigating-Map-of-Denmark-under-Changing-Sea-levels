@@ -15,4 +15,5 @@ module org.example {
     exports models.heightcurve;
     exports models.RTree;
     exports models.pathfinding;
+    exports enums;
 }

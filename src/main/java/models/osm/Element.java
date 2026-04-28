@@ -1,7 +1,7 @@
 package models.osm;
 
 import Interfaces.Drawable;
-import models.RTree.ElementType;
+import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.geometry.SpatialElement;
 

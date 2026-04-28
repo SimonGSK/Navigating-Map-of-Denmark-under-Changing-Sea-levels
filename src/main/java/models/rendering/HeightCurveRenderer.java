@@ -3,8 +3,8 @@ package models.rendering;
 import Interfaces.Drawable;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
-import models.heightcurve.HeightCurveData;
-import java.util.*;
+import models.parser.HeightCurveData;
+
 import java.awt.*;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;

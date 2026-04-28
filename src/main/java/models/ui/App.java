@@ -3,8 +3,6 @@ package models.ui;
 import javafx.scene.Scene;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Button;
-import javafx.scene.image.PixelBuffer;
-import javafx.scene.image.PixelFormat;
 import javafx.scene.layout.HBox;
 import javafx.geometry.Insets;
 import models.geometry.SuperAffine;
@@ -15,40 +13,29 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import models.RTree.SearchResults;
-import models.RTree.Tree;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
-import models.heightcurve.HeightCurveData;
 import models.osm.Node;
-import models.parser.HCParser;
-import models.parser.Parser;
-import models.rendering.NodeRenderer;
-import models.rendering.HeightCurveRenderer;
-import models.rendering.RelationRenderer;
-import models.rendering.WayRenderer;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.nio.IntBuffer;
 
 //import static com.sun.javafx.scene.CameraHelper.project;
 
-public class App extends DrawingApp {
+public class AppController extends DrawingApp {
+    private final AppData appData = new AppData();
+    private final UserInterface userInterface = new UserInterface();
+    private AppControllerState controllerState = AppControllerState.ready;
+
+
     private static final boolean USE_EXAMPLE_ISLAND = false;
     private final SuperAffine superAffine = new SuperAffine();
 
 
     private double screenX = 0;
     private double screenY = 0;
-    private Tree tree;
 
-    private RelationRenderer relationRenderer;
-    private WayRenderer wayRenderer;
-    private HeightCurveRenderer hcRenderer;
-    private HeightCurveData hcData;
-    private NodeRenderer nodeRenderer;
     private double meanLat;
     private Label zoomLabel;
     private boolean showHeightCurves = false;
@@ -62,6 +49,12 @@ public class App extends DrawingApp {
 
     //private final ImageView imageView = new ImageView();
 
+    private enum AppControllerState {
+        ready,
+        active,
+        error
+    }
+
     @Override
     public void start(Stage stage) {
         if (USE_EXAMPLE_ISLAND) {
@@ -72,32 +65,24 @@ public class App extends DrawingApp {
         stage.setResizable(false);
         stage.setWidth(getWIDTH());
 
-        Parser parser = new Parser("bornholm/bornholm.osm");
-        parser.parse();
+        appData.parse(
+                "/Users/honningbolden/Desktop/ITU/first-year-project/first-year-project/ituboys-first-year-project/src/main/Resources/data/bornholm/bornholm.osm",
+                "/Users/honningbolden/Desktop/ITU/first-year-project/first-year-project/ituboys-first-year-project/src/main/Resources/data/bornholm/bornholm.hc"
+        );
 
-        HCParser hcparser = new HCParser("bornholm/bornholm.hc");
-        hcData = hcparser.parse();
+        switch (appData.getState()) {
+            case AppData.AppDataState.complete -> controllerState = AppControllerState.active;
+            case AppData.AppDataState.error -> controllerState = AppControllerState.error;
+        }
 
-        tree = new Tree(
-                parser.getBoundingBox(),
-                parser.getOsmNodeMap(),
-                parser.getOsmWayMap(),
-                parser.getOsmRelationMap()
-            );
+        if (controllerState == AppControllerState.error) {
+            System.out.println("Error parsing OSM and HC files. Shutting down.");
+            return; // TODO: Implement better error handling so user can try again
+        }
 
-        meanLat = (tree.getMbr().maxLat() + tree.getMbr().minLat()) / 2.0; // (minLat + maxLat) / 2
-        relationRenderer = new RelationRenderer(meanLat);
-        wayRenderer = new WayRenderer(meanLat);
-        nodeRenderer = new NodeRenderer(meanLat);
-        hcRenderer = new HeightCurveRenderer(hcData, meanLat);
+        recenter(appData.getTree().getMbr(), meanLat);
 
-/*      TODO: Remove drawables and call draws() on relationRenderer and wayRenderer manually
-        // 1. Baggrund - landets baggrund
-        drawables.add(relationRenderer);             // 2. Relations/multipolygons - skove, søer osv.
-        drawables.add(wayRenderer);                 // 3. Ways - veje, bygninger*/
-
-        reCenter(tree.getMbr(), meanLat);
-
+        // Event handlers
         BorderPane mouseEventComponent = new BorderPane();
         mouseEventComponent.setOnMousePressed(this::handleMousePressed);
         mouseEventComponent.setOnMouseDragged(this::handleMouseDragged);
@@ -159,14 +144,21 @@ public class App extends DrawingApp {
         stage.setScene(new Scene(layout, getWIDTH(), getHEIGHT() + 50));
         stage.show();
 
-        System.out.println("Nodes: " + parser.getOsmNodeMap().size());
-        System.out.println("Ways: " + parser.getOsmWayMap().size());
-        System.out.println("Relations: " + parser.getOsmRelationMap().size());
-        System.out.println("Bounding box: " + parser.getBoundingBox());
+        userInterface.setUserMode(UserInterface.UserMode.explore);
 
         // Initial draw and render
         draw();
         render();
+    }
+
+
+
+    public SuperAffine getSuperAffine() {
+        return superAffine;
+    }
+
+    public void toggleHeightCurves() {
+        userInterface.
     }
 
     private BoundingBox getViewportBox() {
@@ -266,7 +258,12 @@ public class App extends DrawingApp {
         applyZoom(factor, event.getX(), event.getY());
     }
 
-    public void reCenter(BoundingBox mbr, double meanLat) {
+    public void update() {
+        draw();
+        render();
+    }
+
+    public void recenter(BoundingBox mbr, double meanLat) {
         double cosMeanLat = Math.cos(Math.toRadians(meanLat));
         double dataWidth = (mbr.maxLon() - mbr.minLon()) * cosMeanLat;
         double dataHeight = mbr.maxLat() - mbr.minLat();

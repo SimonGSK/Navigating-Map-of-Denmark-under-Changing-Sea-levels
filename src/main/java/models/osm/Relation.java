@@ -1,12 +1,11 @@
 package models.osm;
 
-import models.RTree.ElementType;
+import enums.ElementType;
 import models.geometry.BoundingBox;
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Stream;
 
 
 public class Relation extends Element implements Iterable<Member> {

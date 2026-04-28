@@ -1,6 +1,6 @@
 package models.osm;
 
-import models.RTree.ElementType;
+import enums.ElementType;
 import models.geometry.BoundingBox;
 
 import java.awt.*;

@@ -5,8 +5,6 @@ import models.osm.*;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static models.RTree.ElementType.*;
-
 public class TreeData implements Iterable<Element> {
     private final Map<Long, Node> nodes;
     private final Map<Long, Way> ways;
