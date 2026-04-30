@@ -20,23 +20,16 @@ public class HeightCurveRenderer implements Drawable {
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
     }
 
-    //Bruges til at tegne height curves uden at fylde dem ud
+    //Bruges til at tegne height curves
     @Override
     public void draws(Graphics2D gc) {
-        List<HeightCurve> sorted = new ArrayList<>(data.curves);
-       sorted.remove(data.sea);
-       sorted.sort((a, b) -> Double.compare(boundingArea(b), boundingArea(a)));
+        List<HeightCurve> curves = new ArrayList<>(data.curves);
+       curves.remove(data.sea);
 
-       for (HeightCurve curve: sorted) {
+       for (HeightCurve curve: curves) {
            Path2D path = curve.getRegionPath(cosMeanLat);
-
-           if (curve.isSubmerged()) {
-               gc.setColor(curve.getFillColor(seaLevel));
-               gc.fill(path);
-           } else {
-               gc.setColor(Color.black);
-               gc.draw(path);
-           }
+           gc.setColor(Color.darkGray);
+           gc.draw(path);
        }
     }
 
@@ -86,8 +79,11 @@ public class HeightCurveRenderer implements Drawable {
     public void drawSubmersedCurves(Graphics2D gc) {
         if (seaLevel <= 0) return;
 
+        Composite originalComposite = gc.getComposite(); //Saves the original composite
+
         //Farver området mellem havet og yderste height curve
         Path2D coastArea = data.sea.getRegionPath(cosMeanLat);
+        gc.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // 60% uigennemsigtig (værdier mellem 0.0 og 1.0)
         gc.setColor(Color.decode("#a9d3de"));
         gc.fill(coastArea);
 
@@ -104,5 +100,7 @@ public class HeightCurveRenderer implements Drawable {
             gc.draw(path);
             gc.fill(path);
         }
+
+        gc.setComposite(originalComposite); //Sets original composite again
     }
 }
