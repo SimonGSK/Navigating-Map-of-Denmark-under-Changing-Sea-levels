@@ -110,11 +110,11 @@ public class Parser implements IParser {
             Relation existing = relationMap.get(relationID);
             existing.setMembers(members);
             existing.setTags(tags);
-            existing.setMinZoomLevel(calculateZoomLevelForRelation(tags));
+            existing.setMinZoomLevel(calculateZoomLevel(tags));
             return;
         }
         Relation relation = new Relation(relationID, tags, members);
-        relation.setMinZoomLevel(calculateZoomLevelForRelation(tags));
+        relation.setMinZoomLevel(calculateZoomLevel(tags));
         relationMap.put(relationID, relation);
     }
 
@@ -138,7 +138,7 @@ public class Parser implements IParser {
         }
 
         Way way = new Way(wayID, tags, nodes);
-        way.setMinZoomLevel(calculateZoomLevelForWay(tags));
+        way.setMinZoomLevel(calculateZoomLevel(tags));
         return way;
     }
 
@@ -190,9 +190,7 @@ public class Parser implements IParser {
         return Long.parseLong(val);
     }
 
-    //TODO: Måske også bruge area til at forbedre LOD
-
-    private double calculateZoomLevelForWay(HashMap<String, String> tags) {
+    private double calculateZoomLevel(HashMap<String, String> tags) {
         if (tags == null) return 0;
 
         String highway = tags.get("highway");
@@ -217,7 +215,7 @@ public class Parser implements IParser {
         String waterway = tags.get("waterway");
         if (waterway != null) {
             return switch (waterway) {
-                case "river", "canal" -> 0.0; // Store vandveje altid synlige
+                case "river", "canal" -> 0.0;
                 case "stream"         -> 12.0;
                 default               -> 13.0;
             };
@@ -227,44 +225,20 @@ public class Parser implements IParser {
         if (landuse != null) {
             return switch (landuse) {
                 case "forest", "grass",
-                     "farmland", "farmyard" -> 0.0; // Baggrundslandskab altid synligt
-                case "industrial"           -> 9.0;
-                default                     -> 0.0;
+                     "farmland", "farmyard"      -> 0.0;
+                case "residential", "commercial",
+                     "retail"                    -> 9.0;
+                case "industrial"                -> 9.0;
+                default                          -> 0.0;
             };
         }
 
-        // Naturlag — kystlinje og store naturområder SKAL altid renderes
-        if (tags.containsKey("natural"))   return 0.0;
-        if (tags.containsKey("aeroway"))   return 10.0;
-        if (tags.containsKey("amenity")
-                || tags.containsKey("leisure"))   return 11.0;
-        if (tags.containsKey("man_made"))  return 13.0;
-        if (tags.containsKey("tourism")
-                || tags.containsKey("historic"))  return 13.0;
-        if (tags.containsKey("barrier"))   return 14.0;
-
-        return 0.0; // Fallback: vis hellere for meget end for lidt
-    }
-
-    private double calculateZoomLevelForRelation(HashMap<String, String> tags) {
-        if (tags == null) return 0;
-
-        String natural = tags.get("natural");
-        if (natural != null) return 0.0; // Kystlinje, vand, strand — altid synlig
-
-        String landuse = tags.get("landuse");
-        if (landuse != null) {
-            return switch (landuse) {
-                case "forest", "grass",
-                     "farmland"          -> 0.0; // Baggrundslandskab
-                case "industrial"        -> 9.0;
-                default                  -> 0.0;
-            };
-        }
-
-        if (tags.containsKey("building") || tags.containsKey("building:part")) return 14.0;
-        if (tags.containsKey("amenity") || tags.containsKey("leisure"))        return 11.0;
-
+        if (tags.containsKey("natural")) return 0.0;
+        if (tags.containsKey("aeroway")) return 10.0;
+        if (tags.containsKey("amenity") || tags.containsKey("leisure")) return 11.0;
+        if (tags.containsKey("man_made")) return 13.0;
+        if (tags.containsKey("tourism") || tags.containsKey("historic")) return 13.0;
+        if (tags.containsKey("barrier")) return 14.0;
         return 0.0;
     }
 

@@ -91,7 +91,7 @@ public abstract class Element extends SpatialElement implements Drawable {
         this.minZoomLevel = minZoomLevel;
     }
 
-    public boolean isVisible(double currentZoomLevel) {
+    private boolean isVisible(double currentZoomLevel) {
         return currentZoomLevel >= minZoomLevel;
     }
 
@@ -204,5 +204,13 @@ public abstract class Element extends SpatialElement implements Drawable {
         //FALLBACK COLOR
         System.out.println(tags);
         return Color.decode("#F2F0E9"); //Very light brown
+    }
+
+    //Hvis et element er for lille til at blive tegnet eller hvis den ikke gives en farve, returneres false
+    public boolean shouldDraw(double zoomLevel, double minGeoArea, boolean isClosed) {
+        if (!isVisible(zoomLevel)) return false;
+        if (getColor() == null) return false;
+        if (isClosed && getArea() < minGeoArea) return false; //Kun lukkede polygoner kan arealet bruges til sammenligning
+        return true;
     }
 }

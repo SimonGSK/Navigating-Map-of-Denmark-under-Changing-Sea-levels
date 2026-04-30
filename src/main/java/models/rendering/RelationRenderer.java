@@ -24,8 +24,7 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
     @Override
     public void draws(Graphics2D gc) {
         for (Relation relation : elements) {
-            if (relation.getArea() < minGeoArea) continue; //
-            if (!relation.isVisible(currentZoomLevel)) continue;
+            if (!shouldDraw(relation, true)) continue; //Funktion til at afgøre om noget skal tegnes
 
             //Tilføjet for at undgå at lukkede paths, som f.eks. hiking routes, bliver til huller i multipolygons
             String relationType = relation.getTag("type");
@@ -34,7 +33,6 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
                 continue;
             }
 
-            if (relation.getColor() == null) continue;
             drawMultiPolygon(gc, relation);
         }
     }
