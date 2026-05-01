@@ -206,7 +206,7 @@ public class App extends DrawingApp {
 
         double scaleX = superAffine.getScaleX(); // Simple LOD, setup
         double scaleY = superAffine.getScaleY(); // Simple LOD, setup
-        double minGeoArea = 4 / (scaleX * scaleY); // Simple LOD, step 1; Elements rendering less than 16x16 px are skipped
+        double minGeoArea = 16 / (scaleX * scaleY); // Simple LOD, step 1; Elements rendering less than 16x16 px are skipped
 
         SearchResults searchResults = tree.search(viewport);
         wayRenderer.set(searchResults.wayList());
