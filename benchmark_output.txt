@@ -1,0 +1,10 @@
+name                                time/run       sdev    runs
+
+DIJKSTRA 1
+dijkstra                            228,7 ns       0,44    2097152
+dijkstra                            196,9 ns       8,74    2097152
+dijkstra                            185,5 ns       0,59    2097152
+dijkstra                            183,0 ns       1,21    2097152
+dijkstra                            182,1 ns       0,75    2097152
+dijkstra                            178,7 ns       1,14    2097152
+dijkstra                            185,9 ns       1,16    2097152

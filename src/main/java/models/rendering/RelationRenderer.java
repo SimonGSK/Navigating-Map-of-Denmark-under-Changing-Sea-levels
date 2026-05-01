@@ -108,6 +108,7 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
     // Stopper tidligt hvis data er usammenhængende.
     private List<List<Node>> stitchWaysToRings(List<Way> ways) {
         if (ways.isEmpty()) return List.of();
+        if (ways.size() == 1) return List.of(ways.get(0).getNodes());
 
         List<List<Node>> rings = new ArrayList<>();
         List<List<Node>> candidates = new ArrayList<>();
