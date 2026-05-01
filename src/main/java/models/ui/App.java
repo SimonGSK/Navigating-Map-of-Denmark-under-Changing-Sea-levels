@@ -1,5 +1,6 @@
 package models.ui;
 
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Button;
@@ -20,8 +21,9 @@ import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurveData;
 import models.osm.Node;
-import models.parser.HCParser;
-import models.parser.Parser;
+import models.osm.Relation;
+import models.osm.Way;
+import models.parser.*;
 import models.rendering.NodeRenderer;
 import models.rendering.HeightCurveRenderer;
 import models.rendering.RelationRenderer;
@@ -32,11 +34,11 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.nio.IntBuffer;
+import java.util.HashMap;
 
 //import static com.sun.javafx.scene.CameraHelper.project;
 
 public class App extends DrawingApp {
-    private static final boolean USE_EXAMPLE_ISLAND = false;
     private final SuperAffine superAffine = new SuperAffine();
 
 
@@ -64,26 +66,69 @@ public class App extends DrawingApp {
 
     @Override
     public void start(Stage stage) {
-        if (USE_EXAMPLE_ISLAND) {
-            stage.setTitle("Example ISLAND");
-        } else {
-            stage.setTitle("Drawing App");
+        StartupDialog dialog =  new StartupDialog();
+        StartupDialog.MapChoice choice = dialog.show();
+        if (choice == null) {
+            Platform.exit();
+            return;
         }
+
+        stage.setTitle("Drawing App");
+
         stage.setResizable(false);
         stage.setWidth(getWIDTH());
 
-        Parser parser = new Parser("bornholm/bornholm.osm");
-        parser.parse();
+        BoundingBox boundingBox;
+        HashMap<Long, Node> nodeMap;
+        HashMap<Long, Way> wayMap;
+        HashMap<Long, Relation> relationMap;
 
-        HCParser hcparser = new HCParser("bornholm/bornholm.hc");
-        hcData = hcparser.parse();
+        if (choice.binPath() != null) {
+            MapData loadedData = null;
+            try {
+                loadedData = BinaryReader.load(choice.binPath());
+                System.out.println("Loaded from binary");
+            } catch (Exception e) {
+                System.out.println("Binary not found, parsing instead" + e.getMessage());
+            }
+            if (loadedData != null) {
+                hcData = loadedData.hcData;
+                boundingBox = loadedData.mbr;
+                nodeMap = (HashMap<Long, Node>) loadedData.nodeMap;
+                wayMap = (HashMap<Long, Way>) loadedData.wayMap;
+                relationMap = (HashMap<Long, Relation>) loadedData.relationMap;
+            } else {
+                Parser parser = new Parser(choice.osmPath());
+                parser.parse();
+                HCParser hcparser = new HCParser(choice.hcPath());
+                hcData = hcparser.parse();
+                boundingBox = parser.getBoundingBox();
+                nodeMap = parser.getOsmNodeMap();
+                wayMap = parser.getOsmWayMap();
+                relationMap = parser.getOsmRelationMap();
 
-        tree = new Tree(
-                parser.getBoundingBox(),
-                parser.getOsmNodeMap(),
-                parser.getOsmWayMap(),
-                parser.getOsmRelationMap()
-            );
+                try {
+                    String binWritePath = "src/main/resources/data/" + choice.osmPath().replace(".osm", ".bin");
+                    BinaryWriter.write(parser, hcData, binWritePath);
+                    System.out.println("Binary written for next startup");
+                } catch (Exception ex) {
+                    System.out.println("Could not write binary" + ex.getMessage());
+                }
+            }
+        } else {
+            Parser parser = new Parser (choice.osmPath());
+            parser.parse();
+            HCParser hcparser = new HCParser(choice.hcPath());
+            hcData = hcparser.parse();
+            boundingBox = parser.getBoundingBox();
+            nodeMap = parser.getOsmNodeMap();
+            wayMap = parser.getOsmWayMap();
+            relationMap = parser.getOsmRelationMap();
+        }
+
+
+
+        tree = new Tree(boundingBox, nodeMap, wayMap, relationMap);
 
         meanLat = (tree.getMbr().maxLat() + tree.getMbr().minLat()) / 2.0; // (minLat + maxLat) / 2
         relationRenderer = new RelationRenderer(meanLat);
@@ -158,11 +203,6 @@ public class App extends DrawingApp {
 
         stage.setScene(new Scene(layout, getWIDTH(), getHEIGHT() + 50));
         stage.show();
-
-        System.out.println("Nodes: " + parser.getOsmNodeMap().size());
-        System.out.println("Ways: " + parser.getOsmWayMap().size());
-        System.out.println("Relations: " + parser.getOsmRelationMap().size());
-        System.out.println("Bounding box: " + parser.getBoundingBox());
 
         // Initial draw and render
         draw();
