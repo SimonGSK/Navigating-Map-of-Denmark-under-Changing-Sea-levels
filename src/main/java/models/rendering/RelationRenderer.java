@@ -57,17 +57,14 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
 
         if (outerWays.isEmpty()) return;
 
-        Path2D path = new Path2D.Double();
-        path.setWindingRule(Path2D.WIND_NON_ZERO);
+        Path2D path = new Path2D.Double(Path2D.WIND_EVEN_ODD);
 
         for (List<Node> ring : stitchWaysToRings(outerWays)) {
             appendNodes(path, ring);
         }
 
-        for (Way way : innerWays) {
-            for (List<Node> ring : stitchWaysToRings(List.of(way))) {
-                appendNodes(path, ring);
-            }
+        for (List<Node> ring : stitchWaysToRings(innerWays)) {
+            appendNodes(path, ring);
         }
 
         gc.setColor(relation.getColor());
@@ -79,14 +76,26 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
     // at længdegrader er tættere på hinanden jo længere fra ækvator man er, og invertere latitude fordi skærm-y-aksen peger nedad.
     private void appendNodes(Path2D path, List<Node> nodes) {
         if (nodes == null || nodes.isEmpty()) return;
-        boolean first = true; // TODO: Use "is"-naming convention for boolean flags: first -> isFirst
-        for (Node node : nodes) {
-            if (node == null) continue;
+
+        List<Node> validNodes = nodes.stream()
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (validNodes.size() < 3) return;
+
+        Node firstNode = validNodes.getFirst();
+        Node lastNode = validNodes.getLast();
+        boolean isClosed = firstNode.getId() == lastNode.getId()
+                || distance(firstNode, lastNode) < SNAP_THRESHOLD;
+        if (!isClosed) return;
+
+        boolean isFirst = true;
+        for (Node node : validNodes) {
             double x = node.getLon() * cosMeanLat;
             double y = -node.getLat();
-            if (first) {
+            if (isFirst) {
                 path.moveTo(x, y);
-                first = false;
+                isFirst = false;
             } else path.lineTo(x, y);
         }
         path.closePath();
@@ -102,19 +111,25 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
         if (ways.size() == 1) return List.of(ways.get(0).getNodes());
 
         List<List<Node>> rings = new ArrayList<>();
-        List<Way> remaining = new ArrayList<>(ways);
+        List<List<Node>> candidates = new ArrayList<>();
+        for (Way way : ways) {
+            List<Node> nodes = way.getNodes();
+            if (nodes == null || nodes.isEmpty()) continue;
+            candidates.add(new ArrayList<>(nodes));
+        }
 
-        while (!remaining.isEmpty()) {
-            // Start a new ring from the first remaining way
-            LinkedList<Node> ring = new LinkedList<>(remaining.remove(0).getNodes());
+        while (!candidates.isEmpty()) {
+            LinkedList<Node> ring = new LinkedList<>(candidates.remove(0));
+            if (ring.isEmpty()) continue;
 
             boolean progress = true;
-            while (progress && !remaining.isEmpty()) {
+            while (progress && !candidates.isEmpty()) {
                 progress = false;
+                Node first = ring.getFirst();
                 Node last = ring.getLast();
 
-                for (Iterator<Way> it = remaining.iterator(); it.hasNext(); ) {
-                    List<Node> nodes = it.next().getNodes();
+                for (Iterator<List<Node>> it = candidates.iterator(); it.hasNext(); ) {
+                    List<Node> nodes = it.next();
                     if (nodes == null || nodes.isEmpty()) {
                         it.remove();
                         continue;
@@ -123,20 +138,36 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
                     Node candidateStart = nodes.get(0);
                     Node candidateEnd = nodes.get(nodes.size() - 1);
 
-                    boolean matchStart = candidateStart.getId() == last.getId()
-                            || distance(candidateStart, last) < SNAP_THRESHOLD;
-                    boolean matchEnd = candidateEnd.getId() == last.getId()
-                            || distance(candidateEnd, last) < SNAP_THRESHOLD;
+                    boolean startToLast = isConnected(candidateStart, last);
+                    boolean endToLast = isConnected(candidateEnd, last);
+                    boolean endToFirst = isConnected(candidateEnd, first);
+                    boolean startToFirst = isConnected(candidateStart, first);
 
-                    if (matchStart) {
-                        nodes.subList(1, nodes.size()).forEach(ring::addLast);
+                    if (startToLast) {
+                        for (int i = 1; i < nodes.size(); i++) {
+                            ring.addLast(nodes.get(i));
+                        }
                         it.remove();
                         progress = true;
                         break;
-                    } else if (matchEnd) {
-                        List<Node> reversed = new ArrayList<>(nodes);
-                        Collections.reverse(reversed);
-                        reversed.subList(1, reversed.size()).forEach(ring::addLast);
+                    } else if (endToLast) {
+                        for (int i = nodes.size() - 2; i >= 0; i--) {
+                            ring.addLast(nodes.get(i));
+                        }
+                        it.remove();
+                        progress = true;
+                        break;
+                    } else if (endToFirst) {
+                        for (int i = nodes.size() - 2; i >= 0; i--) {
+                            ring.addFirst(nodes.get(i));
+                        }
+                        it.remove();
+                        progress = true;
+                        break;
+                    } else if (startToFirst) {
+                        for (int i = 1; i < nodes.size(); i++) {
+                            ring.addFirst(nodes.get(i));
+                        }
                         it.remove();
                         progress = true;
                         break;
@@ -148,34 +179,13 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
         return rings;
     }
 
+    private boolean isConnected(Node a, Node b) {
+        return a.getId() == b.getId() || distance(a, b) < SNAP_THRESHOLD;
+    }
+
     private double distance(Node a, Node b) {
         double dLat = a.getLat() - b.getLat();
         double dLon = a.getLon() - b.getLon();
         return Math.sqrt(dLat * dLat + dLon * dLon);
     }
 }
-
-// TODO: Remove unused code snippets
-  /*
-            for (Iterator<Way> it = remaining.iterator(); it.hasNext();) {
-
-                List<Node> nodes = it.next().getNodes();
-                if (nodes.get(0).getId() == last.getId()) {
-                    nodes.subList(1, nodes.size()).forEach(ring::addLast);
-                    it.remove(); found = true; break;
-                } else if (nodes.get(nodes.size()-1).getId() == last.getId()) {
-                    List<Node> rev = new ArrayList<>(nodes);
-                    Collections.reverse(rev);
-                    rev.subList(1, rev.size()).forEach(ring::addLast);
-                    it.remove(); found = true; break;
-                }
-            }
-            if (!found) break;
-        }
-        if (!remaining.isEmpty()) {
-            System.out.println("stitchWays: kunne ikke sy "
-                    + remaining.size() + " ways sammen");
-        }
-        return new ArrayList<>(ring);
-
-             */
