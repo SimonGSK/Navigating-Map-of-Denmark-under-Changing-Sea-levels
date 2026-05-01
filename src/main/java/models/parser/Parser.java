@@ -110,9 +110,11 @@ public class Parser implements IParser {
             Relation existing = relationMap.get(relationID);
             existing.setMembers(members);
             existing.setTags(tags);
+            existing.setMinZoomLevel(calculateZoomLevel(tags));
             return;
         }
         Relation relation = new Relation(relationID, tags, members);
+        relation.setMinZoomLevel(calculateZoomLevel(tags));
         relationMap.put(relationID, relation);
     }
 
@@ -138,7 +140,9 @@ public class Parser implements IParser {
             }
         }
 
-        return new Way(wayID, tags, nodes);
+        Way way = new Way(wayID, tags, nodes);
+        way.setMinZoomLevel(calculateZoomLevel(tags));
+        return way;
     }
 
     private Node extractNode(String line) {
@@ -187,6 +191,59 @@ public class Parser implements IParser {
             return 0L;
         }
         return Long.parseLong(val);
+    }
+
+    private double calculateZoomLevel(HashMap<String, String> tags) {
+        if (tags == null) return 0;
+
+        String highway = tags.get("highway");
+        if (highway != null) {
+            return switch (highway) {
+                case "motorway", "motorway_link",
+                     "trunk",    "trunk_link"       -> 8.0;
+                case "primary",   "primary_link"    -> 10.0;
+                case "secondary", "secondary_link"  -> 11.0;
+                case "tertiary",  "tertiary_link"   -> 12.0;
+                case "residential", "unclassified",
+                     "living_street"                -> 13.0;
+                case "service", "track"             -> 14.0;
+                case "path", "footway", "cycleway",
+                     "steps", "bridleway"           -> 14.5;
+                default -> 13.0;
+            };
+        }
+
+        if (tags.containsKey("building") || tags.containsKey("building:part")) return 14.0;
+
+        String waterway = tags.get("waterway");
+        if (waterway != null) {
+            return switch (waterway) {
+                case "river", "canal" -> 14.0;
+                case "stream"         -> 12.0;
+                default               -> 13.0;
+            };
+        }
+
+        String landuse = tags.get("landuse");
+        if (landuse != null) {
+            return switch (landuse) {
+                case "forest" -> 0.0;
+                case "grass" -> 15.0;
+                case "farmland", "farmyard" -> 13.0;
+                case "residential", "commercial",
+                     "retail"                    -> 10.0;
+                case "industrial"                -> 10.0;
+                default                          -> 0.0;
+            };
+        }
+
+        if (tags.containsKey("natural")) return 0.0;
+        if (tags.containsKey("aeroway")) return 10.0;
+        if (tags.containsKey("amenity") || tags.containsKey("leisure")) return 11.0;
+        if (tags.containsKey("man_made")) return 13.0;
+        if (tags.containsKey("tourism") || tags.containsKey("historic")) return 13.0;
+        if (tags.containsKey("barrier")) return 14.0;
+        return 0.0;
     }
 
     //DO NOT MODIFY BELOW GETTER METHODS

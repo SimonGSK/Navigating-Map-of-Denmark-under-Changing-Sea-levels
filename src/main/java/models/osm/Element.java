@@ -14,6 +14,7 @@ public abstract class Element extends SpatialElement implements Drawable, Serial
     final private ElementType type;
     protected HashMap<String, String> tags;
     private Color color = null;
+    private double minZoomLevel = 0;
 
     public Element(long id, ElementType type, HashMap<String, String> tags, BoundingBox mbr) {
         this.id = id;
@@ -83,8 +84,20 @@ public abstract class Element extends SpatialElement implements Drawable, Serial
         this.tags = tags;
     }
 
-    public Color getColor(){
-        if (color == null){
+    public double getMinZoomLevel() {
+        return minZoomLevel;
+    }
+
+    public void setMinZoomLevel(double minZoomLevel) {
+        this.minZoomLevel = minZoomLevel;
+    }
+
+    private boolean isVisible(double currentZoomLevel) {
+        return currentZoomLevel >= minZoomLevel;
+    }
+
+    public Color getColor() {
+        if (color == null) {
             color = findColor();
         }
         return color;

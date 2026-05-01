@@ -49,16 +49,15 @@ public class WayRenderer extends AbstractRenderer<Way> {
         for (Way way : elements) {
             totalWays++;
 
-            Color c = way.getColor();
-            if (c == null) continue;
 
             List<Node> nodes = way.getNodes();
             if (nodes == null || nodes.size() < 2) continue;
+
             boolean isClosed = nodes.getFirst().getId() == nodes.getLast().getId();
+            if (!shouldDraw(way, isClosed)) continue; //Funktion til at afgøre om noget skal tegnes
 
             Path2D path = buildPath(nodes, isClosed);
-
-            gc.setColor(c);
+            gc.setColor(way.getColor());
 
             drawnWays++;
 
