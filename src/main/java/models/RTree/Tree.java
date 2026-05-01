@@ -68,15 +68,31 @@ public class Tree {
         TreeNode nearestTreeNode = chooseLeaf(root,new BoundingBox(cursor.getLat(), cursor.getLon(), cursor.getLat(),cursor.getLon()),path);
 
         List<Node> nodeList = nearestTreeNode.entries.stream().map(e -> (LeafEntry) e).map(LeafEntry::element).filter(e -> e.getType() == ElementType.node).map(e -> (Node) e).toList();
+        if (nodeList.isEmpty()) return null;
 
+        nearestNodeDist nearestND = _findNearestNodeDist(cursor, nodeList);
+        double radius = nearestND.dist();
+
+        BoundingBox searchArea = new BoundingBox(
+                cursor.getLat() - radius, cursor.getLon() - radius,
+                cursor.getLat() + radius, cursor.getLon() + radius
+        );
+
+        SearchResults searchResults = search(searchArea);
+        nearestNodeDist result = _findNearestNodeDist(cursor, searchResults.nodeList());
+
+        return result.node();
+    }
+
+    private nearestNodeDist _findNearestNodeDist(Coordinate cursor, List<Node> nodeList) {
         Node nearestNode = null;
-        double nearestDist = Float.POSITIVE_INFINITY;
+        double nearestDist = Double.MAX_VALUE;
 
         for (Node n : nodeList) {
             Coordinate center = n.getCoordinate();
             double dist = Math.sqrt(
-                    Math.pow(cursor.getLat() + center.getLat(),2)
-                    + Math.pow(cursor.getLon() + center.getLon(),2)
+                    Math.pow(cursor.getLat() - center.getLat(),2)
+                    + Math.pow(cursor.getLon() - center.getLon(),2)
             );
 
             if (dist < nearestDist) {
@@ -84,9 +100,11 @@ public class Tree {
                 nearestDist = dist;
             }
         }
-
-        return nearestNode;
+        return new nearestNodeDist(nearestNode, nearestDist);
     }
+
+    record nearestNodeDist(Node node, double dist) { }
+
 
     public void insert(Element element) {
         if (element == null || element.getMbr() == null) return;
