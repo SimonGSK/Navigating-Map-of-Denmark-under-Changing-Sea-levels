@@ -1,8 +1,6 @@
 package models.geometry;
 
-import java.io.Serializable;
-
-public abstract class SpatialElement implements Serializable {
+public abstract class SpatialElement {
     private BoundingBox mbr;
     private double area;
 

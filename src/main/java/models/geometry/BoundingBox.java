@@ -2,10 +2,9 @@ package models.geometry;
 
 import models.osm.Element;
 
-import java.io.Serializable;
 import java.util.List;
 
-public record BoundingBox(double minLat, double minLon, double maxLat, double maxLon) implements Serializable {
+public record BoundingBox(double minLat, double minLon, double maxLat, double maxLon) {
     static public BoundingBox computeMbr(List<? extends Element> elements) {
         double minLat = Double.MAX_VALUE;
         double minLon = Double.MAX_VALUE;
@@ -19,10 +18,6 @@ public record BoundingBox(double minLat, double minLon, double maxLat, double ma
             maxLon = Math.max(maxLon, e.getMbr().maxLon());
         }
         return new BoundingBox(minLat, minLon, maxLat, maxLon);
-    }
-
-    public Coordinate getCenter() {
-        return new Coordinate(minLat + maxLat/2, minLon + maxLon/2);
     }
 
     public boolean isInside(BoundingBox other) {

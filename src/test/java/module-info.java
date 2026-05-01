@@ -3,7 +3,6 @@ open module org.example.test {
     requires org.junit.jupiter.api;
     requires org.junit.jupiter.params;
     requires org.junit.platform.commons;
-    requires junit;
     requires javafx.controls;
     requires javafx.graphics;
     requires javafx.base;

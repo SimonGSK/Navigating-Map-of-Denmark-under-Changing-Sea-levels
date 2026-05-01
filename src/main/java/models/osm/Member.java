@@ -3,9 +3,7 @@ package models.osm;
 
 import models.RTree.ElementType;
 
-import java.io.Serializable;
-
-public class Member implements Serializable {
+public class Member {
     private final Element element;
     private final String role;
     private final ElementType type;

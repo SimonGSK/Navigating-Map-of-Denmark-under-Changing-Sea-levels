@@ -4,13 +4,12 @@ import models.RTree.ElementType;
 import models.geometry.BoundingBox;
 
 import java.awt.*;
-import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Stream;
 
 
-public class Relation extends Element implements Iterable<Member>, Serializable {
+public class Relation extends Element implements Iterable<Member> {
     private List<Member> members;
 
     public Relation(long id, HashMap<String, String> tags, List<Member> members) {
