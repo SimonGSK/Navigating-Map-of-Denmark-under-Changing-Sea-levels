@@ -49,6 +49,7 @@ public class WayRenderer extends AbstractRenderer<Way> {
         for (Way way : elements) {
             totalWays++;
 
+
             List<Node> nodes = way.getNodes();
             if (nodes == null || nodes.size() < 2) continue;
 

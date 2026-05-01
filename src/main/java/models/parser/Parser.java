@@ -215,7 +215,7 @@ public class Parser implements IParser {
         String waterway = tags.get("waterway");
         if (waterway != null) {
             return switch (waterway) {
-                case "river", "canal" -> 0.0;
+                case "river", "canal" -> 14.0;
                 case "stream"         -> 12.0;
                 default               -> 13.0;
             };
@@ -224,11 +224,12 @@ public class Parser implements IParser {
         String landuse = tags.get("landuse");
         if (landuse != null) {
             return switch (landuse) {
-                case "forest", "grass",
-                     "farmland", "farmyard"      -> 0.0;
+                case "forest" -> 0.0;
+                case "grass" -> 15.0;
+                case "farmland", "farmyard" -> 13.0;
                 case "residential", "commercial",
-                     "retail"                    -> 9.0;
-                case "industrial"                -> 9.0;
+                     "retail"                    -> 10.0;
+                case "industrial"                -> 10.0;
                 default                          -> 0.0;
             };
         }
