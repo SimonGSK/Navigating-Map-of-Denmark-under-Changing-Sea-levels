@@ -128,7 +128,10 @@ public class Parser implements IParser {
             line = br.readLine().trim();
             if (line.contains("<nd")) {
                 long ndID = getAttributeLong(line, "ref");
-                nodes.add(getOsmNodeMap().get(ndID));
+                Node node = getOsmNodeMap().get(ndID);
+                if (node != null) {
+                    nodes.add(node);
+                }
             }
             if (line.contains("<tag")) {
                 String k = getAttribute(line, "k");

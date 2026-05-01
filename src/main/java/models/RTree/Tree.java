@@ -59,35 +59,57 @@ public class Tree {
         }
     }
 
-    public Node getNearestNode(Coordinate cursor, float radius) {
-/*
-        float searchRadius = 1; // 1 lat/lon
-        BoundingBox searchArea = new BoundingBox(cursor.getLat() - 1, cursor.getLon() - 1, cursor.getLat() + 1, cursor.getLon() + 1);
-        
-        List<Element> searchResults = search(searchArea).stream()
-                .filter(e -> e instanceof Node)
-                .toList();
-        
-        Node nearestNode = null;
-        double nearestDist = Double.POSITIVE_INFINITY;
-        
-        for (Element e : searchResults) {
-            if (e instanceof Node node) {
-                double euclideanDist = Math.sqrt(Math.pow(nearestNode.getLat() - cursor.getLat(),2) + Math.pow(nearestNode.getLon() - cursor.getLon(),2));
-
-                if (nearestNode == null || euclideanDist < nearestDist) {
-                    nearestNode = node;
-                    nearestDist = euclideanDist;
-                }
-            }
+    public Node getNearestNode(Coordinate cursor) {
+        if (root == null) {
+            return null;
         }
 
-        return nearestNode;
-*/
-        return null;
+        List<TreeNode> path = new ArrayList<>();
+        TreeNode nearestTreeNode = chooseLeaf(root,new BoundingBox(cursor.getLat(), cursor.getLon(), cursor.getLat(),cursor.getLon()),path);
+
+        List<Node> nodeList = nearestTreeNode.entries.stream().map(e -> (LeafEntry) e).map(LeafEntry::element).filter(e -> e.getType() == ElementType.node).map(e -> (Node) e).toList();
+        if (nodeList.isEmpty()) return null;
+
+        nearestNodeDist nearestND = _findNearestNodeDist(cursor, nodeList);
+        double radius = nearestND.dist();
+
+        BoundingBox searchArea = new BoundingBox(
+                cursor.getLat() - radius, cursor.getLon() - radius,
+                cursor.getLat() + radius, cursor.getLon() + radius
+        );
+
+        SearchResults searchResults = search(searchArea);
+        nearestNodeDist result = _findNearestNodeDist(cursor, searchResults.nodeList());
+
+        return result.node();
     }
 
+    private nearestNodeDist _findNearestNodeDist(Coordinate cursor, List<Node> nodeList) {
+        Node nearestNode = null;
+        double nearestDist = Double.MAX_VALUE;
+
+        for (Node n : nodeList) {
+            Coordinate center = n.getCoordinate();
+            double dist = Math.sqrt(
+                    Math.pow(cursor.getLat() - center.getLat(),2)
+                    + Math.pow(cursor.getLon() - center.getLon(),2)
+            );
+
+            if (dist < nearestDist) {
+                nearestNode = n;
+                nearestDist = dist;
+            }
+        }
+        return new nearestNodeDist(nearestNode, nearestDist);
+    }
+
+    record nearestNodeDist(Node node, double dist) { }
+
+
     public void insert(Element element) {
+        if (element == null || element.getMbr() == null) return;
+        BoundingBox mbr = element.getMbr();
+        if (Double.isNaN(mbr.minLat()) || Double.isNaN(mbr.minLon()) || Double.isNaN(mbr.maxLat()) || Double.isNaN(mbr.maxLon())) return;
         if (root == null) {
             root = new TreeNode(true);
         }
@@ -240,7 +262,7 @@ public class Tree {
             throw new IllegalArgumentException("pickSeeds needs at least 2 entries");
         }
         SeedPack seeds = null;
-        double maxDeadSace = Double.NEGATIVE_INFINITY;
+        double maxDeadSpace = Double.NEGATIVE_INFINITY;
 
         for (int i = 0; i < entries.size() - 1; i++) {
             for (int j = i + 1; j < entries.size(); j++) {
@@ -252,12 +274,16 @@ public class Tree {
                 double aArea = a.getMbr().area();
                 double bArea = b.getMbr().area();
                 double deadSpace = containerArea - aArea - bArea;
+                if (Double.isNaN(deadSpace)) continue;
 
-                if (deadSpace > maxDeadSace) {
-                    maxDeadSace = deadSpace;
+                if (deadSpace > maxDeadSpace) {
+                    maxDeadSpace = deadSpace;
                     seeds = new SeedPack(a, b);
                 }
             }
+        }
+        if (seeds == null) {
+            seeds = new SeedPack(entries.get(0), entries.get(1));
         }
 
         return seeds;
