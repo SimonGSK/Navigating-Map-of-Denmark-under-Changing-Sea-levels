@@ -1,14 +1,18 @@
 package models.ui;
 
-import javafx.application.Platform;
+import Interfaces.Drawable;
 import javafx.scene.Scene;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.geometry.Insets;
 import models.geometry.SuperAffine;
+import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
@@ -19,12 +23,16 @@ import models.RTree.SearchResults;
 import models.RTree.Tree;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
+import models.geometry.SuperAffine;
+import models.heightcurve.HeightCurve;
 import models.heightcurve.HeightCurveData;
 import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
-import models.parser.*;
+import models.parser.MapData;
+import models.parser.Parser;
 import models.rendering.NodeRenderer;
+import models.parser.HCParser;
 import models.rendering.HeightCurveRenderer;
 import models.rendering.RelationRenderer;
 import models.rendering.WayRenderer;
@@ -33,12 +41,18 @@ import java.awt.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.nio.IntBuffer;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import models.ui.DrawingUtils;
+import models.parser.MapData;
 
 //import static com.sun.javafx.scene.CameraHelper.project;
 
 public class App extends DrawingApp {
+    private static final boolean USE_EXAMPLE_ISLAND = false;
     private final SuperAffine superAffine = new SuperAffine();
 
 
@@ -66,69 +80,26 @@ public class App extends DrawingApp {
 
     @Override
     public void start(Stage stage) {
-        StartupDialog dialog =  new StartupDialog();
-        StartupDialog.MapChoice choice = dialog.show();
-        if (choice == null) {
-            Platform.exit();
-            return;
+        if (USE_EXAMPLE_ISLAND) {
+            stage.setTitle("Example ISLAND");
+        } else {
+            stage.setTitle("Drawing App");
         }
-
-        stage.setTitle("Drawing App");
-
         stage.setResizable(false);
         stage.setWidth(getWIDTH());
 
-        BoundingBox boundingBox;
-        HashMap<Long, Node> nodeMap;
-        HashMap<Long, Way> wayMap;
-        HashMap<Long, Relation> relationMap;
+        Parser parser = new Parser("Bornholm.osm");
+        parser.parse();
 
-        if (choice.binPath() != null) {
-            MapData loadedData = null;
-            try {
-                loadedData = BinaryReader.load(choice.binPath());
-                System.out.println("Loaded from binary");
-            } catch (Exception e) {
-                System.out.println("Binary not found, parsing instead" + e.getMessage());
-            }
-            if (loadedData != null) {
-                hcData = loadedData.hcData;
-                boundingBox = loadedData.mbr;
-                nodeMap = (HashMap<Long, Node>) loadedData.nodeMap;
-                wayMap = (HashMap<Long, Way>) loadedData.wayMap;
-                relationMap = (HashMap<Long, Relation>) loadedData.relationMap;
-            } else {
-                Parser parser = new Parser(choice.osmPath());
-                parser.parse();
-                HCParser hcparser = new HCParser(choice.hcPath());
-                hcData = hcparser.parse();
-                boundingBox = parser.getBoundingBox();
-                nodeMap = parser.getOsmNodeMap();
-                wayMap = parser.getOsmWayMap();
-                relationMap = parser.getOsmRelationMap();
+        HCParser hcparser = new HCParser("bornholm/bornholm.hc");
+        hcData = hcparser.parse();
 
-                try {
-                    String binWritePath = "src/main/resources/data/" + choice.osmPath().replace(".osm", ".bin");
-                    BinaryWriter.write(parser, hcData, binWritePath);
-                    System.out.println("Binary written for next startup");
-                } catch (Exception ex) {
-                    System.out.println("Could not write binary" + ex.getMessage());
-                }
-            }
-        } else {
-            Parser parser = new Parser (choice.osmPath());
-            parser.parse();
-            HCParser hcparser = new HCParser(choice.hcPath());
-            hcData = hcparser.parse();
-            boundingBox = parser.getBoundingBox();
-            nodeMap = parser.getOsmNodeMap();
-            wayMap = parser.getOsmWayMap();
-            relationMap = parser.getOsmRelationMap();
-        }
-
-
-
-        tree = new Tree(boundingBox, nodeMap, wayMap, relationMap);
+        tree = new Tree(
+                parser.getBoundingBox(),
+                parser.getOsmNodeMap(),
+                parser.getOsmWayMap(),
+                parser.getOsmRelationMap()
+            );
 
         meanLat = (tree.getMbr().maxLat() + tree.getMbr().minLat()) / 2.0; // (minLat + maxLat) / 2
         relationRenderer = new RelationRenderer(meanLat);
@@ -204,6 +175,11 @@ public class App extends DrawingApp {
         stage.setScene(new Scene(layout, getWIDTH(), getHEIGHT() + 50));
         stage.show();
 
+        System.out.println("Nodes: " + parser.getOsmNodeMap().size());
+        System.out.println("Ways: " + parser.getOsmWayMap().size());
+        System.out.println("Relations: " + parser.getOsmRelationMap().size());
+        System.out.println("Bounding box: " + parser.getBoundingBox());
+
         // Initial draw and render
         draw();
         render();
@@ -277,10 +253,6 @@ public class App extends DrawingApp {
         this.screenX = event.getX();
         this.screenY = event.getY();
 
-        Node nn = tree.getNearestNode(getCursorCoordinate(screenX,screenY));
-        System.out.println(nn.getCoordinate().getLat());
-        System.out.println(nn.getCoordinate().getLon());
-
 /*        if (Math.abs(this.screenX - event.getX()) < 10 && Math.abs(this.screenY - event.getY()) < 10) {
             Coordinate c = pixelToCoordinate(event.getX(),event.getY());
             Node n = tree.getNearestNode(c);
@@ -290,7 +262,7 @@ public class App extends DrawingApp {
         }*/
     }
 
-    private Coordinate getCursorCoordinate(double screenX, double screenY) {
+    private Coordinate pixelToCoordinate(double screenX, double screenY) {
         Point2D world = superAffine.inverseTransform(screenX, screenY);
 
         double cosMeanLat = Math.cos(Math.toRadians(meanLat));
@@ -336,10 +308,10 @@ public class App extends DrawingApp {
                 .prependScale(scale, scale)
                 .prependTranslation(offsetX, offsetY);
 
-        getZoomLevel();
+        updateZoomLabel();
     }
 
-    private void getZoomLevel() {
+    private void updateZoomLabel() {
         double scale = Math.log(superAffine.getScaleX()) / Math.log(2);
         if (zoomLabel != null){
             zoomLabel.setText(String.format("Zoom: %.1fx", scale));
@@ -352,7 +324,7 @@ public class App extends DrawingApp {
                 .prependScale(factor, factor)
                 .prependTranslation(x, y);
 
-        getZoomLevel();
+        updateZoomLabel();
         drawAndRender();
     }
 }

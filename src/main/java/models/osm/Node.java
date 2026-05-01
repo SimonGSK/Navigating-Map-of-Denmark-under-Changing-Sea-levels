@@ -3,43 +3,15 @@ package models.osm;
 import models.RTree.ElementType;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
-import models.heightcurve.HeightCurveData;
-import models.pathfinding.Edge;
 
 import java.awt.*;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
-public class Node extends Element implements Comparable<Node>, Serializable {
+public class Node extends Element {
     private final Coordinate coord;
-    private final List<Edge> adjacencyList;
-    private boolean flooded = false;
 
-    public Node(long id, double lat, double lon) { // add hc
+    public Node(long id, double lat, double lon) {
         super(id, ElementType.node, null, new BoundingBox(lat, lon, lat, lon));
         this.coord = new Coordinate(lat, lon);
-        this.adjacencyList = new ArrayList<>();
-    }
-
-
-
-    public void resolveFlooding(HeightCurveData heightCurveData) {
-        this.flooded = heightCurveData.isCoordinateSubmerged(this.coord);
-    }
-
-    public boolean isFlooded() {
-        return flooded;
-    }
-
-
-
-    public List<Edge> getAdjacencyList() {
-        return adjacencyList;
-    }
-
-    public void addNeighbour(Edge edge) {
-        adjacencyList.add(edge);
     }
 
     /**
@@ -63,10 +35,4 @@ public class Node extends Element implements Comparable<Node>, Serializable {
     public void draws(Graphics2D gc) {
 
     }
-    @Override
-    public int compareTo(Node other) {
-        return Long.compare(this.getId(), other.getId());
-    }
-
-
 }
