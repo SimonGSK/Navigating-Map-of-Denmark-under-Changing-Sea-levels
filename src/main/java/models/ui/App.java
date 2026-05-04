@@ -5,6 +5,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.geometry.Insets;
+import models.geometry.ExtSuperAffine;
 import models.geometry.SuperAffine;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -25,12 +26,12 @@ import java.awt.geom.Point2D;
 
 public class AppController extends DrawingApp {
     private final AppData appData = new AppData();
-    private final UserInterface userInterface = new UserInterface();
+    private final UserInterface userInterface = new UserInterface(this);
     private AppControllerState controllerState = AppControllerState.ready;
 
 
     private static final boolean USE_EXAMPLE_ISLAND = false;
-    private final SuperAffine superAffine = new SuperAffine();
+    private final SuperAffine superAffine = new ExtSuperAffine();
 
 
     private double screenX = 0;
@@ -92,20 +93,7 @@ public class AppController extends DrawingApp {
         imageView.setFitHeight(getHEIGHT());
         imageView.setPreserveRatio(false);
 
-        // TODO: Make this into a separate object or function
-        Button toggleButton = new Button("Show elevation map");
-        toggleButton.setOnAction(e -> {
-            showHeightCurves = !showHeightCurves;
-            toggleButton.setText(showHeightCurves ? "Show regular map" : "Show elevation map");
-            drawAndRender();
-        });
 
-        Button heightLinesButton = new Button("Show height curves");
-        heightLinesButton.setOnAction(e -> {
-            showHeightLines = !showHeightLines;
-            heightLinesButton.setText(showHeightLines ? "Hide height curves" : "Show height curves");
-            drawAndRender();
-        });
 
         double maxH = Math.ceil(hcData.getMaxHeight());
 
@@ -127,10 +115,10 @@ public class AppController extends DrawingApp {
         zoomLabel = new Label("Zoom: 1.00x");
 
         Button zoomOutButton = new Button("-");
-        zoomOutButton.setOnAction(e -> applyZoom(1 / 1.5, getWIDTH() / 2.0, getHEIGHT() / 2.0));
+        zoomOutButton.setOnAction(e -> handleZoom(1 / 1.5, getWIDTH() / 2.0, getHEIGHT() / 2.0));
 
         Button zoomInButton = new Button("+");
-        zoomInButton.setOnAction(e -> applyZoom(1.5, getWIDTH() / 2.0, getHEIGHT() / 2.0));
+        zoomInButton.setOnAction(e -> handleZoom(1.5, getWIDTH() / 2.0, getHEIGHT() / 2.0));
 
         HBox controls = new HBox(10.0, toggleButton, heightLinesButton, seaLabel, seaSlider, zoomLabel, zoomOutButton, zoomInButton);
         controls.setPadding(new Insets(8));
@@ -255,12 +243,17 @@ public class AppController extends DrawingApp {
 
     private void handleScroll(ScrollEvent event) {
         double factor = event.getDeltaY() > 0 ? 1.05 : 1 / 1.05;
-        applyZoom(factor, event.getX(), event.getY());
+        handleZoom(factor, event.getX(), event.getY());
     }
 
     public void update() {
         draw();
         render();
+    }
+
+    public void updateSeaLevel(float level) {
+        appData.getHeightCurveData().updateFlooding(level);
+        appData.getHeightCurveRenderer().setSeaLevel(level);
     }
 
     public void recenter(BoundingBox mbr, double meanLat) {
@@ -289,20 +282,15 @@ public class AppController extends DrawingApp {
         getZoomLevel();
     }
 
-    private void getZoomLevel() {
-        double scale = Math.log(superAffine.getScaleX()) / Math.log(2);
-        if (zoomLabel != null){
-            zoomLabel.setText(String.format("Zoom: %.1fx", scale));
-        }
-    }
-
-    private void applyZoom(double factor, double x, double y) {
+    public void handleZoom(double factor, double x, double y) {
         superAffine
                 .prependTranslation(-x, -y)
                 .prependScale(factor, factor)
                 .prependTranslation(x, y);
-
-        getZoomLevel();
         drawAndRender();
     }
+
+    public double getZoomLevel() {
+        return Math.log(superAffine.getScaleX() / Math.log(2));
+    };
 }
