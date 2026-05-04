@@ -44,7 +44,7 @@ public class HeightCurveRenderer implements Drawable {
     }
 
     //Bruges til at tegne height curves uden at fylde dem ud
-    public void drawHcLines(Graphics2D gc){
+    public void drawHeightCurveLines(Graphics2D gc){
         this.toFill = false;
         draws(gc);
     }
@@ -92,7 +92,7 @@ public class HeightCurveRenderer implements Drawable {
     }
 
     //Bruges til at farve oversvømmede height curves på OSM-kortet
-    public void drawSubmersedCurves(Graphics2D gc) {
+    public void drawSubmergedCurves(Graphics2D gc) {
         if (seaLevel <= 0) return;
 
         //Farver området mellem havet og yderste height curve

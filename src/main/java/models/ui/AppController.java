@@ -1,37 +1,28 @@
 package models.ui;
 
 import javafx.scene.Scene;
-import javafx.scene.control.Slider;
-import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
-import javafx.geometry.Insets;
-import models.geometry.ExtSuperAffine;
-import models.geometry.SuperAffine;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import models.RTree.SearchResults;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
-import models.osm.Node;
+import models.geometry.ExtSuperAffine;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 
-//import static com.sun.javafx.scene.CameraHelper.project;
-
 public class AppController extends DrawingApp {
+    private final ExtSuperAffine superAffine = new ExtSuperAffine();
     private final AppData appData = new AppData();
+    private final EventHandler eventHandler = new EventHandler(this,this::handleMousePress,this::handleMouseDrag,this::handleScroll);
     private final UserInterface userInterface = new UserInterface(this);
     private AppControllerState controllerState = AppControllerState.ready;
 
 
     private static final boolean USE_EXAMPLE_ISLAND = false;
-    private final SuperAffine superAffine = new ExtSuperAffine();
 
 
     private double screenX = 0;
@@ -72,7 +63,10 @@ public class AppController extends DrawingApp {
         );
 
         switch (appData.getState()) {
-            case AppData.AppDataState.complete -> controllerState = AppControllerState.active;
+            case AppData.AppDataState.complete -> {
+                controllerState = AppControllerState.active;
+                userInterface.init();
+            }
             case AppData.AppDataState.error -> controllerState = AppControllerState.error;
         }
 
@@ -83,19 +77,17 @@ public class AppController extends DrawingApp {
 
         recenter(appData.getTree().getMbr(), meanLat);
 
-        // Event handlers
-        BorderPane mouseEventComponent = new BorderPane();
-        mouseEventComponent.setOnMousePressed(this::handleMousePressed);
-        mouseEventComponent.setOnMouseDragged(this::handleMouseDragged);
-        mouseEventComponent.setOnScroll(this::handleScroll);
-
         imageView.setFitWidth(getWIDTH());
         imageView.setFitHeight(getHEIGHT());
         imageView.setPreserveRatio(false);
 
 
 
-        double maxH = Math.ceil(hcData.getMaxHeight());
+
+
+
+
+        /*double maxH = Math.ceil(hcData.getMaxHeight());
 
         Slider seaSlider = new Slider(0, maxH, 0);
         seaSlider.setShowTickLabels(true);
@@ -127,26 +119,19 @@ public class AppController extends DrawingApp {
         BorderPane layout = new BorderPane();
         layout.setCenter(new StackPane(this.imageView, mouseEventComponent));
         layout.setBottom(controls);
-        controls.setStyle("-fx-background-color: white;");
+        controls.setStyle("-fx-background-color: white;");*/
 
-        stage.setScene(new Scene(layout, getWIDTH(), getHEIGHT() + 50));
+        stage.setScene(new Scene(userInterface.getLayout(), getWIDTH(), getHEIGHT() + 50));
         stage.show();
 
         userInterface.setUserMode(UserInterface.UserMode.explore);
 
         // Initial draw and render
-        draw();
-        render();
+        update();
     }
 
-
-
-    public SuperAffine getSuperAffine() {
+    public ExtSuperAffine getSuperAffine() {
         return superAffine;
-    }
-
-    public void toggleHeightCurves() {
-        userInterface.
     }
 
     private BoundingBox getViewportBox() {
@@ -165,16 +150,20 @@ public class AppController extends DrawingApp {
         return new BoundingBox(minLat, minLon, maxLat, maxLon);
     }
 
+    public AppData getAppData() {
+        return appData;
+    }
+
+    public EventHandler getEventHandler() {
+        return eventHandler;
+    }
+
     private void draw() {
         BoundingBox viewport = getViewportBox();
 
-        double scaleX = superAffine.getScaleX(); // Simple LOD, setup
-        double scaleY = superAffine.getScaleY(); // Simple LOD, setup
-        double minGeoArea = 256.0 / (scaleX * scaleY); // Simple LOD, step 1; Elements rendering less than 16x16 px are skipped
-
-        SearchResults searchResults = tree.search(viewport);
-        wayRenderer.set(searchResults.wayList());
-        relationRenderer.set(searchResults.relationList());
+        SearchResults searchResults = appData.getTree().search(viewport);
+        appData.getWayRenderer().set(searchResults.wayList());
+        appData.getRelationRenderer().set(searchResults.relationList());
 
         Graphics2D gc = getNewGraphicsContext();
 
@@ -186,18 +175,17 @@ public class AppController extends DrawingApp {
         // Apply world transform for drawing map geometry.
         gc.setTransform(superAffine);
 
+        if (userInterface.getMapState() == UserInterface.MapState.elevation) {
+            appData.getHeightCurveRenderer().drawHcMap(gc);
+            return;
+        }
 
-        if (showHeightCurves) {
-            hcRenderer.drawHcMap(gc); //Kan også bruge den normale draws(), men denne simple funktion ser bedre ud
-        } else {
-            // nodeRenderer.draws(gc); // TODO: Implement draws() in NodeRenderer to draw trees, etc.
-            relationRenderer.draws(gc);
-            wayRenderer.draws(gc);
-            hcRenderer.drawSubmersedCurves(gc);
+        appData.getRelationRenderer().draws(gc);
+        appData.getWayRenderer().draws(gc);
+        appData.getHeightCurveRenderer().drawSubmergedCurves(gc);
 
-            if(showHeightLines){
-                hcRenderer.drawHcLines(gc);
-            }
+        if (userInterface.isShowHeightCurves()) {
+            appData.getHeightCurveRenderer().drawHeightCurveLines(gc);
         }
     }
 
@@ -206,21 +194,13 @@ public class AppController extends DrawingApp {
         render();
     }
 
-    private void handleMousePressed(MouseEvent event) {
+    private void handleMousePress(MouseEvent event) {
         this.screenX = event.getX();
         this.screenY = event.getY();
 
-        Node nn = tree.getNearestNode(getCursorCoordinate(screenX,screenY));
+/*        Node nn = tree.getNearestNode(getCursorCoordinate(screenX,screenY));
         System.out.println(nn.getCoordinate().getLat());
-        System.out.println(nn.getCoordinate().getLon());
-
-/*        if (Math.abs(this.screenX - event.getX()) < 10 && Math.abs(this.screenY - event.getY()) < 10) {
-            Coordinate c = pixelToCoordinate(event.getX(),event.getY());
-            Node n = tree.getNearestNode(c);
-            if (n != null) {
-                System.out.println("nearestNode: lat = " + n.getLat() + ", lon = " + n.getLon() + ", dist = " + Math.round(Math.sqrt(Math.pow(c.getLat() - n.getLat(),2) * Math.pow(c.getLon() - n.getLon(),2))));
-            }
-        }*/
+        System.out.println(nn.getCoordinate().getLon());*/
     }
 
     private Coordinate getCursorCoordinate(double screenX, double screenY) {
@@ -233,10 +213,10 @@ public class AppController extends DrawingApp {
         return new Coordinate(lat,lon);
     }
 
-    private void handleMouseDragged(MouseEvent event) {
+    private void handleMouseDrag(MouseEvent event) {
         double dx = event.getX() - this.screenX, dy = event.getY() - this.screenY;
         superAffine.prependTranslation(dx, dy);
-        handleMousePressed(event);
+        handleMousePress(event);
 
         drawAndRender();
     }

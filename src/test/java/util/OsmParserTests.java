@@ -11,6 +11,8 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import models.geometry.BoundingBox;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -307,8 +309,8 @@ public class OsmParserTests {
            AbstractParser expectedParser = pr.getExpectedParser();
            AbstractParser actualParser = pr.getActualParser();
 
-           models.geometry.BoundingBox actualBounds = actualParser.getBoundingBox();
-           models.geometry.BoundingBox expectedBounds = expectedParser.getBoundingBox();
+           BoundingBox actualBounds = actualParser.getBoundingBox();
+           BoundingBox expectedBounds = expectedParser.getBoundingBox();
 
            double expectedMinLat = expectedBounds.minLat();
            double expectedMinLon = expectedBounds.minLon();

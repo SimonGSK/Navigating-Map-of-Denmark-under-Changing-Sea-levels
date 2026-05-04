@@ -17,6 +17,10 @@ import java.util.List;
 import static models.geometry.BoundingBox.computeMbr;
 
 public class OsmParser extends AbstractParser<OsmData> {
+    private final HashMap<Long, Node> nodeMap = new HashMap<>();
+    private final HashMap<Long, Way> wayMap = new HashMap<>();
+    private final HashMap<Long, Relation> relationMap = new HashMap<>();
+
     private BoundingBox mbr;
 
     public OsmParser(String absoluteFilePath) throws IOException {
@@ -25,10 +29,6 @@ public class OsmParser extends AbstractParser<OsmData> {
 
     public void parse(String filePath) throws IOException {
         this.filePath = filePath;
-
-        HashMap<Long, Node> nodeMap = new HashMap<>();
-        HashMap<Long, Way> wayMap = new HashMap<>();
-        HashMap<Long, Relation> relationMap = new HashMap<>();
 
         try {
             InputStream inputStream = new FileInputStream(filePath);
@@ -127,7 +127,7 @@ public class OsmParser extends AbstractParser<OsmData> {
             line = br.readLine().trim();
             if (line.contains("<nd")) {
                 long ndID = getAttributeLong(line, "ref");
-                nodes.add(getOsmNodeMap().get(ndID));
+                nodes.add(nodeMap.get(ndID));
             }
             if (line.contains("<tag")) {
                 String k = getAttribute(line, "k");
