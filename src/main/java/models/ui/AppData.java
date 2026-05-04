@@ -110,6 +110,7 @@ public class AppData {
 
     public void init(OsmData osmData, HeightCurveData heightCurveData) {
         init(osmData);
+        this.heightCurveData = heightCurveData;
         heightCurveRenderer = new HeightCurveRenderer(heightCurveData, meanLat);
     }
 

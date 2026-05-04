@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HeightCurveParser extends AbstractParser<HeightCurveData> {
-    private HeightCurveData heightCurveData;
-
     public HeightCurveParser(String absoluteFilePath) throws IOException {
         parse(absoluteFilePath);
     }
@@ -69,6 +67,6 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
                 if (coord.getLon() < minLon) minLon = coord.getLon();
             }
         }
-        heightCurveData = new HeightCurveData(minLat, minLon, maxLat, maxLon, sea, allCurves);
+        this.data = new HeightCurveData(minLat, minLon, maxLat, maxLon, sea, allCurves);
     }
 }

@@ -65,12 +65,12 @@ public class UserInterface {
         HBox controlPanel = new HBox(mapStateToggle,heightCurvesToggle);
         controlPanel.getChildren().addAll(seaLevelSlider.toNodes());
         controlPanel.getChildren().addAll(zoomButtonGroup.toNodes());
+        controlPanel.setSpacing(8.0);
         controlPanel.setPadding(new Insets(8));
         controlPanel.setAlignment(Pos.CENTER_LEFT);
 
-        BorderPane layout = new BorderPane();
-        layout.setCenter(new StackPane(appController.imageView, appController.getEventHandler().getMapMouseEventComponent()));
-        layout.setBottom(controlPanel);
+        appLayout.setCenter(new StackPane(appController.imageView, appController.getEventHandler().getMapMouseEventComponent()));
+        appLayout.setBottom(controlPanel);
         controlPanel.setStyle("--fx-background-color: white");
 
         isInitialized = true;
@@ -161,10 +161,6 @@ public class UserInterface {
             nodes[1] = slider;
             return nodes;
         }
-
-        public void addTo(Pane container) {
-            container.getChildren().addAll(toNodes());
-        }
     };
 
     private record LabelledButtonGroup(Label label, Button... buttons) {
@@ -176,10 +172,6 @@ public class UserInterface {
                 System.arraycopy(buttons, 0, nodes, 1, buttons.length);
             }
             return nodes;
-        }
-
-        public void addTo(Pane container) {
-            container.getChildren().addAll(toNodes());
         }
     }
 

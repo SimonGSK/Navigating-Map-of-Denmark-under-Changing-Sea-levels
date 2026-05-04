@@ -21,25 +21,8 @@ public class AppController extends DrawingApp {
     private final UserInterface userInterface = new UserInterface(this);
     private AppControllerState controllerState = AppControllerState.ready;
 
-
-    private static final boolean USE_EXAMPLE_ISLAND = false;
-
-
     private double screenX = 0;
     private double screenY = 0;
-
-    private double meanLat;
-    private Label zoomLabel;
-    private boolean showHeightCurves = false;
-    private boolean showHeightLines = false;
-
-    private double prevMouseX;
-    private double prevMouseY;
-
-    Path2D nearestNeighborPath;
-
-
-    //private final ImageView imageView = new ImageView();
 
     private enum AppControllerState {
         ready,
@@ -49,11 +32,7 @@ public class AppController extends DrawingApp {
 
     @Override
     public void start(Stage stage) {
-        if (USE_EXAMPLE_ISLAND) {
-            stage.setTitle("Example ISLAND");
-        } else {
-            stage.setTitle("Drawing App");
-        }
+        stage.setTitle("Drawing App");
         stage.setResizable(false);
         stage.setWidth(getWIDTH());
 
@@ -75,7 +54,7 @@ public class AppController extends DrawingApp {
             return; // TODO: Implement better error handling so user can try again
         }
 
-        recenter(appData.getTree().getMbr(), meanLat);
+        recenter(appData.getTree().getMbr(), appData.getMeanLat());
 
         imageView.setFitWidth(getWIDTH());
         imageView.setFitHeight(getHEIGHT());
@@ -140,7 +119,7 @@ public class AppController extends DrawingApp {
 
         Point2D topLeft = superAffine.inverseTransform(w * 0.2, h * 0.2);
         Point2D bottomRight = superAffine.inverseTransform(w * 0.8, h * 0.8);
-        double cosMeanLat = Math.cos(Math.toRadians(meanLat));
+        double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
 
         double minLon = topLeft.getX() / cosMeanLat;
         double maxLon = bottomRight.getX() / cosMeanLat;
@@ -206,7 +185,7 @@ public class AppController extends DrawingApp {
     private Coordinate getCursorCoordinate(double screenX, double screenY) {
         Point2D world = superAffine.inverseTransform(screenX, screenY);
 
-        double cosMeanLat = Math.cos(Math.toRadians(meanLat));
+        double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
         double lon = world.getX() / cosMeanLat;
         double lat = -world.getY();
 
@@ -237,7 +216,7 @@ public class AppController extends DrawingApp {
     }
 
     public void recenter(BoundingBox mbr, double meanLat) {
-        double cosMeanLat = Math.cos(Math.toRadians(meanLat));
+        double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
         double dataWidth = (mbr.maxLon() - mbr.minLon()) * cosMeanLat;
         double dataHeight = mbr.maxLat() - mbr.minLat();
         if (dataWidth <= 0 || dataHeight <= 0) {
