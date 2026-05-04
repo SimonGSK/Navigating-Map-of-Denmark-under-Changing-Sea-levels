@@ -1,6 +1,8 @@
 package models.geometry;
 
-public class Coordinate {
+import java.io.Serializable;
+
+public class Coordinate implements Serializable {
     private final double lat;
     private final double lon;
 

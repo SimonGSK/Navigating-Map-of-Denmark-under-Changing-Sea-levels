@@ -3,7 +3,9 @@ package models.osm;
 
 import enums.ElementType;
 
-public class Member {
+import java.io.Serializable;
+
+public class Member implements Serializable {
     private final Element element;
     private final String role;
     private final ElementType type;

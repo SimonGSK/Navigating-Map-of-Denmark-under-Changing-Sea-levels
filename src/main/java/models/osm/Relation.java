@@ -4,11 +4,12 @@ import enums.ElementType;
 import models.geometry.BoundingBox;
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
 
-public class Relation extends Element implements Iterable<Member> {
+public class Relation extends Element implements Iterable<Member>, Serializable {
     private List<Member> members;
 
     public Relation(long id, HashMap<String, String> tags, List<Member> members) {

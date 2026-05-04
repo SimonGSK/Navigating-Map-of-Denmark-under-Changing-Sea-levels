@@ -2,18 +2,19 @@ package models.heightcurve;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import models.geometry.Coordinate;
 
-public class HeightCurve {
+public class HeightCurve implements Serializable {
 
     private long id;
     private double height;
     private List<Coordinate> coords;
     private List<HeightCurve> children;
     public boolean submerged;
-    private HeightCurve parent;
+    private transient HeightCurve parent;
 
     public Path2D getBoundaryPath(double cosMeanLat) {
         Path2D.Double p = new Path2D.Double();

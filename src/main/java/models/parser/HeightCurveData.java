@@ -1,5 +1,6 @@
 package models.parser;
 
+import java.io.Serializable;
 import java.util.List;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
@@ -10,7 +11,7 @@ import models.heightcurve.HeightCurve;
  * Intended as the output of the (optional) .hc parser as well as the hard-coded
  * examples
  */
-public class HeightCurveData {
+public class HeightCurveData implements Serializable {
 
     public final double minLat;
     public final double minLon;

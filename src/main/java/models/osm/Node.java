@@ -7,10 +7,11 @@ import models.parser.HeightCurveData;
 import models.pathfinding.Edge;
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Node extends Element implements Comparable<Node> {
+public class Node extends Element implements Comparable<Node>, Serializable {
     private final Coordinate coord;
     private final List<Edge> adjacencyList;
     private boolean flooded = false;
