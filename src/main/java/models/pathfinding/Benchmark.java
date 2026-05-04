@@ -39,10 +39,13 @@ public class Benchmark {
         Set<Node> allNodes = Set.of(a, b, c, d, e);
         Dijkstra dijkstra = new Dijkstra();
 
+        /*
         Mark7("dijkstra", i -> {
+            // TODO: Fix this
             Dijkstra.Result result = dijkstra.shortestPath(a, allNodes);
             return result.distances().get(e); // dummy value
         });
+        */
     }
 
     public static double Mark8(String msg, String info, IntToDoubleFunction f,

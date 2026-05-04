@@ -51,7 +51,7 @@ public class HeightCurveRenderer implements Drawable {
 
     //Bruges kun til OSM-kortet så hver height curve fyldes helt og ikke tager højde for children
     //Ser bedre ud
-    public void drawHcMap(Graphics2D gc) {
+    public void drawHeightCurveLines(Graphics2D gc) {
         List<HeightCurve> sorted = new ArrayList<>(data.curves);
         sorted.remove(data.sea);
         sorted.sort((a, b) -> Double.compare(boundingArea(b), boundingArea(a)));
@@ -60,7 +60,7 @@ public class HeightCurveRenderer implements Drawable {
             Path2D path = new Path2D.Double();
             boolean first = true;
 
-            for (Coordinate coord: curve.getCoords()) {
+            for (Coordinate coord : curve.getCoords()) {
                 double x = coord.getLon() * cosMeanLat;
                 double y = -coord.getLat();
 

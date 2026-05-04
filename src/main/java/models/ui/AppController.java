@@ -155,7 +155,8 @@ public class AppController extends DrawingApp {
         gc.setTransform(superAffine);
 
         if (userInterface.getMapState() == UserInterface.MapState.elevation) {
-            appData.getHeightCurveRenderer().drawHcMap(gc);
+            // TODO: There used to be a .drawHeightCurveMap(), which seems to have been changed to .drawHeightCurveLines() – is that because we've removed the elevation map?
+            appData.getHeightCurveRenderer().drawHeightCurveLines(gc);
             return;
         }
 
@@ -164,6 +165,7 @@ public class AppController extends DrawingApp {
         appData.getHeightCurveRenderer().drawSubmergedCurves(gc);
 
         if (userInterface.isShowHeightCurves()) {
+            // TODO: Remove this if it's the same as elevation map
             appData.getHeightCurveRenderer().drawHeightCurveLines(gc);
         }
     }
