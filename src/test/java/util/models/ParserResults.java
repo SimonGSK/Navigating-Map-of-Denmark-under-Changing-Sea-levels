@@ -1,7 +1,7 @@
 package util.models;
 
 import models.parser.OsmParser;
-import Interfaces.AbstractParser;
+import models.parser.AbstractParser;
 import util.TestParser;
 
 public class ParserResults {

@@ -1,12 +1,6 @@
-package Interfaces;
-
-import models.geometry.BoundingBox;
-import models.osm.Node;
-import models.osm.Relation;
-import models.osm.Way;
+package models.parser;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 public abstract class AbstractParser<T> {
     protected String filePath;

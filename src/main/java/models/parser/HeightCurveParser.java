@@ -1,6 +1,5 @@
 package models.parser;
 
-import Interfaces.AbstractParser;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
 
