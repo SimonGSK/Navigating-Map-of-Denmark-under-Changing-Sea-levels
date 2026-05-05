@@ -38,6 +38,6 @@ public abstract class AbstractRenderer<T extends Element> implements Drawable {
     }
 
     protected boolean shouldDraw(T element, boolean isClosed) {
-        return element.shouldDraw(currentZoomLevel, minGeoArea, isClosed);
+        return element.isVisible(currentZoomLevel, minGeoArea, isClosed);
     }
 }
