@@ -128,10 +128,7 @@ public class Parser implements IParser {
             line = br.readLine().trim();
             if (line.contains("<nd")) {
                 long ndID = getAttributeLong(line, "ref");
-                Node node = getOsmNodeMap().get(ndID);
-                if (node != null) {
-                    nodes.add(node);
-                }
+                nodes.add(getOsmNodeMap().get(ndID));
             }
             if (line.contains("<tag")) {
                 String k = getAttribute(line, "k");
@@ -229,7 +226,7 @@ public class Parser implements IParser {
             return switch (landuse) {
                 case "forest" -> 0.0;
                 case "grass" -> 15.0;
-                case "farmland", "farmyard" -> 13.0;
+                case "farmland", "farmyard" -> 12.0;
                 case "residential", "commercial",
                      "retail"                    -> 10.0;
                 case "industrial"                -> 10.0;

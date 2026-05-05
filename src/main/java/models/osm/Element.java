@@ -6,7 +6,6 @@ import models.geometry.BoundingBox;
 import models.geometry.SpatialElement;
 
 import java.awt.*;
-import java.io.Serializable;
 import java.util.HashMap;
 
 public abstract class Element extends SpatialElement implements Drawable, Serializable {
@@ -129,82 +128,86 @@ public abstract class Element extends SpatialElement implements Drawable, Serial
         if (tags.containsKey("proposed")) return null;
         if ("pipeline".equals(tags.get("man_made"))) return null;
         if (tags.containsKey("demolished:building")) return null;
-        if (tags.containsKey("barrier")) return null;
-
-        //WATER
-        if (tags.containsKey("waterway") || "water".equals(tags.get("natural")) || "spring".equals(tags.get("natural"))) {
-            return Color.decode("#A5BFD2"); //Dusty blue
-        }
 
         //NATURAL
         if (tags.containsKey("natural")) {
             String natural = tags.get("natural");
-            if ("wood".equals(natural) || "forest".equals(natural)) return Color.decode("#A8C19D"); // Forest green
-            if ("rock".equals(natural) || "stone".equals(natural)) return Color.decode("#C8C8C8"); // Grey
-            if ("wetland".equals(natural)) return Color.decode("#B9C5B2"); // Swamp
-            if ("beach".equals(natural)) return Color.decode("#E5DCC6"); // Sand
+            if ("water".equals(natural) || "spring".equals(natural)) return Color.decode("#184e85"); // Blå
+            if ("rock".equals(natural) || "stone".equals(natural)) return Color.decode("#2b2a2a"); // Mørkegrå
+            if ("coastline".equals(natural)) return Color.decode("#a19875");
             if ("shoal".equals(natural)) return Color.decode("#7c9ea6");
-            return Color.decode("#D3DFC5"); // Standard natur-grøn
-        }
-
-        //HIGHWAY
-        if (tags.containsKey("highway") || tags.containsKey("area:highway")) {
-            String highway = tags.get("highway");
-            if ("track".equals(highway) || "path".equals(highway)) return Color.decode("#C9BEB0"); // Light brown
-            return Color.decode("#FFFFFF"); // White
-        }
-
-        //LANDUSE
-        if (tags.containsKey("landuse")) {
-            String landuse = tags.get("landuse");
-            if ("forest".equals(landuse) || "wood".equals(landuse)) return Color.decode("#9DBA8E"); //Green
-            if ("grass".equals(landuse) || "meadow".equals(landuse) || "farmland".equals(landuse))
-                return Color.decode("#D3DFC5"); // Green
-            if ("industrial".equals(landuse)) return Color.decode("#DBD7D2"); // Grey
-            if ("residential".equals(landuse)) return Color.decode("#E3E1DA"); // Beige
-            return Color.decode("#D1D1C4");
-        }
-
-        //AEROWAY
-        if (tags.containsKey("aeroway")) {
-            String aeroway = tags.get("aeroway");
-            if ("taxiway".equals(aeroway) || "runway".equals(aeroway)) return Color.decode("#B0B8C1"); // Grey-blue
-            return Color.decode("#D1D9E0"); // Light grey-blue
-        }
-
-        //AMENITY AND LEISURE
-        if (tags.containsKey("amenity") || tags.containsKey("leisure")) {
-            if (tags.containsValue("dog_park")
-                    || tags.containsValue("golf_course")
-                    || tags.containsKey("sport")
-                    || tags.containsValue("park")) return Color.decode("#C7D9B8"); //Green
-            if (tags.containsValue("hospital")) return Color.decode("#EAD7D7"); //Dusty pink
-            return Color.decode("#D9D2C5"); // Beige
-        }
-
-        //BUILDING
-        if (tags.containsKey("building") || tags.containsKey("building:part")) {
-            return Color.decode("#D2B4A4"); // Dusty orange
+            if ("wetland".equals(natural)) return Color.decode("#638040");
+            if ("heath".equals(natural)) return Color.decode("#638040");
+            if ("coastline".equals(natural)) return Color.decode("#c7b687");
+            if ("beach".equals(natural)) return Color.decode("#c9b383");
+            return Color.decode("#0b4f14"); // Mørkegrøn
         }
 
         //SURFACE
         if (tags.containsKey("surface")) {
             String surface = tags.get("surface");
-            if ("grass".equals(surface)) return Color.decode("#D3DFC5"); // Light green
-            if ("sand".equals(surface)) return Color.decode("#E5DCC6"); //Sand
-            if ("paved".equals(surface) || "asphalt".equals(surface) || "concrete".equals(surface) || "paving_stones".equals(surface)) {
-                return Color.decode("#DBD7D2");// Grey
-            }
+            if ("grass".equals(surface)) return Color.decode("#0b4f14"); // Grøn
+            if ("paved".equals(surface) || "paving_stones".equals(surface)) return Color.decode("#4e524f"); // Grå
+            if ("gravel".equals(surface)) return Color.decode("#4a4437"); // Gråbrun
+            if ("sand".equals(surface)) return Color.decode("#c9b383"); // Sandfarvet
+            return Color.decode("#171716"); // Mørkegrå
+        }
+
+        //HIGHWAY
+        if (tags.containsKey("highway")) {
+            String highway = tags.get("highway");
+            if ("track".equals(highway) || "path".equals(highway)) return Color.decode("#664627"); // Lysebrun
+            return Color.decode("#2b2a2a"); // Grå
+        }
+
+        //AREA:HIGHWAY
+        if (tags.containsKey("area:highway")) {
+            return Color.decode("#4e524f"); //Paved grey
+        }
+
+        //LANDUSE
+        if (tags.containsKey("landuse")) {
+            String landuse = tags.get("landuse");
+            if ("forest".equals(landuse)) return Color.decode("#1a3d0a"); // Mørkegrøn
+            if ("grass".equals(landuse)) return Color.decode("#297209"); // Grøn
+            if ("industrial".equals(landuse)) return Color.decode("#4d4f4c"); // Grå
+            return Color.decode("#a7d180"); // Brun
+        }
+
+        //AEROWAY
+        if (tags.containsKey("aeroway")) {
+            String aeroway = tags.get("aeroway");
+            if ("taxiway".equals(aeroway) || "airstrip".equals(aeroway)) return Color.decode("#576682"); // Gråblå
+            return Color.decode("#a69e9d"); // Lysegrå
+        }
+
+        //BARRIER
+        if (tags.containsKey("barrier")) {
+            String barrier = tags.get("barrier");
+            if ("hedge".equals(barrier)) return Color.decode("#0b4f14"); // Grøn
+            return Color.decode("#825e35");
+        }
+
+        //AMENITY AND LEISURE
+        if (tags.containsKey("amenity") || tags.containsKey("leisure")){
+            if (tags.containsValue("dog_park")) return Color.decode("#6a8a57");
+            if (tags.containsValue("golf_course")) return Color.decode("#6a8a57");
+            if (tags.containsValue("hospital")) return Color.decode("#c9b09d");
+            return Color.decode("#471309"); // Brun-rød
         }
 
         //OTHER TAGS
-        if (tags.containsKey("man_made")) return Color.decode("#BDB9B5");
-        if (tags.containsKey("tourism") || tags.containsKey("historic")) return Color.decode("#C9BFA9"); //Muted brown
-        if (tags.containsKey("landcover") || tags.containsKey("grassland")) return Color.decode("#C5D9A9"); //Darker green
+        if (tags.containsKey("man_made")) return Color.decode("#75716d"); //Grå
+        if (tags.containsKey("tourism")) return Color.decode("#8c6239"); //Muted brown
+        if (tags.containsKey("historic")) return Color.decode("#8a7355"); //Slightly lighter sandy brown
+        if (tags.containsKey("building") || tags.containsKey("building:part")) return Color.decode("#a34018"); // Orange
+        if (tags.containsKey("waterway")) return Color.decode("#184e85"); // Blå
+        if (tags.containsKey("landcover")) return Color.decode("#1a3d0a"); //Mørkegrøn
+        if (tags.containsKey("grassland")) return Color.decode("#6b8c3a"); //Grøn
 
         //FALLBACK COLOR
         System.out.println(tags);
-        return Color.decode("#F2F0E9"); //Very light brown
+        return Color.decode("#9c9083");
     }
 
     public boolean isVisible(double zoomLevel, double minGeoArea, boolean isClosed) {
