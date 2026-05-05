@@ -226,7 +226,7 @@ public class Parser implements IParser {
             return switch (landuse) {
                 case "forest" -> 0.0;
                 case "grass" -> 15.0;
-                case "farmland", "farmyard" -> 12.0;
+                case "farmland", "farmyard" -> 13.0;
                 case "residential", "commercial",
                      "retail"                    -> 10.0;
                 case "industrial"                -> 10.0;
