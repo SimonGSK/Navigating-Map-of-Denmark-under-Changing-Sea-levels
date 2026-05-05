@@ -31,7 +31,16 @@ public class OsmParser extends AbstractParser<OsmData> {
         this.filePath = filePath;
 
         try {
-            InputStream inputStream = new FileInputStream(filePath);
+            InputStream inputStream;
+            File file = new File(filePath);
+            if (file.isAbsolute()) {
+                inputStream = new FileInputStream(file);
+            } else {
+                inputStream = OsmParser.class.getResourceAsStream("/data/" +  filePath);
+            }
+            if (inputStream == null) {
+                throw new FileNotFoundException("Resource not found: /data/" + filePath);
+            }
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
             String line;

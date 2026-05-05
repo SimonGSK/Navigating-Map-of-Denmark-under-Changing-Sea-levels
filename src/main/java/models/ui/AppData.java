@@ -1,10 +1,10 @@
 package models.ui;
 
 import models.RTree.Tree;
-import models.parser.HeightCurveData;
-import models.parser.HeightCurveParser;
-import models.parser.OsmData;
-import models.parser.OsmParser;
+import models.geometry.BoundingBox;
+import models.osm.Node;
+import models.osm.Way;
+import models.parser.*;
 import models.rendering.HeightCurveRenderer;
 import models.rendering.NodeRenderer;
 import models.rendering.RelationRenderer;
@@ -12,6 +12,7 @@ import models.rendering.WayRenderer;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class AppData {
     private Tree tree;
@@ -40,6 +41,19 @@ public class AppData {
         super();
     }
 
+    public void loadFromBinary(String binPath) {
+        try {
+            MapData mapData = BinaryReader.load(binPath);
+            OsmData osmData = new OsmData(mapData.mbr, (HashMap<Long, Node>) mapData.nodeMap, (HashMap<Long, Way>) mapData.wayMap, (HashMap<Long, models.osm.Relation>) mapData.relationMap);
+            init(osmData, mapData.hcData);
+            state = AppDataState.complete;
+            System.out.println("Loaded from binary");
+        } catch (Exception e) {
+            System.out.println("Binary not found, falling back to parsing: " + e.getMessage());
+            state = AppDataState.error;
+        }
+    }
+
     public void parse(String osmFilePath) {
         try {
             OsmData osmData = parseOsm(osmFilePath);
@@ -63,6 +77,13 @@ public class AppData {
             HeightCurveData heightCurveData = parseHeightCurves(heightCurveFilePath);
             init(osmData, heightCurveData);
             state = AppDataState.complete;
+            try {
+                String binPath = "src/main/Resources/data/" + osmFilePath.replace(".osm", ".bin");
+                BinaryWriter.write(osmData, heightCurveData, binPath);
+                System.out.println("Binary written: " + binPath);
+            } catch (Exception ex) {
+                System.out.println("Could not write binary: " + ex.getMessage());
+            }
         } catch (FileNotFoundException fileNotFoundException) {
             System.out.println("File not found.");
         } catch (IOException ioException) {
@@ -93,8 +114,10 @@ public class AppData {
         wayRenderer = null;
         relationRenderer = null;
     }
+    private BoundingBox bounds;
 
     public void init(OsmData osmData) {
+        this.bounds = osmData.bounds();
         tree = new Tree(
                 osmData.bounds(),
                 osmData.nodeMap(),
@@ -102,10 +125,13 @@ public class AppData {
                 osmData.relationMap()
         );
 
-        meanLat = (tree.getMbr().maxLat() + tree.getMbr().minLat()) / 2.0;
+        meanLat = (osmData.bounds().maxLat() + osmData.bounds().minLat()) / 2.0;
         relationRenderer = new RelationRenderer(meanLat);
         wayRenderer = new WayRenderer(meanLat);
         nodeRenderer = new NodeRenderer(meanLat);
+    }
+    public BoundingBox getBounds() {
+        return bounds;
     }
 
     public void init(OsmData osmData, HeightCurveData heightCurveData) {
