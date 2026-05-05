@@ -44,10 +44,16 @@ public class PathfindingObject {
     }
 
     public boolean isReady() {
+        if (startNode.get() == null || endNode.get() == null) {
+            return false;
+        }
+
         if (startNode.get().equals(endNode.get())) {
             endNode.set(null);
+            return false;
         }
-        return startNode.get() != null && endNode.get() != null;
+
+        return true;
     }
 
     public void clear() {

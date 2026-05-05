@@ -173,6 +173,10 @@ public class AppController extends DrawingApp {
                     pathfindingObject = PathfindingObject.getInstance();
                 }
 
+                if (pathfindingObject.isReady()) {
+                    pathfindingObject.clear();
+                }
+
                 Coordinate cursor = getCursorCoordinate(prevMouseX, prevMouseY);
 
                 Node node = appData.getTree().getNearestNode(cursor);
@@ -259,7 +263,10 @@ public class AppController extends DrawingApp {
         System.out.println(event.getCode());
         switch (event.getCode()) {
             case ESCAPE -> userInterface.setUserMode(UserInterface.UserMode.explore);
-            case S -> userInterface.setUserMode(UserInterface.UserMode.select);
+            case S -> {
+                pathfindingObject.clear();
+                userInterface.setUserMode(UserInterface.UserMode.select);
+            }
         }
         handleDraw();
     }
