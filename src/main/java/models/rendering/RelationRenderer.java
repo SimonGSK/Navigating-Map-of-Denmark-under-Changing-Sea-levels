@@ -42,7 +42,7 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
     // Bruger WIND_EVEN_ODD som fill-regel, hvilket automatisk gør at
     // overlappende inner-ringe bliver til huller i stedet for fyldte områder.
     private void drawMultiPolygon(Graphics2D gc, Relation relation) {
-        var tags = relation.getTags(); // Todo: Don't use var -> use the returned data type for easier understanding
+        var tags = relation.getTags(); // TODO: Don't use var -> use the returned data type for easier reading
         if (tags == null || tags.isEmpty()) return;
 
         List<Way> outerWays = new ArrayList<>();

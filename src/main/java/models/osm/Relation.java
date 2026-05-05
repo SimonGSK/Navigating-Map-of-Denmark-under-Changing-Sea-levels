@@ -70,4 +70,16 @@ public class Relation extends Element implements Iterable<Member>, Serializable 
         }
         return members.iterator();
     }
+
+    public Set<Node> getNodes() {
+        Set<Node> nodes = new HashSet<>();
+        for (Member m : members) {
+            switch (m.getType()) {
+                case node -> nodes.add((Node) m.getElement());
+                case way -> nodes.addAll(((Way) m.getElement()).getNodes());
+                case relation -> nodes.addAll(((Relation) m.getElement()).getNodes());
+            }
+        }
+        return nodes;
+    }
 }

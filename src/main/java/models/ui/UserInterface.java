@@ -116,7 +116,7 @@ public class UserInterface {
         button.setOnAction(e -> {
             mapState = mapState == MapState.osm ? MapState.elevation : MapState.osm;
             button.setText(buttonLabel.apply(mapState));
-            appController.update();
+            appController.handleDraw();
         });
 
         return button;
@@ -134,7 +134,7 @@ public class UserInterface {
         button.setOnAction(e -> {
             showHeightCurves = !showHeightCurves;
             button.setText(buttonLabel.apply(showHeightCurves));
-            appController.update();
+            appController.handleDraw();
         });
 
         return button;
@@ -153,7 +153,7 @@ public class UserInterface {
             float level = newVal.floatValue();
             label.setText(String.format("Sea level: %.0fm", level));
             appController.updateSeaLevel(level);
-            appController.update();
+            appController.handleDraw();
         });
 
         return new LabelledSlider(label,slider);

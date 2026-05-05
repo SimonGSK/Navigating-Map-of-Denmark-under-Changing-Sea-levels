@@ -68,28 +68,51 @@ public class Tree {
         List<TreeNode> path = new ArrayList<>();
         TreeNode nearestTreeNode = chooseLeaf(root,new BoundingBox(cursor.getLat(), cursor.getLon(), cursor.getLat(),cursor.getLon()),path);
 
-        List<Node> nodeList = nearestTreeNode.entries.stream().map(e -> (LeafEntry) e).map(LeafEntry::element).filter(e -> e.getType() == ElementType.node).map(e -> (Node) e).toList();
-        if (nodeList.isEmpty()) return null;
+        Set<Node> nodes = new HashSet<>();
+        for (TreeEntry entry : nearestTreeNode.entries) {
+            if (entry instanceof LeafEntry(Element element)) {
+                switch (element) {
+                    case Node node -> nodes.add(node);
+                    case Way way -> nodes.addAll(way.getNodes());
+                    case Relation relation -> nodes.addAll(relation.getNodes());
+                    default -> {}
+                }
+            }
+        }
 
-        nearestNodeDist nearestND = _findNearestNodeDist(cursor, nodeList);
-        double radius = nearestND.dist();
+        if (nodes.isEmpty()) {
+            return null;
+        }
 
+        nearestNodeDist nearestNode = _findNearestNodeDist(cursor, nodes.stream().toList());
+        double radius = nearestNode.dist();
+
+        // Outer square
         BoundingBox searchArea = new BoundingBox(
                 cursor.getLat() - radius, cursor.getLon() - radius,
                 cursor.getLat() + radius, cursor.getLon() + radius
         );
 
         SearchResults searchResults = search(searchArea);
+
+        nodes.clear();
+        nodes.addAll(searchResults.nodeList());
+        for (Way w : searchResults.wayList()) {
+            nodes.addAll(w.getNodes());
+        }
+        for (Relation r : searchResults.relationList()) {
+            nodes.addAll(r.getNodes());
+        }
         nearestNodeDist result = _findNearestNodeDist(cursor, searchResults.nodeList());
 
         return result.node();
     }
 
-    private nearestNodeDist _findNearestNodeDist(Coordinate cursor, List<Node> nodeList) {
+    private nearestNodeDist _findNearestNodeDist(Coordinate cursor, List<Node> nodes) {
         Node nearestNode = null;
         double nearestDist = Double.MAX_VALUE;
 
-        for (Node n : nodeList) {
+        for (Node n : nodes) {
             Coordinate center = n.getCoordinate();
             double dist = Math.sqrt(
                     Math.pow(cursor.getLat() - center.getLat(),2)

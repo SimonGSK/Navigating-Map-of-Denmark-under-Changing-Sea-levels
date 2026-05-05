@@ -1,14 +1,11 @@
 package models.rendering;
 
 import Interfaces.AbstractRenderer;
-import Interfaces.Drawable;
 import models.osm.Node;
 import models.osm.Way;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class WayRenderer extends AbstractRenderer<Way> {
@@ -70,6 +67,6 @@ public class WayRenderer extends AbstractRenderer<Way> {
             }
         }
 
-        System.out.println("WayRenderer: total ways=" + totalWays + ", drawn ways=" + drawnWays);
+        // System.out.println("WayRenderer: total ways=" + totalWays + ", drawn ways=" + drawnWays);
     }
 }

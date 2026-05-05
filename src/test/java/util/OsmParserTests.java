@@ -167,9 +167,9 @@ public class OsmParserTests {
 
             for(Map.Entry<Long, Way> entry: expectedWays.entrySet()) {
                 Way actual = actualWays.get(entry.getKey());
-                Set<Long> actualNodeIds = actual.getNodes().stream().map(Node::getId).collect(Collectors.toSet());
+                Set<Long> actualNodeIds = actual.getNodeList().stream().map(Node::getId).collect(Collectors.toSet());
 
-                for(Node node: entry.getValue().getNodes()) {
+                for(Node node: entry.getValue().getNodeList()) {
                     assertTrue(actualNodeIds.contains(node.getId()), () -> String.format("[ERROR - %s] : Node #%d is missing on Way #%d", pr.getName(), node.getId(), entry.getKey()));
                 }
             }

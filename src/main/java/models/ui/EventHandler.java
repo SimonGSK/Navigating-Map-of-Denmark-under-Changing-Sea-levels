@@ -16,11 +16,13 @@ public class EventHandler {
             Consumer<MouseEvent> handleMousePress,
             Consumer<MouseEvent> handleMouseClick,
             Consumer<MouseEvent> handleMouseDrag,
+            Consumer<MouseEvent> handleMouseMove,
             Consumer<ScrollEvent> handleScroll
     ) {
         mapMouseEventComponent.setOnMousePressed(handleMousePress::accept);
         mapMouseEventComponent.setOnMouseClicked(handleMouseClick::accept);
         mapMouseEventComponent.setOnMouseDragged(handleMouseDrag::accept);
+        mapMouseEventComponent.setOnMouseMoved(handleMouseMove::accept);
         mapMouseEventComponent.setOnScroll(handleScroll::accept);
     }
 

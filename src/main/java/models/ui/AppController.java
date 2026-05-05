@@ -1,7 +1,6 @@
 package models.ui;
 
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -10,6 +9,8 @@ import models.RTree.SearchResults;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.geometry.ExtSuperAffine;
+import models.osm.Node;
+import models.pathfinding.PathfindingObject;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
@@ -21,10 +22,11 @@ public class AppController extends DrawingApp {
     private final EventHandler eventHandler = new EventHandler();
     private final UserInterface userInterface = new UserInterface(this);
     private AppControllerState controllerState = AppControllerState.ready;
+    private PathfindingObject pathfindingObject;
+    private Path2D pathToNearestNode = new Path2D.Double();
 
-    Scene scene = null;
-    private double screenX = 0;
-    private double screenY = 0;
+    private double prevMouseX = 0;
+    private double prevMouseY = 0;
 
     private enum AppControllerState {
         ready,
@@ -56,16 +58,16 @@ public class AppController extends DrawingApp {
             return; // TODO: Implement better error handling so user can try again
         }
 
-        recenter(appData.getTree().getMbr(), appData.getMeanLat());
+        handleRecenter(appData.getTree().getMbr(), appData.getMeanLat());
 
         imageView.setFitWidth(getWIDTH());
         imageView.setFitHeight(getHEIGHT());
         imageView.setPreserveRatio(false);
 
-        scene = new Scene(userInterface.getLayout());
+        Scene scene = new Scene(userInterface.getLayout());
 
         eventHandler.initKeyboardEventComponent(scene, this::handleKeyPress);
-        eventHandler.initMapMouseEventComponent(this::handleMousePress,this::handleMouseClick,this::handleMouseDrag,this::handleScroll);
+        eventHandler.initMapMouseEventComponent(this::handleMousePress,this::handleMouseClick,this::handleMouseDrag,this::handleMouseMove,this::handleScroll);
 
         stage.setScene(scene);
         stage.sizeToScene();
@@ -74,7 +76,7 @@ public class AppController extends DrawingApp {
         userInterface.setUserMode(UserInterface.UserMode.explore);
 
         // Initial draw and render
-        update();
+        handleDraw();
     }
 
     public ExtSuperAffine getSuperAffine() {
@@ -136,16 +138,17 @@ public class AppController extends DrawingApp {
             // TODO: Remove this if it's the same as elevation map
             appData.getHeightCurveRenderer().drawHeightCurveLines(gc);
         }
-    }
 
-    private void drawAndRender() {
-        draw();
-        render();
+        if (userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
+            gc.setColor(Color.decode("#FF1DCE"));
+            gc.setStroke(new BasicStroke(0.0001f));
+            gc.draw(pathToNearestNode);
+        }
     }
 
     private void handleMousePress(MouseEvent event) {
-        this.screenX = event.getX();
-        this.screenY = event.getY();
+        this.prevMouseX = event.getX();
+        this.prevMouseY = event.getY();
     }
 
     private Coordinate getCursorCoordinate(double screenX, double screenY) {
@@ -161,21 +164,62 @@ public class AppController extends DrawingApp {
     private void handleMouseClick(MouseEvent event) {
         if (event.isStillSincePress()) {
             if (userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
-                System.out.println("Test");
+                System.out.println("handleMouseClick");
+/*                Coordinate cursor = getCursorCoordinate(screenX, screenY);
+
+
+                if (pathfindingObject == null || pathfindingObject.isComplete()) {
+                    pathfindingObject = new PathfindingObject();
+                }
+
+                Node node = appData.getTree().getNearestNode(cursor);
+
+                if (pathfindingObject.getStartNode() == null) {
+                    pathfindingObject.setStartNode();
+                }*/
             }
         }
     }
 
+    private void handleMouseMove(MouseEvent event) {
+        if (!userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
+            return;
+        }
+
+        Coordinate cursor = getCursorCoordinate(event.getX(),event.getY());
+        Node nearestNode = appData.getTree().getNearestNode(cursor);
+
+        if (nearestNode == null) {
+            return;
+        }
+
+        double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
+
+        double cursorWorldX = cursor.getLon() * cosMeanLat;
+        double cursorWorldY = -cursor.getLat();
+
+        double nodeWorldX = nearestNode.getCoordinate().getLon() * cosMeanLat;
+        double nodeWorldY = -nearestNode.getCoordinate().getLat();
+
+        System.out.println(nearestNode.getCoordinate().toString());
+
+        pathToNearestNode.reset();
+        pathToNearestNode.moveTo(cursorWorldX,cursorWorldY);
+        pathToNearestNode.lineTo(nodeWorldX,nodeWorldY);
+
+        handleDraw();
+    }
+
     private void handleMouseDrag(MouseEvent event) {
-        double dx = event.getX() - this.screenX;
-        double dy = event.getY() - this.screenY;
+        double dx = event.getX() - this.prevMouseX;
+        double dy = event.getY() - this.prevMouseY;
 
         superAffine.prependTranslation(dx, dy);
 
-        this.screenX = event.getX();
-        this.screenY = event.getY();
+        this.prevMouseX = event.getX();
+        this.prevMouseY = event.getY();
 
-        drawAndRender();
+        handleDraw();
     }
 
     private void handleScroll(ScrollEvent event) {
@@ -190,9 +234,10 @@ public class AppController extends DrawingApp {
             case ESCAPE -> userInterface.setUserMode(UserInterface.UserMode.explore);
             case S -> userInterface.setUserMode(UserInterface.UserMode.select);
         }
+        handleDraw();
     }
 
-    public void update() {
+    public void handleDraw() {
         draw();
         render();
     }
@@ -202,7 +247,7 @@ public class AppController extends DrawingApp {
         appData.getHeightCurveRenderer().setSeaLevel(level);
     }
 
-    public void recenter(BoundingBox mbr, double meanLat) {
+    public void handleRecenter(BoundingBox mbr, double meanLat) {
         double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
         double dataWidth = (mbr.maxLon() - mbr.minLon()) * cosMeanLat;
         double dataHeight = mbr.maxLat() - mbr.minLat();
@@ -233,7 +278,7 @@ public class AppController extends DrawingApp {
                 .prependTranslation(-x, -y)
                 .prependScale(factor, factor)
                 .prependTranslation(x, y);
-        drawAndRender();
+        handleDraw();
     }
 
     public double getZoomLevel() {

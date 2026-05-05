@@ -8,6 +8,7 @@ import models.geometry.SpatialElement;
 import java.awt.*;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Set;
 
 public abstract class Element extends SpatialElement implements Drawable, Serializable {
     final private long id;
