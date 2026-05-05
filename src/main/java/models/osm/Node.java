@@ -68,4 +68,9 @@ public class Node extends Element implements Comparable<Node>, Serializable {
     public int compareTo(Node other) {
         return Long.compare(this.getId(), other.getId());
     }
+
+    @Override
+    public String toString() {
+        return getLat() + " " + getLon();
+    }
 }
