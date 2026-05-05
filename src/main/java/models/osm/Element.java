@@ -8,7 +8,7 @@ import models.geometry.SpatialElement;
 import java.awt.*;
 import java.util.HashMap;
 
-public abstract class Element extends SpatialElement implements Drawable {
+public abstract class Element extends SpatialElement implements Drawable, Serializable {
     final private long id;
     final private ElementType type;
     protected HashMap<String, String> tags;
@@ -209,17 +209,11 @@ public abstract class Element extends SpatialElement implements Drawable {
         System.out.println(tags);
         return Color.decode("#9c9083");
     }
-    //TODO: Find farver til de elementer der får fallback color
 
-    //Tags:
-    //Key: highway - Values: service, path, track, residential, footway, cycleway, ...
-    //Key: landuse - Values: forest, grass, industrial, farmyard, recreation_ground, cemetery, allotments, residential, ...
-    //Key: surface - Values: gravel, grass, asphalt, compacted, paved, paving_stones, ...
-    //Key: natural - Values: scrub, water, coastline, rock, hill, peak, stone, spring, tree,
-    //Key: amenity - Values: parking, grave_yard, shelter, school, ice_cream, bench, ...
-    //Key: leisure - Values: park, golf_course, pitch, playground, ...
-    //Key: building - Values: yes
-
-    //More keys:
-    // parking, barrier, oneway, historic, ...
+    public boolean isVisible(double zoomLevel, double minGeoArea, boolean isClosed) {
+        if (!isVisible(zoomLevel) || getColor() == null) {
+            return false;
+        }
+        return !isClosed || !(getArea() < minGeoArea);
+    }
 }
