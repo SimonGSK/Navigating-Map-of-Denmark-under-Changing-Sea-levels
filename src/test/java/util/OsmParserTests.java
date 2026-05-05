@@ -21,7 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import Interfaces.AbstractParser;
+import models.parser.AbstractParser;
 import models.osm.Member;
 import models.osm.Element;
 import models.osm.Node;

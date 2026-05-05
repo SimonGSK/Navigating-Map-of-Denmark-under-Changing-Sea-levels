@@ -10,6 +10,8 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.*;
 
 import javafx.scene.control.*;
+import models.pathfinding.PathfindingObject;
+
 import java.util.HashMap;
 import java.util.function.Function;
 
@@ -65,7 +67,16 @@ public class UserInterface {
         controlCollection.buttonGroupList.put("ZoomButtonGroup",zoomButtonGroup);
         controlCollection.sliderList.put("SeaLevelSlider", seaLevelSlider);
 
-        HBox statusPanel = new HBox(labelUserMode());
+        HBox selectedLocationsIndicator = new HBox(labelPathfindingStartLocation(), labelPathfindingEndLocation());
+        selectedLocationsIndicator.setSpacing(4.0);
+
+        Node userModeIndicator = labelUserModeIndicator();
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer,Priority.ALWAYS);
+
+        HBox statusPanel = new HBox(userModeIndicator, spacer, selectedLocationsIndicator);
+        statusPanel.setSpacing(8.0);
         statusPanel.setPadding(new Insets(8));
         statusPanel.setAlignment(Pos.CENTER);
 
@@ -95,7 +106,7 @@ public class UserInterface {
 
     public record UserControlCollection(HashMap<String,Button> buttonList, HashMap<String,LabelledButtonGroup> buttonGroupList, HashMap<String,LabelledSlider> sliderList) { }
 
-    private Label labelUserMode() {
+    private Label labelUserModeIndicator() {
         Function<UserMode, String> labelText = (UserMode userMode) -> switch (userMode) {
             case menu -> "Menu";
             case select -> "Selection Mode";
@@ -110,6 +121,40 @@ public class UserInterface {
 
         return label;
     };
+
+    private Label labelPathfindingStartLocation() {
+        Function<models.osm.Node, String> labelText = (node) -> {
+            if (node == null) {
+                return "-- --";
+            }
+            return node.toString();
+        };
+
+        Label label = new Label("A: " + labelText.apply(appController.getPathfindingObject().getStartNode()));
+
+        appController.getPathfindingObject().getStartNodeProperty().addListener((obs,oldVal,newVal) -> {
+            label.setText("A: " + labelText.apply(appController.getPathfindingObject().getStartNode()));
+        });
+
+        return label;
+    }
+
+    private Label labelPathfindingEndLocation() {
+        Function<models.osm.Node, String> labelText = (node) -> {
+            if (node == null) {
+                return "-- --";
+            }
+            return node.toString();
+        };
+
+        Label label = new Label("B: " + labelText.apply(appController.getPathfindingObject().getEndNode()));
+
+        appController.getPathfindingObject().getEndNodeProperty().addListener((obs,oldVal,newVal) -> {
+            label.setText("B: " + labelText.apply(appController.getPathfindingObject().getEndNode()));
+        });
+
+        return label;
+    }
 
     private Button buttonToggleMapState() {
         Function<MapState,String> buttonLabel = (MapState mapState) -> switch (mapState) {

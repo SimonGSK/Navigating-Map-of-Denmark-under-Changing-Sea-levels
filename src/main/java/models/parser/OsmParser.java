@@ -1,6 +1,5 @@
 package models.parser;
 
-import Interfaces.AbstractParser;
 import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.osm.Member;

@@ -1,6 +1,6 @@
 package models.rendering;
 
-import Interfaces.AbstractRenderer;
+import models.parser.AbstractRenderer;
 import models.osm.Member;
 import models.osm.Node;
 import models.osm.Relation;

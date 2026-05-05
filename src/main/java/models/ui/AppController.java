@@ -23,8 +23,9 @@ public class AppController extends DrawingApp {
     private final EventHandler eventHandler = new EventHandler();
     private final UserInterface userInterface = new UserInterface(this);
     private AppControllerState controllerState = AppControllerState.ready;
-    private PathfindingObject pathfindingObject;
-    private Path2D pathToNearestNode = new Path2D.Double();
+
+    private PathfindingObject pathfindingObject = PathfindingObject.getInstance();
+    private final Path2D pathToNearestNode = new Path2D.Double();
 
     private double prevMouseX = 0;
     private double prevMouseY = 0;
@@ -127,6 +128,10 @@ public class AppController extends DrawingApp {
         appData.getWayRenderer().set(searchResults.wayList());
         appData.getRelationRenderer().set(searchResults.relationList());
 
+        double zoom = getZoomLevel();
+        appData.getWayRenderer().setCurrentZoomLevel(zoom);
+        appData.getRelationRenderer().setCurrentZoomLevel(zoom);
+
         Graphics2D gc = getNewGraphicsContext();
 
         // Clear background in device space first.
@@ -140,7 +145,7 @@ public class AppController extends DrawingApp {
         if (userInterface.getMapState() == UserInterface.MapState.elevation) {
             if (appData.getHeightCurveRenderer() != null) {
                 // TODO: There used to be a .drawHeightCurveMap(), which seems to have been changed to .drawHeightCurveLines() – is that because we've removed the elevation map?
-                appData.getHeightCurveRenderer().drawHeightCurveLines(gc);
+                appData.getHeightCurveRenderer().drawHeightCurveMap(gc);
                 return;
             }
         }
@@ -153,7 +158,7 @@ public class AppController extends DrawingApp {
         if (userInterface.isShowHeightCurves()) {
             if (appData.getHeightCurveRenderer() != null) {
                 // TODO: Remove this if it's the same as elevation map
-                appData.getHeightCurveRenderer().drawHeightCurveLines(gc);
+                appData.getHeightCurveRenderer().draws(gc);
             }
         }
 
@@ -182,21 +187,47 @@ public class AppController extends DrawingApp {
     private void handleMouseClick(MouseEvent event) {
         if (event.isStillSincePress()) {
             if (userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
-                System.out.println("handleMouseClick");
-/*                Coordinate cursor = getCursorCoordinate(screenX, screenY);
-
-
-                if (pathfindingObject == null || pathfindingObject.isComplete()) {
-                    pathfindingObject = new PathfindingObject();
+                if (pathfindingObject == null) {
+                    pathfindingObject = PathfindingObject.getInstance();
                 }
+
+                if (pathfindingObject.isReady()) {
+                    pathfindingObject.clear();
+                }
+
+                Coordinate cursor = getCursorCoordinate(prevMouseX, prevMouseY);
 
                 Node node = appData.getTree().getNearestNode(cursor);
 
+                if (node == null) {
+                    return;
+                }
+
                 if (pathfindingObject.getStartNode() == null) {
-                    pathfindingObject.setStartNode();
-                }*/
+                    pathfindingObject.setStartNode(node);
+                    return;
+                }
+
+                if (pathfindingObject.getStartNode().equals(node)) {
+                    return;
+                }
+
+                if (pathfindingObject.getEndNode() == null) {
+                    pathfindingObject.setEndNode(node);
+                }
+
+                if (pathfindingObject.isReady()) {
+                    userInterface.setUserMode(UserInterface.UserMode.explore);
+                    // TODO: Call pathfinding
+                }
+
+                System.out.println(pathfindingObject.toString());
             }
         }
+    }
+
+    public PathfindingObject getPathfindingObject() {
+        return pathfindingObject;
     }
 
     private void handleMouseMove(MouseEvent event) {
@@ -250,7 +281,10 @@ public class AppController extends DrawingApp {
         System.out.println(event.getCode());
         switch (event.getCode()) {
             case ESCAPE -> userInterface.setUserMode(UserInterface.UserMode.explore);
-            case S -> userInterface.setUserMode(UserInterface.UserMode.select);
+            case S -> {
+                pathfindingObject.clear();
+                userInterface.setUserMode(UserInterface.UserMode.select);
+            }
         }
         handleDraw();
     }
@@ -304,6 +338,6 @@ public class AppController extends DrawingApp {
     }
 
     public double getZoomLevel() {
-        return Math.log(superAffine.getScaleX() / Math.log(2));
+        return Math.log(superAffine.getScaleX()) / Math.log(2);
     };
 }

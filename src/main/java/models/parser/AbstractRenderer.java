@@ -1,5 +1,6 @@
-package Interfaces;
+package models.parser;
 
+import Interfaces.Drawable;
 import models.osm.Element;
 
 import java.util.ArrayList;
