@@ -22,8 +22,9 @@ public class AppController extends DrawingApp {
     private final EventHandler eventHandler = new EventHandler();
     private final UserInterface userInterface = new UserInterface(this);
     private AppControllerState controllerState = AppControllerState.ready;
-    private PathfindingObject pathfindingObject;
-    private Path2D pathToNearestNode = new Path2D.Double();
+
+    private PathfindingObject pathfindingObject = PathfindingObject.getInstance();
+    private final Path2D pathToNearestNode = new Path2D.Double();
 
     private double prevMouseX = 0;
     private double prevMouseY = 0;
@@ -164,21 +165,42 @@ public class AppController extends DrawingApp {
     private void handleMouseClick(MouseEvent event) {
         if (event.isStillSincePress()) {
             if (userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
-                System.out.println("handleMouseClick");
-/*                Coordinate cursor = getCursorCoordinate(screenX, screenY);
-
-
-                if (pathfindingObject == null || pathfindingObject.isComplete()) {
-                    pathfindingObject = new PathfindingObject();
+                if (pathfindingObject == null) {
+                    pathfindingObject = PathfindingObject.getInstance();
                 }
+
+                Coordinate cursor = getCursorCoordinate(prevMouseX, prevMouseY);
 
                 Node node = appData.getTree().getNearestNode(cursor);
 
+                if (node == null) {
+                    return;
+                }
+
                 if (pathfindingObject.getStartNode() == null) {
-                    pathfindingObject.setStartNode();
-                }*/
+                    pathfindingObject.setStartNode(node);
+                    return;
+                }
+
+                if (pathfindingObject.getStartNode().equals(node)) {
+                    return;
+                }
+
+                if (pathfindingObject.getEndNode() == null) {
+                    pathfindingObject.setEndNode(node);
+                }
+
+                if (pathfindingObject.isReady()) {
+                    // TODO: Call Dijkstra
+                }
+
+                System.out.println(pathfindingObject.toString());
             }
         }
+    }
+
+    public PathfindingObject getPathfindingObject() {
+        return pathfindingObject;
     }
 
     private void handleMouseMove(MouseEvent event) {

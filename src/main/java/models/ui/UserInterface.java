@@ -64,7 +64,7 @@ public class UserInterface {
         controlCollection.buttonGroupList.put("ZoomButtonGroup",zoomButtonGroup);
         controlCollection.sliderList.put("SeaLevelSlider", seaLevelSlider);
 
-        HBox statusPanel = new HBox(labelUserMode());
+        HBox statusPanel = new HBox(labelUserModeIndicator());
         statusPanel.setPadding(new Insets(8));
         statusPanel.setAlignment(Pos.CENTER);
 
@@ -90,7 +90,7 @@ public class UserInterface {
 
     public record UserControlCollection(HashMap<String,Button> buttonList, HashMap<String,LabelledButtonGroup> buttonGroupList, HashMap<String,LabelledSlider> sliderList) { }
 
-    private Label labelUserMode() {
+    private Label labelUserModeIndicator() {
         Function<UserMode, String> labelText = (UserMode userMode) -> switch (userMode) {
             case menu -> "Menu";
             case select -> "Selection Mode";
@@ -105,6 +105,10 @@ public class UserInterface {
 
         return label;
     };
+
+    private Label labelPathfindingLocations() {
+        Function<>
+    }
 
     private Button buttonToggleMapState() {
         Function<MapState,String> buttonLabel = (MapState mapState) -> switch (mapState) {
