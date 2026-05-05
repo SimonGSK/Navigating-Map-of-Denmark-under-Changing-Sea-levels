@@ -147,6 +147,11 @@ public abstract class Element extends SpatialElement implements Drawable, Serial
             return Color.decode("#D3DFC5"); // Standard natur-grøn
         }
 
+        //TODO: Something is wrong with our relations since Bastemose, that has the tag K: natural, V: wetland, doesn't get colored
+        if ("Bastemose".equals(tags.get("name"))){
+            return Color.decode("#cb07f2");
+        }
+
         //HIGHWAY
         if (tags.containsKey("highway") || tags.containsKey("area:highway")) {
             String highway = tags.get("highway");
