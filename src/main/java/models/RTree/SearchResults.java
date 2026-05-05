@@ -10,7 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public record SearchResults(List<Node> nodeList, List<Way> wayList, List<Relation> relationList) {
-    SearchResults() {
+    public SearchResults() {
         this(new ArrayList<>(),new ArrayList<>(),new ArrayList<>());
     }
 
@@ -23,7 +23,7 @@ public record SearchResults(List<Node> nodeList, List<Way> wayList, List<Relatio
     }
 
     public void sort() {
-        relationList.sort(Comparator.comparingDouble(Relation::getArea).reversed());
-        wayList.sort(Comparator.comparingDouble(Way::getArea).reversed());
+        relationList.sort(Comparator.comparingDouble(r -> -r.getMbr().area()));
+        wayList.sort(Comparator.comparingDouble(w -> -w.getMbr().area()));
     }
 }
