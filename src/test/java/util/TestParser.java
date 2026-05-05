@@ -10,7 +10,7 @@ import java.util.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import Interfaces.AbstractParser;
+import models.parser.AbstractParser;
 import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.osm.Member;
