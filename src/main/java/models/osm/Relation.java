@@ -1,13 +1,12 @@
 package models.osm;
 
-import models.RTree.ElementType;
+import enums.ElementType;
 import models.geometry.BoundingBox;
 
 import java.awt.*;
 import java.io.Serializable;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Stream;
 
 
 public class Relation extends Element implements Iterable<Member>, Serializable {
@@ -70,5 +69,17 @@ public class Relation extends Element implements Iterable<Member>, Serializable 
             return Collections.emptyIterator();
         }
         return members.iterator();
+    }
+
+    public Set<Node> getNodes() {
+        Set<Node> nodes = new HashSet<>();
+        for (Member m : members) {
+            switch (m.getType()) {
+                case node -> nodes.add((Node) m.getElement());
+                case way -> nodes.addAll(((Way) m.getElement()).getNodes());
+                case relation -> nodes.addAll(((Relation) m.getElement()).getNodes());
+            }
+        }
+        return nodes;
     }
 }

@@ -4,15 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.annotation.ElementType;
 import java.util.*;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import Interfaces.IParser;
+import Interfaces.AbstractParser;
+import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.osm.Member;
 import models.osm.Element;
@@ -21,7 +20,7 @@ import models.osm.Relation;
 import models.osm.Way;
 
 
-public class TestParser implements IParser {
+public class TestParser implements AbstractParser {
     String fileName;
     private final List<Double> boundingBox = new ArrayList<>();
     private final HashMap<Long, Node> nodeMap = new HashMap<>();
@@ -222,9 +221,9 @@ public class TestParser implements IParser {
                     if (element == null) {
                        continue;
                 }
-                    models.RTree.ElementType elementType;
+                    ElementType elementType;
                     try {
-                        elementType = models.RTree.ElementType.valueOf(type.toUpperCase());
+                        elementType = ElementType.valueOf(type.toUpperCase());
                     } catch (IllegalArgumentException e) {
                         continue;
                     }

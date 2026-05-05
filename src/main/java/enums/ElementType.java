@@ -1,4 +1,4 @@
-package models.RTree;
+package enums;
 
 public enum ElementType {
     node,

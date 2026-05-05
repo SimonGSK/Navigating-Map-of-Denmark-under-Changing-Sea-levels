@@ -4,7 +4,6 @@ import models.osm.Member;
 import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
-import models.heightcurve.HeightCurveData;
 import models.geometry.BoundingBox;
 
 import java.io.Serializable;

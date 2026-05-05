@@ -1,18 +1,14 @@
 package models.parser;
 
-import Interfaces.IParser;
-import models.RTree.ElementType;
-import models.RTree.EntryKey;
+import Interfaces.AbstractParser;
+import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.osm.Member;
 import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,49 +16,54 @@ import java.util.List;
 
 import static models.geometry.BoundingBox.computeMbr;
 
-public class Parser implements IParser {
-    private final String fileName;
+public class OsmParser extends AbstractParser<OsmData> {
     private final HashMap<Long, Node> nodeMap = new HashMap<>();
     private final HashMap<Long, Way> wayMap = new HashMap<>();
     private final HashMap<Long, Relation> relationMap = new HashMap<>();
+
     private BoundingBox mbr;
 
-    public Parser(String filename) {
-        this.fileName = filename;
+    public OsmParser(String absoluteFilePath) throws IOException {
+        parse(absoluteFilePath);
     }
 
-    @Override
-    public void parse() {
+    public void parse(String filePath) throws IOException {
+        this.filePath = filePath;
+
         try {
-            InputStream is = Parser.class.getResourceAsStream("/data/" + fileName);
-            if (is == null) {
-                throw new IOException("OSM resource not found: /data/" + fileName + " (check src/main/resources path)");
-            }
-            BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            InputStream inputStream = new FileInputStream(filePath);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
             String line;
-
-            while ((line = br.readLine()) != null) {
+            while ((line = bufferedReader.readLine()) != null) {
                 if (line.contains("<bounds")) {
                     mbr = extractBounds(line);
                 } else if (line.contains("<node") && !line.contains("</node")) {
                     Node node = extractNode(line);
                     nodeMap.put(node.getId(), node);
                 } else if (line.contains("<way")) {
-                    Way way = extractWay(line, br);
+                    Way way = extractWay(line, bufferedReader);
                     wayMap.put(way.getId(), way);
                 } else if (line.contains("<relation ") || line.contains("<relation>")) {
-                    extractRelation(line, br);
+                    extractRelation(line, bufferedReader);
                 }
             }
 
             if (mbr == null) {
                 mbr = computeMbr(nodeMap.values().stream().toList());
             }
-
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
+        } catch (FileNotFoundException fileNotFoundException) {
+            throw new FileNotFoundException("File not found on path: " + filePath);
+        } catch (IOException ioException) {
+            throw new IOException("Error happened while reading file");
         }
+
+        data = new OsmData(
+                mbr,
+                nodeMap,
+                wayMap,
+                relationMap
+        );
     }
 
     private void extractRelation(String line, BufferedReader br) throws IOException {
@@ -128,7 +129,7 @@ public class Parser implements IParser {
             line = br.readLine().trim();
             if (line.contains("<nd")) {
                 long ndID = getAttributeLong(line, "ref");
-                Node node = getOsmNodeMap().get(ndID);
+                Node node = nodeMap.get(ndID);
                 if (node != null) {
                     nodes.add(node);
                 }
@@ -161,36 +162,14 @@ public class Parser implements IParser {
         return new BoundingBox(minLat, minLon, maxLat, maxLon);
     }
 
-    public String getAttribute(String s, String key) {
-        String pattern = key + "=\"";
-        int start = s.indexOf(pattern);
-        if (start == -1) {
-            return null;
-        }
-        int valueStart = start + pattern.length();
-        int valueEnd = s.indexOf('"', valueStart);
-        String value =  s.substring(valueStart, valueEnd);
-        return value
+    @Override
+    public String getAttribute(String str, String key) {
+        String subStr = super.getAttribute(str,key);
+        return subStr
                 .replace("&amp;", "&")
                 .replace("&lt;", "<")
                 .replace("&gt;", ">")
                 .replace("&quot;", "\"");
-    }
-
-    public double getAttributeDouble(String s, String key) {
-        String val = getAttribute(s, key);
-        if (val == null) {
-            return Double.NaN;
-        }
-        return Double.parseDouble(val);
-    }
-
-    public long getAttributeLong(String s, String key) {
-        String val = getAttribute(s, key);
-        if (val == null) {
-            return 0L;
-        }
-        return Long.parseLong(val);
     }
 
     private double calculateZoomLevel(HashMap<String, String> tags) {
@@ -244,26 +223,5 @@ public class Parser implements IParser {
         if (tags.containsKey("tourism") || tags.containsKey("historic")) return 13.0;
         if (tags.containsKey("barrier")) return 14.0;
         return 0.0;
-    }
-
-    //DO NOT MODIFY BELOW GETTER METHODS
-    @Override
-    public BoundingBox getBoundingBox() {
-        return mbr;
-    }
-
-    @Override
-    public HashMap<Long, Node> getOsmNodeMap() {
-        return nodeMap;
-    }
-
-    @Override
-    public HashMap<Long, Way> getOsmWayMap() {
-        return wayMap;
-    }
-
-    @Override
-    public HashMap<Long, Relation> getOsmRelationMap() {
-        return relationMap;
     }
 }

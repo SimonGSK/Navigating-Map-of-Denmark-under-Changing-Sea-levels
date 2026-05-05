@@ -1,13 +1,11 @@
 package models.osm;
 
-import models.RTree.ElementType;
+import enums.ElementType;
 import models.geometry.BoundingBox;
 
 import java.awt.*;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
 
 public class Way extends Element implements Iterable<Node>, Serializable {

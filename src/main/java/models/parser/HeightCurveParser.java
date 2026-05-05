@@ -1,41 +1,31 @@
 package models.parser;
 
+import Interfaces.AbstractParser;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
-import models.heightcurve.HeightCurveData;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
-public class HCParser {
-    private final String fileName;
-
-    public HCParser(String fileName) {
-        this.fileName = fileName;
+public class HeightCurveParser extends AbstractParser<HeightCurveData> {
+    public HeightCurveParser(String absoluteFilePath) throws IOException {
+        parse(absoluteFilePath);
     }
 
-    public HeightCurveData parse() {
+    public void parse(String filePath) {
+        this.filePath = filePath;
         List<HeightCurve> allCurves = new ArrayList<>();
 
         try {
-            InputStream is = HCParser.class.getResourceAsStream("/data/" + fileName);
-            if (is == null) {
-                throw new IllegalArgumentException("Resource not found: " + fileName);
-            }
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            InputStream inputStream = new FileInputStream(filePath);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
             String line;
             HeightCurve currentCurve = null;
 
-            while ((line = br.readLine()) != null) {
+            while ((line = bufferedReader.readLine()) != null) {
                 line = line.trim();
 
                 if (line.contains("<hc")) {
@@ -58,8 +48,6 @@ public class HCParser {
             System.out.println(e.getMessage());
         }
 
-        //HeightCurveData hcData = new HeightCurveData();
-
         HeightCurve sea = null;
         for (HeightCurve curve : allCurves) {
             if (curve.getId() == -1) {
@@ -79,34 +67,6 @@ public class HCParser {
                 if (coord.getLon() < minLon) minLon = coord.getLon();
             }
         }
-
-        return new HeightCurveData(minLat, minLon, maxLat, maxLon, sea, allCurves);
-    }
-
-    public String getAttribute(String s, String key) {
-        String pattern = key + "=\"";
-        int start = s.indexOf(pattern);
-        if (start == -1) {
-            return null;
-        }
-        int valueStart = start + pattern.length();
-        int valueEnd = s.indexOf('"', valueStart);
-        return s.substring(valueStart, valueEnd);
-    }
-
-    public double getAttributeDouble(String s, String key) {
-        String val = getAttribute(s, key);
-        if (val == null) {
-            return Double.NaN;
-        }
-        return Double.parseDouble(val);
-    }
-
-    public long getAttributeLong(String s, String key) {
-        String val = getAttribute(s, key);
-        if (val == null) {
-            return 0L;
-        }
-        return Long.parseLong(val);
+        this.data = new HeightCurveData(minLat, minLon, maxLat, maxLon, sea, allCurves);
     }
 }

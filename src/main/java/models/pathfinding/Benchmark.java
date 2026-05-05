@@ -41,6 +41,7 @@ public class Benchmark {
 
         /*
         Mark7("dijkstra", i -> {
+            // TODO: Fix this
             Dijkstra.Result result = dijkstra.shortestPath(a, allNodes);
             return result.distances().get(e); // dummy value
         });

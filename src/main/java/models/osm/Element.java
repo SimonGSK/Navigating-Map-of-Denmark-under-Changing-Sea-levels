@@ -1,13 +1,14 @@
 package models.osm;
 
 import Interfaces.Drawable;
-import models.RTree.ElementType;
+import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.geometry.SpatialElement;
 
 import java.awt.*;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Set;
 
 public abstract class Element extends SpatialElement implements Drawable, Serializable {
     final private long id;

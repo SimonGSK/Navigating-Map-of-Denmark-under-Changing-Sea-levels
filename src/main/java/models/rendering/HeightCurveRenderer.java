@@ -3,8 +3,8 @@ package models.rendering;
 import Interfaces.Drawable;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
-import models.heightcurve.HeightCurveData;
-import java.util.*;
+import models.parser.HeightCurveData;
+
 import java.awt.*;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class HeightCurveRenderer implements Drawable {
 
     //Bruges kun til OSM-kortet så hver height curve fyldes helt og ikke tager højde for children
     //Ser bedre ud
-    public void drawHcMap(Graphics2D gc) {
+    public void drawHeightCurveLines(Graphics2D gc) {
         List<HeightCurve> sorted = new ArrayList<>(data.curves);
         sorted.remove(data.sea);
         sorted.sort((a, b) -> Double.compare(boundingArea(b), boundingArea(a)));
@@ -60,7 +60,7 @@ public class HeightCurveRenderer implements Drawable {
             Path2D path = new Path2D.Double();
             boolean first = true;
 
-            for (Coordinate coord: curve.getCoords()) {
+            for (Coordinate coord : curve.getCoords()) {
                 double x = coord.getLon() * cosMeanLat;
                 double y = -coord.getLat();
 
@@ -76,7 +76,7 @@ public class HeightCurveRenderer implements Drawable {
     }
 
     //Bruges til at farve oversvømmede height curves på OSM-kortet
-    public void drawSubmersedCurves(Graphics2D gc) {
+    public void drawSubmergedCurves(Graphics2D gc) {
         if (seaLevel <= 0) return;
 
         Composite originalComposite = gc.getComposite(); //Saves the original composite

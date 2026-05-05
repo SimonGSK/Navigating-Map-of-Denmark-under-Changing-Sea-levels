@@ -1,15 +1,16 @@
 package models.osm;
 
-import models.RTree.ElementType;
+import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
-import models.heightcurve.HeightCurveData;
+import models.parser.HeightCurveData;
 import models.pathfinding.Edge;
 
 import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class Node extends Element implements Comparable<Node>, Serializable {
     private final Coordinate coord;
@@ -67,6 +68,4 @@ public class Node extends Element implements Comparable<Node>, Serializable {
     public int compareTo(Node other) {
         return Long.compare(this.getId(), other.getId());
     }
-
-
 }

@@ -1,5 +1,6 @@
 package models.RTree;
 
+import enums.ElementType;
 import models.osm.Element;
 import models.osm.Node;
 import models.osm.Relation;

@@ -1,8 +1,9 @@
-package models.heightcurve;
+package models.parser;
 
 import java.io.Serializable;
 import java.util.List;
 import models.geometry.Coordinate;
+import models.heightcurve.HeightCurve;
 
 /**
  * Parsed height curve data.

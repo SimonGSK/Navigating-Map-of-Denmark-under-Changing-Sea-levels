@@ -1,7 +1,7 @@
 package models.osm;
 
 
-import models.RTree.ElementType;
+import enums.ElementType;
 
 import java.io.Serializable;
 

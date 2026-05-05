@@ -1,7 +1,6 @@
 package models.parser;
 
 import models.geometry.BoundingBox;
-import models.heightcurve.HeightCurveData;
 import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
@@ -22,8 +21,8 @@ public class BinaryReader {
             HashMap<Long, Way> ways = (HashMap<Long, Way>) in.readObject();
             HashMap<Long, Relation> relations = (HashMap<Long, Relation>) in.readObject();
             BoundingBox mbr = (BoundingBox) in.readObject();
-            HeightCurveData hcData = (HeightCurveData) in.readObject();
-            return new MapData(ways, relations, nodes, mbr, hcData);
+            HeightCurveData heightCurveData = (HeightCurveData) in.readObject();
+            return new MapData(ways, relations, nodes, mbr, heightCurveData);
         }
     }
 }
