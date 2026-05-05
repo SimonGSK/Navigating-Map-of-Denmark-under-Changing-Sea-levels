@@ -42,8 +42,8 @@ public class AppController extends DrawingApp {
         stage.setWidth(getWIDTH());
 
         appData.parse(
-                "/Users/simonskouboe/Documents/ituboys-first-year-project/src/main/resources/data/bornholm/bornholm.osm",
-                "/Users/simonskouboe/Documents/ituboys-first-year-project/src/main/resources/data/bornholm/bornholm.hc"
+                "/Users/honningbolden/Desktop/ITU/first-year-project/first-year-project/ituboys-first-year-project/src/main/Resources/data/bornholm/bornholm.osm",
+                "/Users/honningbolden/Desktop/ITU/first-year-project/first-year-project/ituboys-first-year-project/src/main/Resources/data/bornholm/bornholm.hc"
         );
 
         switch (appData.getState()) {
@@ -195,7 +195,8 @@ public class AppController extends DrawingApp {
                 }
 
                 if (pathfindingObject.isReady()) {
-                    // TODO: Call Dijkstra
+                    userInterface.setUserMode(UserInterface.UserMode.explore);
+                    // TODO: Call pathfinding
                 }
 
                 System.out.println(pathfindingObject.toString());

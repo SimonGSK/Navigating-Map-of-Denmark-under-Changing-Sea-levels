@@ -2,12 +2,13 @@ package models.pathfinding;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import models.osm.Node;
 
 public class PathfindingObject {
     private static PathfindingObject INSTANCE;
-    private ObjectProperty<Node> startNode = new SimpleObjectProperty<>(null);
-    private ObjectProperty<Node> endNode = new SimpleObjectProperty<>(null);
+    private final ObjectProperty<Node> startNode = new SimpleObjectProperty<>(null);
+    private final ObjectProperty<Node> endNode = new SimpleObjectProperty<>(null);
 
     private PathfindingObject() {};
 
@@ -34,6 +35,14 @@ public class PathfindingObject {
         return endNode.get();
     }
 
+    public ObjectProperty<Node> getStartNodeProperty() {
+        return startNode;
+    }
+
+    public ObjectProperty<Node> getEndNodeProperty() {
+        return endNode;
+    }
+
     public boolean isReady() {
         if (startNode.get().equals(endNode.get())) {
             endNode.set(null);
@@ -42,8 +51,8 @@ public class PathfindingObject {
     }
 
     public void clear() {
-        startNode = null;
-        endNode = null;
+        startNode.set(null);
+        endNode.set(null);
     }
 
     @Override
