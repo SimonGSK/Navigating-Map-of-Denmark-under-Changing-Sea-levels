@@ -1,5 +1,7 @@
 package models.ui;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -18,7 +20,7 @@ public class UserInterface {
     private final BorderPane appLayout = new BorderPane();
     private boolean showHeightCurves = false;
     private MapState mapState = MapState.osm;
-    private UserMode userMode = UserMode.menu;
+    private final ObjectProperty<UserMode> userMode = new SimpleObjectProperty<>(UserMode.menu);
 
     public enum MapState {
         osm,
@@ -36,11 +38,11 @@ public class UserInterface {
     }
 
     public void setUserMode(UserMode userMode) {
-        this.userMode = userMode;
+        this.userMode.set(userMode);
     }
 
     public UserMode getUserMode() {
-        return userMode;
+        return this.userMode.get();
     }
 
     public UserInterface(AppController appController) {
@@ -62,6 +64,10 @@ public class UserInterface {
         controlCollection.buttonGroupList.put("ZoomButtonGroup",zoomButtonGroup);
         controlCollection.sliderList.put("SeaLevelSlider", seaLevelSlider);
 
+        HBox statusPanel = new HBox(labelUserMode());
+        statusPanel.setPadding(new Insets(8));
+        statusPanel.setAlignment(Pos.CENTER);
+
         HBox controlPanel = new HBox(mapStateToggle,heightCurvesToggle);
         controlPanel.getChildren().addAll(seaLevelSlider.toNodes());
         controlPanel.getChildren().addAll(zoomButtonGroup.toNodes());
@@ -69,8 +75,10 @@ public class UserInterface {
         controlPanel.setPadding(new Insets(8));
         controlPanel.setAlignment(Pos.CENTER_LEFT);
 
+        appLayout.setTop(statusPanel);
         appLayout.setCenter(new StackPane(appController.imageView, appController.getEventHandler().getMapMouseEventComponent()));
         appLayout.setBottom(controlPanel);
+
         controlPanel.setStyle("--fx-background-color: white");
 
         isInitialized = true;
@@ -81,6 +89,22 @@ public class UserInterface {
     }
 
     public record UserControlCollection(HashMap<String,Button> buttonList, HashMap<String,LabelledButtonGroup> buttonGroupList, HashMap<String,LabelledSlider> sliderList) { }
+
+    private Label labelUserMode() {
+        Function<UserMode, String> labelText = (UserMode userMode) -> switch (userMode) {
+            case menu -> "Menu";
+            case select -> "Selection Mode";
+            case explore -> "Exploration Mode";
+        };
+
+        Label label = new Label(labelText.apply(userMode.get()));
+
+        userMode.addListener((obs,oldVal,newVal) -> {
+            label.setText(labelText.apply(userMode.get()));
+        });
+
+        return label;
+    };
 
     private Button buttonToggleMapState() {
         Function<MapState,String> buttonLabel = (MapState mapState) -> switch (mapState) {
@@ -125,7 +149,7 @@ public class UserInterface {
 
         Label label = new Label("Sea level: 0m");
 
-        slider.valueProperty().addListener((obsVal, oldVal, newVal) -> {
+        slider.valueProperty().addListener((obs, oldVal, newVal) -> {
             float level = newVal.floatValue();
             label.setText(String.format("Sea level: %.0fm", level));
             appController.updateSeaLevel(level);
@@ -137,7 +161,7 @@ public class UserInterface {
 
     private LabelledButtonGroup buttonGroupZoomControl() {
         Label label = new Label();
-        appController.getSuperAffine().scaleX().addListener((obsVal,oldVal,newVal) -> {
+        appController.getSuperAffine().scaleX().addListener((obs,oldVal,newVal) -> {
             label.setText(String.format("Zoom: %.1fx",appController.getZoomLevel()));
         });
 

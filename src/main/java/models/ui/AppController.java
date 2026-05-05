@@ -2,6 +2,7 @@ package models.ui;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.stage.Stage;
@@ -17,10 +18,11 @@ import java.awt.geom.Point2D;
 public class AppController extends DrawingApp {
     private final ExtSuperAffine superAffine = new ExtSuperAffine();
     private final AppData appData = new AppData();
-    private final EventHandler eventHandler = new EventHandler(this,this::handleMousePress,this::handleMouseDrag,this::handleScroll);
+    private final EventHandler eventHandler = new EventHandler();
     private final UserInterface userInterface = new UserInterface(this);
     private AppControllerState controllerState = AppControllerState.ready;
 
+    Scene scene = null;
     private double screenX = 0;
     private double screenY = 0;
 
@@ -60,47 +62,13 @@ public class AppController extends DrawingApp {
         imageView.setFitHeight(getHEIGHT());
         imageView.setPreserveRatio(false);
 
+        scene = new Scene(userInterface.getLayout());
 
+        eventHandler.initKeyboardEventComponent(scene, this::handleKeyPress);
+        eventHandler.initMapMouseEventComponent(this::handleMousePress,this::handleMouseClick,this::handleMouseDrag,this::handleScroll);
 
-
-
-
-
-        /*double maxH = Math.ceil(hcData.getMaxHeight());
-
-        Slider seaSlider = new Slider(0, maxH, 0);
-        seaSlider.setShowTickLabels(true);
-        seaSlider.setMajorTickUnit(Math.ceil(maxH / 100) * 10);
-        seaSlider.setPrefWidth(300);
-
-        Label seaLabel = new Label("Sea level: 0m");
-
-        seaSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            double level = newVal.doubleValue();
-            seaLabel.setText(String.format("Sea level: %.0fm", level));
-            hcData.updateFlooding(level);
-            hcRenderer.setSeaLevel(level);
-            drawAndRender();
-        });
-
-        zoomLabel = new Label("Zoom: 1.00x");
-
-        Button zoomOutButton = new Button("-");
-        zoomOutButton.setOnAction(e -> handleZoom(1 / 1.5, getWIDTH() / 2.0, getHEIGHT() / 2.0));
-
-        Button zoomInButton = new Button("+");
-        zoomInButton.setOnAction(e -> handleZoom(1.5, getWIDTH() / 2.0, getHEIGHT() / 2.0));
-
-        HBox controls = new HBox(10.0, toggleButton, heightLinesButton, seaLabel, seaSlider, zoomLabel, zoomOutButton, zoomInButton);
-        controls.setPadding(new Insets(8));
-        controls.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-
-        BorderPane layout = new BorderPane();
-        layout.setCenter(new StackPane(this.imageView, mouseEventComponent));
-        layout.setBottom(controls);
-        controls.setStyle("-fx-background-color: white;");*/
-
-        stage.setScene(new Scene(userInterface.getLayout(), getWIDTH(), getHEIGHT() + 50));
+        stage.setScene(scene);
+        stage.sizeToScene();
         stage.show();
 
         userInterface.setUserMode(UserInterface.UserMode.explore);
@@ -178,10 +146,6 @@ public class AppController extends DrawingApp {
     private void handleMousePress(MouseEvent event) {
         this.screenX = event.getX();
         this.screenY = event.getY();
-
-/*        Node nn = tree.getNearestNode(getCursorCoordinate(screenX,screenY));
-        System.out.println(nn.getCoordinate().getLat());
-        System.out.println(nn.getCoordinate().getLon());*/
     }
 
     private Coordinate getCursorCoordinate(double screenX, double screenY) {
@@ -194,10 +158,22 @@ public class AppController extends DrawingApp {
         return new Coordinate(lat,lon);
     }
 
+    private void handleMouseClick(MouseEvent event) {
+        if (event.isStillSincePress()) {
+            if (userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
+                System.out.println("Test");
+            }
+        }
+    }
+
     private void handleMouseDrag(MouseEvent event) {
-        double dx = event.getX() - this.screenX, dy = event.getY() - this.screenY;
+        double dx = event.getX() - this.screenX;
+        double dy = event.getY() - this.screenY;
+
         superAffine.prependTranslation(dx, dy);
-        handleMousePress(event);
+
+        this.screenX = event.getX();
+        this.screenY = event.getY();
 
         drawAndRender();
     }
@@ -205,6 +181,15 @@ public class AppController extends DrawingApp {
     private void handleScroll(ScrollEvent event) {
         double factor = event.getDeltaY() > 0 ? 1.05 : 1 / 1.05;
         handleZoom(factor, event.getX(), event.getY());
+    }
+
+    private void handleKeyPress(KeyEvent event) {
+        System.out.println("Key pressed!");
+        System.out.println(event.getCode());
+        switch (event.getCode()) {
+            case ESCAPE -> userInterface.setUserMode(UserInterface.UserMode.explore);
+            case S -> userInterface.setUserMode(UserInterface.UserMode.select);
+        }
     }
 
     public void update() {
