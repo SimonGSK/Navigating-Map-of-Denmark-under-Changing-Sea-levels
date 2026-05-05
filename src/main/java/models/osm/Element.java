@@ -207,11 +207,10 @@ public abstract class Element extends SpatialElement implements Drawable, Serial
         return Color.decode("#F2F0E9"); //Very light brown
     }
 
-    //Hvis et element er for lille til at blive tegnet eller hvis den ikke gives en farve, returneres false
-    public boolean shouldDraw(double zoomLevel, double minGeoArea, boolean isClosed) {
-        if (!isVisible(zoomLevel)) return false;
-        if (getColor() == null) return false;
-        if (isClosed && getArea() < minGeoArea) return false; //Kun lukkede polygoner kan arealet bruges til sammenligning
-        return true;
+    public boolean isVisible(double zoomLevel, double minGeoArea, boolean isClosed) {
+        if (!isVisible(zoomLevel) || getColor() == null) {
+            return false;
+        }
+        return !isClosed || !(getArea() < minGeoArea);
     }
 }
