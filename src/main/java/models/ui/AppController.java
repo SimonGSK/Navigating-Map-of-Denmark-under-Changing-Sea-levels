@@ -41,8 +41,8 @@ public class AppController extends DrawingApp {
         stage.setWidth(getWIDTH());
 
         appData.parse(
-                "/Users/honningbolden/Desktop/ITU/first-year-project/first-year-project/ituboys-first-year-project/src/main/Resources/data/bornholm/bornholm.osm",
-                "/Users/honningbolden/Desktop/ITU/first-year-project/first-year-project/ituboys-first-year-project/src/main/Resources/data/bornholm/bornholm.hc"
+                "/Users/simonskouboe/Documents/ituboys-first-year-project/src/main/resources/data/bornholm/bornholm.osm",
+                "/Users/simonskouboe/Documents/ituboys-first-year-project/src/main/resources/data/bornholm/bornholm.hc"
         );
 
         switch (appData.getState()) {
@@ -114,6 +114,10 @@ public class AppController extends DrawingApp {
         appData.getWayRenderer().set(searchResults.wayList());
         appData.getRelationRenderer().set(searchResults.relationList());
 
+        double zoom = getZoomLevel();
+        appData.getWayRenderer().setCurrentZoomLevel(zoom);
+        appData.getRelationRenderer().setCurrentZoomLevel(zoom);
+
         Graphics2D gc = getNewGraphicsContext();
 
         // Clear background in device space first.
@@ -126,7 +130,7 @@ public class AppController extends DrawingApp {
 
         if (userInterface.getMapState() == UserInterface.MapState.elevation) {
             // TODO: There used to be a .drawHeightCurveMap(), which seems to have been changed to .drawHeightCurveLines() – is that because we've removed the elevation map?
-            appData.getHeightCurveRenderer().drawHeightCurveLines(gc);
+            appData.getHeightCurveRenderer().drawHeightCurveMap(gc);
             return;
         }
 
@@ -136,7 +140,7 @@ public class AppController extends DrawingApp {
 
         if (userInterface.isShowHeightCurves()) {
             // TODO: Remove this if it's the same as elevation map
-            appData.getHeightCurveRenderer().drawHeightCurveLines(gc);
+            appData.getHeightCurveRenderer().draws(gc);
         }
 
         if (userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
@@ -282,6 +286,6 @@ public class AppController extends DrawingApp {
     }
 
     public double getZoomLevel() {
-        return Math.log(superAffine.getScaleX() / Math.log(2));
+        return Math.log(superAffine.getScaleX()) / Math.log(2);
     };
 }
