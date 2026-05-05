@@ -6,6 +6,7 @@ import models.geometry.BoundingBox;
 import models.geometry.SpatialElement;
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.HashMap;
 
 public abstract class Element extends SpatialElement implements Drawable, Serializable {
