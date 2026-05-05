@@ -1,5 +1,6 @@
 package models.ui;
 
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -37,14 +38,25 @@ public class AppController extends DrawingApp {
 
     @Override
     public void start(Stage stage) {
+        StartupDialog dialog = new  StartupDialog();
+        StartupDialog.MapChoice choice = dialog.show();
+        if (choice == null) {
+            Platform.exit();
+            return;
+        }
+        if (choice.binPath() != null) {
+            appData.loadFromBinary(choice.binPath());
+        }
+        if (appData.getState() !=  AppData.AppDataState.complete) {
+            if (choice.hcPath() != null) {
+                appData.parse(choice.osmPath(), choice.hcPath());
+            } else {
+                appData.parse(choice.osmPath());
+            }
+        }
         stage.setTitle("Drawing App");
         stage.setResizable(false);
         stage.setWidth(getWIDTH());
-
-        appData.parse(
-                "/Users/honningbolden/Desktop/ITU/first-year-project/first-year-project/ituboys-first-year-project/src/main/Resources/data/bornholm/bornholm.osm",
-                "/Users/honningbolden/Desktop/ITU/first-year-project/first-year-project/ituboys-first-year-project/src/main/Resources/data/bornholm/bornholm.hc"
-        );
 
         switch (appData.getState()) {
             case AppData.AppDataState.complete -> {
@@ -59,7 +71,6 @@ public class AppController extends DrawingApp {
             return; // TODO: Implement better error handling so user can try again
         }
 
-        handleRecenter(appData.getTree().getMbr(), appData.getMeanLat());
 
         imageView.setFitWidth(getWIDTH());
         imageView.setFitHeight(getHEIGHT());
@@ -73,6 +84,8 @@ public class AppController extends DrawingApp {
         stage.setScene(scene);
         stage.sizeToScene();
         stage.show();
+
+        handleRecenter(appData.getBounds(), appData.getMeanLat());
 
         userInterface.setUserMode(UserInterface.UserMode.explore);
 
@@ -130,18 +143,23 @@ public class AppController extends DrawingApp {
         gc.setTransform(superAffine);
 
         if (userInterface.getMapState() == UserInterface.MapState.elevation) {
-            // TODO: There used to be a .drawHeightCurveMap(), which seems to have been changed to .drawHeightCurveLines() – is that because we've removed the elevation map?
-            appData.getHeightCurveRenderer().drawHeightCurveMap(gc);
-            return;
+            if (appData.getHeightCurveRenderer() != null) {
+                // TODO: There used to be a .drawHeightCurveMap(), which seems to have been changed to .drawHeightCurveLines() – is that because we've removed the elevation map?
+                appData.getHeightCurveRenderer().drawHeightCurveMap(gc);
+                return;
+            }
         }
 
         appData.getRelationRenderer().draws(gc);
         appData.getWayRenderer().draws(gc);
-        appData.getHeightCurveRenderer().drawSubmergedCurves(gc);
-
+        if (appData.getHeightCurveRenderer() != null) {
+            appData.getHeightCurveRenderer().drawSubmergedCurves(gc);
+        }
         if (userInterface.isShowHeightCurves()) {
-            // TODO: Remove this if it's the same as elevation map
-            appData.getHeightCurveRenderer().draws(gc);
+            if (appData.getHeightCurveRenderer() != null) {
+                // TODO: Remove this if it's the same as elevation map
+                appData.getHeightCurveRenderer().draws(gc);
+            }
         }
 
         if (userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
@@ -277,17 +295,21 @@ public class AppController extends DrawingApp {
     }
 
     public void updateSeaLevel(float level) {
-        appData.getHeightCurveData().updateFlooding(level);
-        appData.getHeightCurveRenderer().setSeaLevel(level);
+        if (appData.getHeightCurveData() != null) {
+            appData.getHeightCurveData().updateFlooding(level);
+            appData.getHeightCurveRenderer().setSeaLevel(level);
+        }
     }
 
     public void handleRecenter(BoundingBox mbr, double meanLat) {
-        double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
+        double cosMeanLat = Math.cos(Math.toRadians(meanLat));
         double dataWidth = (mbr.maxLon() - mbr.minLon()) * cosMeanLat;
         double dataHeight = mbr.maxLat() - mbr.minLat();
         if (dataWidth <= 0 || dataHeight <= 0) {
             return;
         }
+        int usableHeight = getHEIGHT() - 80;
+        int usableWidth = getWIDTH();
 
         double scaleX = getWIDTH() / dataWidth;
         double scaleY = getHEIGHT() / dataHeight;
@@ -295,8 +317,8 @@ public class AppController extends DrawingApp {
 
         double mapWidth = dataWidth * scale;
         double mapHeight = dataHeight * scale;
-        double offsetX = (getWIDTH() - mapWidth) / 2.0;
-        double offsetY = (getHEIGHT() - mapHeight) / 2.0;
+        double offsetX = (usableWidth - mapWidth) / 2.0;
+        double offsetY = ((usableHeight - mapHeight) / 2.0) + 40;
 
         // WayRenderer y is -latitude, so after translating by maxLat it becomes 0..dataHeight
         superAffine.reset()

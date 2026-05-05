@@ -59,7 +59,8 @@ public class UserInterface {
         Button mapStateToggle = buttonToggleMapState();
         Button heightCurvesToggle = buttonToggleHeightCurves();
         LabelledButtonGroup zoomButtonGroup = buttonGroupZoomControl();
-        LabelledSlider seaLevelSlider = sliderSeaLevel(appController.getAppData().getHeightCurveData().getMaxHeight());
+        double maxHeight = appController.getAppData().getHeightCurveData() != null ? appController.getAppData().getHeightCurveData().getMaxHeight() : 0.0;
+        LabelledSlider seaLevelSlider = sliderSeaLevel(maxHeight);
 
         controlCollection.buttonList.put("MapStateToggle",mapStateToggle);
         controlCollection.buttonList.put("HeightCurveToggle",heightCurvesToggle);
@@ -79,12 +80,16 @@ public class UserInterface {
         statusPanel.setPadding(new Insets(8));
         statusPanel.setAlignment(Pos.CENTER);
 
-        HBox controlPanel = new HBox(mapStateToggle,heightCurvesToggle);
-        controlPanel.getChildren().addAll(seaLevelSlider.toNodes());
-        controlPanel.getChildren().addAll(zoomButtonGroup.toNodes());
+        HBox controlPanel = new HBox();
         controlPanel.setSpacing(8.0);
         controlPanel.setPadding(new Insets(8));
         controlPanel.setAlignment(Pos.CENTER_LEFT);
+        if (appController.getAppData().getHeightCurveData() != null) {
+            controlPanel.getChildren().addAll(mapStateToggle, heightCurvesToggle);
+            controlPanel.getChildren().addAll(seaLevelSlider.toNodes());
+        }
+        controlPanel.getChildren().addAll(zoomButtonGroup.toNodes());
+
 
         appLayout.setTop(statusPanel);
         appLayout.setCenter(new StackPane(appController.imageView, appController.getEventHandler().getMapMouseEventComponent()));
@@ -186,6 +191,7 @@ public class UserInterface {
     };
 
     private LabelledSlider sliderSeaLevel(double maxHeight) {
+        if (maxHeight <= 0) maxHeight = 1.0; // prevent empty slider range
         Slider slider = new Slider(0,maxHeight,0);
 
         slider.setShowTickLabels(true);
