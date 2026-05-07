@@ -37,7 +37,7 @@ public class Benchmark {
         graphBuilder.connectTwoWay(d, e);
 
         Set<Node> allNodes = Set.of(a, b, c, d, e);
-        Dijkstra dijkstra = new Dijkstra();
+        Pathfinder dijkstra = new Pathfinder();
 
         /*
         Mark7("dijkstra", i -> {

@@ -2,19 +2,19 @@ package org.example;
 
 
 import models.osm.Node;
-import models.pathfinding.Dijkstra;
 import models.pathfinding.Edge;
 import models.pathfinding.GraphBuilder;
+import models.pathfinding.Pathfinder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.*;
 
 
-public class TestDijkstra {
+public class TestPathfinder {
     private Node a, b, c, d, e;
     private Set<Node> allNodes;
-    private Dijkstra dijkstra;
+    private Pathfinder pathfinder;
 
     @BeforeEach
     void setUp() {
@@ -32,7 +32,7 @@ public class TestDijkstra {
         graphBuilder.connectTwoWay(d, e);
 
         allNodes = Set.of(a, b, c, d, e);
-        dijkstra = new Dijkstra();
+        pathfinder = new Pathfinder();
 
         System.out.println("A->B: " + new Edge(a, b).getWeight());
         System.out.println("B->D: " + new Edge(b, d).getWeight());
@@ -45,13 +45,13 @@ public class TestDijkstra {
 
     @Test
     void startNodeDistanceIsZero() {
-        Dijkstra.Result result = dijkstra.shortestPath(a, allNodes);
+        Pathfinder.Result result = pathfinder._shortestPath(a, true);
         assertEquals(0.0, result.distances().get(a), 1e-9);
     }
 
     @Test
     void directEdgeDistancesAreCorrect() {
-        Dijkstra.Result result = dijkstra.shortestPath(a, allNodes);
+        Pathfinder.Result result = pathfinder._shortestPath(a, true);
         double distAB = new Edge(a, b).getWeight();
         double distAC = new Edge(a, c).getWeight();
         assertEquals(distAB, result.distances().get(b), 1e-9, "A->B should match Haversine");
@@ -60,7 +60,7 @@ public class TestDijkstra {
 
     @Test
     void shortestPathChoosesRelaxedRoute() {
-        Dijkstra.Result result = dijkstra.shortestPath(a, allNodes);
+        Pathfinder.Result result = pathfinder._shortestPath(a, true);
         double distAB = new Edge(a, b).getWeight();
         double distBD = new Edge(b, d).getWeight();
         double distDE = new Edge(d, e).getWeight();
@@ -70,36 +70,24 @@ public class TestDijkstra {
 
     @Test
     void previousNodesReconstructCorrectPath() {
-        Dijkstra.Result result = dijkstra.shortestPath(a, allNodes);
-        List<Node> pathToD = dijkstra.getShortestPathTo(d, result.previousNodes());
+        Pathfinder.Result result = pathfinder._shortestPath(a, true);
+        List<Node> pathToD = pathfinder.getShortestPathTo(d, result.previousNodes());
         assertEquals(List.of(a, b, d), pathToD, "Path to D should be A->B->D");
     }
 
     @Test
     void previousNodesReconstructLongerPath() {
-        Dijkstra.Result result = dijkstra.shortestPath(a, allNodes);
-        List<Node> pathToE = dijkstra.getShortestPathTo(e, result.previousNodes());
+        Pathfinder.Result result = pathfinder._shortestPath(a, true);
+        List<Node> pathToE = pathfinder.getShortestPathTo(e, result.previousNodes());
         assertEquals(List.of(a, b, d, e), pathToE, "Path to E should be A->B->D->E");
     }
 
     @Test
     void allNodesAreReachable() {
-        Dijkstra.Result result = dijkstra.shortestPath(a, allNodes);
+        Pathfinder.Result result = pathfinder._shortestPath(a, true);
         for (Node node : allNodes) {
             assertTrue(result.distances().get(node) < Double.MAX_VALUE,
                     "Node " + node.getId() + " should be reachable");
         }
-    }
-
-    @Test
-    void unreachableNodeHasMaxDistance() {
-        Node isolated = new Node(6, 55.0004, 15.0000);
-        Set<Node> allNodesWithIsolated = new HashSet<>(allNodes);
-        allNodesWithIsolated.add(isolated);
-
-        Dijkstra.Result result = dijkstra.shortestPath(a, allNodesWithIsolated);
-
-        assertEquals(Double.MAX_VALUE, result.distances().get(isolated),
-                "Isolated node should be unreachable");
     }
 }

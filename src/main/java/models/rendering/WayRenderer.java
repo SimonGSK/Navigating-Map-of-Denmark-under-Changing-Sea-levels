@@ -39,14 +39,7 @@ public class WayRenderer extends AbstractRenderer<Way> {
 
     @Override
     public void draws(Graphics2D gc) {
-
-        int drawnWays = 0;
-        int totalWays = 0;
-
         for (Way way : elements) {
-            totalWays++;
-
-
             List<Node> nodes = way.getNodes();
             if (nodes == null || nodes.size() < 2) continue;
 
@@ -56,8 +49,6 @@ public class WayRenderer extends AbstractRenderer<Way> {
             Path2D path = buildPath(nodes, isClosed);
             gc.setColor(way.getColor());
 
-            drawnWays++;
-
             if (!isClosed) {
                 gc.setStroke(new BasicStroke(0.0001f));
                 gc.draw(path);
@@ -66,7 +57,5 @@ public class WayRenderer extends AbstractRenderer<Way> {
                 gc.fill(path);
             }
         }
-
-        // System.out.println("WayRenderer: total ways=" + totalWays + ", drawn ways=" + drawnWays);
     }
 }
