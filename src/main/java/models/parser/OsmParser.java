@@ -7,6 +7,7 @@ import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
 import models.pathfinding.GraphBuilder;
+import models.ui.AppData;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -56,7 +57,8 @@ public class OsmParser extends AbstractParser<OsmData> {
                     Way way = extractWay(line, bufferedReader);
                     wayMap.put(way.getId(), way);
                 } else if (line.contains("<relation ") || line.contains("<relation>")) {
-                    extractRelation(line, bufferedReader);
+                    Relation relation = extractRelation(line, bufferedReader);
+                    relationMap.put(relation.getId(), relation);
                 }
             }
 
@@ -75,9 +77,19 @@ public class OsmParser extends AbstractParser<OsmData> {
                 wayMap,
                 relationMap
         );
+
+        double meanLat = (mbr.maxLat() + mbr.minLat()) / 2.0;
+        ShapeBuilder shapeBuilder = new ShapeBuilder(meanLat);
+
+        for (Way way : wayMap.values()){
+            way.setShape(shapeBuilder.buildWay(way));
+        }
+        for (Relation relation : relationMap.values()){
+            relation.setShape(shapeBuilder.buildRelation(relation));
+        }
     }
 
-    private void extractRelation(String line, BufferedReader br) throws IOException {
+    private Relation extractRelation(String line, BufferedReader br) throws IOException {
         List<Member> members = new ArrayList<>();
         HashMap<String, String> tags = new HashMap<>();
         long relationID = getAttributeLong(line, "id");
@@ -123,11 +135,11 @@ public class OsmParser extends AbstractParser<OsmData> {
             existing.setMembers(members);
             existing.setTags(tags);
             existing.setMinZoomLevel(calculateZoomLevel(tags));
-            return;
+            return relationMap.get(relationID);
         }
         Relation relation = new Relation(relationID, tags, members);
         relation.setMinZoomLevel(calculateZoomLevel(tags));
-        relationMap.put(relationID, relation);
+        return relation;
     }
 
     private Way extractWay(String line, BufferedReader br) throws IOException {
@@ -153,7 +165,7 @@ public class OsmParser extends AbstractParser<OsmData> {
         }
 
         if (tags.containsKey("highway") && nodes.size() > 1) {
-            boolean isOneWay = tags.get("oneway").equals("yes");
+            boolean isOneWay = tags.get("oneway") != null && tags.get("oneway").equals("yes");
 
             for (int i = 0; i < nodes.size() - 1; i++) {
                 Node from = nodes.get(i);

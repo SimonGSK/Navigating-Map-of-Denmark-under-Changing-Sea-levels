@@ -9,9 +9,10 @@ import models.osm.Relation;
 import models.osm.Way;
 import models.utils.UtilityTools;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Tree {
+public class Tree implements Serializable {
     private TreeNode root;
     private final int min = 1; // Must be >= 1
     private final int max = 30; // Must be

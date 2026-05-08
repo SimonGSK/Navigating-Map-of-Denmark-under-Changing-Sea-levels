@@ -2,7 +2,9 @@ package models.RTree;
 
 import models.geometry.BoundingBox;
 
-public record NodeEntry(BoundingBox mbr, TreeNode child) implements TreeEntry {
+import java.io.Serializable;
+
+public record NodeEntry(BoundingBox mbr, TreeNode child) implements TreeEntry, Serializable {
     @Override
     public boolean overlaps(BoundingBox box) {
         return mbr.isOverlappingOther(box);

@@ -41,8 +41,6 @@ public class Way extends Element implements Iterable<Node>, Serializable {
         }
 
         return Math.abs(area) / 2.0;
-
-        //TODO: Hække bliver i byen tegner oven på veje. Find en løsning på dette
     }
 
     public List<Node> getNodes() {

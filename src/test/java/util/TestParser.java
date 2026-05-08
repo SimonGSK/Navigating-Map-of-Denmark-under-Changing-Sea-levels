@@ -18,6 +18,7 @@ import models.osm.Element;
 import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
+import models.ui.AppData;
 
 
 public class TestParser implements AbstractParser {

@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Node extends Element implements Comparable<Node>, Serializable {
     private final Coordinate coord;
-    private final List<Edge> adjacencyList;
+    private transient List<Edge> adjacencyList;
     private boolean isSubmerged = false;
 
     public Node(long id, double lat, double lon) { // add hc
@@ -35,10 +35,12 @@ public class Node extends Element implements Comparable<Node>, Serializable {
 
 
     public List<Edge> getAdjacencyList() {
+        if (adjacencyList == null) return new ArrayList<>();
         return adjacencyList;
     }
 
     public void addNeighbour(Edge edge) {
+        if (adjacencyList == null) adjacencyList = new ArrayList<>();
         adjacencyList.add(edge);
     }
 
