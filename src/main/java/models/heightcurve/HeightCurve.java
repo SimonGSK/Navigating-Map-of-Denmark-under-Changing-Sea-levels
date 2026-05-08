@@ -99,17 +99,6 @@ public class HeightCurve implements Serializable {
         updateSubmersion(seaLevel, true);
     }
 
-    /*
-    public Path2D getBoundaryPath() {
-        return getBoundaryPath(1.0);
-    }
-    public Path2D getRegionPath() {
-        return getRegionPath(1.0);
-    }
-
-     */
-
-
     public void setShape(Path2D shape){
         this.shape = shape;
     }
