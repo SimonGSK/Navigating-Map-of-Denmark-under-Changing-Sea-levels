@@ -3,7 +3,9 @@ package models.pathfinding;
 import models.osm.Node;
 import models.utils.UtilityTools;
 
-public class Edge {
+import java.io.Serializable;
+
+public class Edge implements Serializable {
     private Node targetNode;
     private double weight;
 

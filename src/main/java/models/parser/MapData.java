@@ -1,5 +1,6 @@
 package models.parser;
 
+import models.RTree.Tree;
 import models.osm.Member;
 import models.osm.Node;
 import models.osm.Relation;
@@ -18,22 +19,24 @@ public class MapData implements Serializable {
     public final HeightCurveData hcData;
     public final Map<Long, Way> wayMap;
     public final Map<Long, Relation> relationMap;
+    public final Tree tree;
 
     // Usen when parsing normally (no binary)
     public MapData(Map<Long, Way> wayMap, Map<Long, Relation> relationMap) {
-        this(wayMap, relationMap, new HashMap<>(), null, null);
+        this(wayMap, relationMap, new HashMap<>(), null, null, null);
     }
 
     // Opdeler OSM-data i to grupper: multipolygon-relations og standalone ways.
     // Ways der indgår i en relation fjernes fra way-listen for at undgå at de samme områder tegnes to gange.
     // Begge lister sorteres fra størst til mindst areal, så store baggrundsarealer tegnes først og ikke dækker over mindre detaljer.
     // Used when loading from binary
-    public MapData(Map<Long, Way> wayMap, Map<Long, Relation> relationMap, Map<Long,Node> nodeMap, BoundingBox mbr, HeightCurveData hcData) {
+    public MapData(Map<Long, Way> wayMap, Map<Long, Relation> relationMap, Map<Long,Node> nodeMap, BoundingBox mbr, HeightCurveData hcData, Tree tree) {
         this.nodeMap = nodeMap;
         this.mbr = mbr;
         this.hcData = hcData;
         this.wayMap = wayMap;
         this.relationMap = relationMap;
+        this.tree = tree;
 
         waysInRelations = new HashSet<>();
         List<Relation> polys = new ArrayList<>();
