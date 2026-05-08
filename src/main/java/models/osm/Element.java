@@ -6,6 +6,7 @@ import models.geometry.BoundingBox;
 import models.geometry.SpatialElement;
 
 import java.awt.*;
+import java.awt.geom.Path2D;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Set;
@@ -16,6 +17,7 @@ public abstract class Element extends SpatialElement implements Drawable, Serial
     protected HashMap<String, String> tags;
     private Color color = null;
     private double minZoomLevel = 0;
+    protected Path2D shape = null;
 
     public Element(long id, ElementType type, HashMap<String, String> tags, BoundingBox mbr) {
         this.id = id;
@@ -213,5 +215,13 @@ public abstract class Element extends SpatialElement implements Drawable, Serial
             return false;
         }
         return !isClosed || !(getArea() < minGeoArea);
+    }
+
+    public void setShape(Path2D shape){
+        this.shape = shape;
+    }
+
+    public Path2D getShape(){
+        return shape;
     }
 }

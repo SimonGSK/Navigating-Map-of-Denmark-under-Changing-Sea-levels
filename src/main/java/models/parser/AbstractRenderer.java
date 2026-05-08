@@ -14,7 +14,6 @@ public abstract class AbstractRenderer<T extends Element> implements Drawable {
     protected List<T> elements = new ArrayList<>();
     protected double currentZoomLevel = 0;
     protected double minGeoArea = 0;
-    protected Map<Long, Path2D> shapes = new HashMap<>();
 
     public AbstractRenderer(double meanLat) {
         cosMeanLat = Math.cos(Math.toRadians(meanLat));
