@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
+import models.parser.ShapeBuilder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -198,25 +199,27 @@ public class HeightCurveTest {
     @Test
     @Order(1)
     public void boundaryPath_returnsNonNullPath2D() {
+        ShapeBuilder shapeBuilder = new ShapeBuilder(1.0);
         HeightCurve c = curve(1L, 0.0,
                 new Coordinate(1.0, 2.0),
                 new Coordinate(2.0, 3.0),
                 new Coordinate(3.0, 4.0),
                 new Coordinate(1.0, 2.0)
         );
-        assertNotNull(c.getBoundaryPath(1.0), "Task 'Construct the boundary path': getBoundaryPath() must return a Path2D (not null)");
+        assertNotNull(shapeBuilder.getBoundaryPath(c), "Task 'Construct the boundary path': getBoundaryPath() must return a Path2D (not null)");
     }
 
     @Test
     @Order(2)
     public void regionPath_returnsNonNullPath2D() {
+        ShapeBuilder shapeBuilder = new ShapeBuilder(1.0);
         HeightCurve c = curve(1L, 0.0,
                 new Coordinate(1.0, 2.0),
                 new Coordinate(2.0, 3.0),
                 new Coordinate(3.0, 4.0),
                 new Coordinate(1.0, 2.0)
         );
-        assertNotNull(c.getRegionPath(1.0), "Task 'Construct the region path': getRegionPath() must return a Path2D (not null)");
+        assertNotNull(shapeBuilder.getRegionPath(c), "Task 'Construct the region path': getRegionPath() must return a Path2D (not null)");
     }
 
     @Test
@@ -260,13 +263,15 @@ public class HeightCurveTest {
                 new Coordinate(55.0, 10.0)
         );
 
+        ShapeBuilder shapeBuilder = new ShapeBuilder(1.0);
+
         Path2D expected = new Path2D.Double();
         expected.moveTo(10.0, -55.0);
         expected.lineTo(11.0, -56.0);
         expected.lineTo(12.0, -57.0);
         expected.lineTo(10.0, -55.0);
         assertTrue(
-                pathsEqual(expected, c.getBoundaryPath(1.0)),
+                pathsEqual(expected, shapeBuilder.getBoundaryPath(c)),
                 "Boundary path should match the expected polygon regardless of start point or direction"
         );
     }
@@ -281,6 +286,9 @@ public class HeightCurveTest {
                 new Coordinate(1.0, 0.0),
                 new Coordinate(0.0, 0.0)
         );
+
+        ShapeBuilder shapeBuilder = new ShapeBuilder(1.0);
+
         Path2D expected = new Path2D.Double(Path2D.WIND_EVEN_ODD);
         expected.moveTo(0.0, 0.0);
         expected.lineTo(1.0, 0.0);
@@ -288,11 +296,11 @@ public class HeightCurveTest {
         expected.lineTo(0.0, 0.0);
         assertEquals(
                 Path2D.WIND_EVEN_ODD,
-                c.getRegionPath(1.0).getWindingRule(),
+                shapeBuilder.getRegionPath(c).getWindingRule(),
                 "Task 'Construct the region path': use WIND_EVEN_ODD so child curves become holes"
         );
         assertTrue(
-                pathsEqual(expected, c.getRegionPath(1.0)),
+                pathsEqual(expected, shapeBuilder.getRegionPath(c)),
                 "Region path geometry should match the boundary polygon"
         );
     }
@@ -314,6 +322,8 @@ public class HeightCurveTest {
         );
         parent.getChildren().add(child);
 
+        ShapeBuilder shapeBuilder = new ShapeBuilder(1.0);
+
         Path2D expected = new Path2D.Double(Path2D.WIND_EVEN_ODD);
         expected.moveTo(0.0, 0.0);
         expected.lineTo(4.0, 0.0);
@@ -324,7 +334,7 @@ public class HeightCurveTest {
         expected.lineTo(1.0, -2.0);
         expected.lineTo(1.0, -1.0);
         assertTrue(
-                pathsEqual(expected, parent.getRegionPath(1.0)),
+                pathsEqual(expected, shapeBuilder.getRegionPath(parent)),
                 "Region path should include the parent boundary and immediate child as a hole"
         );
     }
@@ -354,6 +364,8 @@ public class HeightCurveTest {
         parent.getChildren().add(child);
         child.getChildren().add(grandchild);
 
+        ShapeBuilder shapeBuilder = new ShapeBuilder(1.0);
+
         Path2D expected = new Path2D.Double(Path2D.WIND_EVEN_ODD);
         expected.moveTo(0.0, 0.0);
         expected.lineTo(4.0, 0.0);
@@ -364,7 +376,7 @@ public class HeightCurveTest {
         expected.lineTo(1.0, -2.0);
         expected.lineTo(1.0, -1.0);
         assertTrue(
-                pathsEqual(expected, parent.getRegionPath(1.0)),
+                pathsEqual(expected, shapeBuilder.getRegionPath(parent)),
                 "Region path should include only the parent and immediate child boundaries"
         );
     }
