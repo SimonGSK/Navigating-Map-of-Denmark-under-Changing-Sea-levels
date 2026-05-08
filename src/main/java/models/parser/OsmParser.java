@@ -6,6 +6,7 @@ import models.osm.Member;
 import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
+import models.pathfinding.GraphBuilder;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +17,8 @@ import java.util.List;
 import static models.geometry.BoundingBox.computeMbr;
 
 public class OsmParser extends AbstractParser<OsmData> {
+    private final GraphBuilder graphBuilder = new GraphBuilder();
+
     private final HashMap<Long, Node> nodeMap = new HashMap<>();
     private final HashMap<Long, Way> wayMap = new HashMap<>();
     private final HashMap<Long, Relation> relationMap = new HashMap<>();
@@ -129,7 +132,7 @@ public class OsmParser extends AbstractParser<OsmData> {
 
     private Way extractWay(String line, BufferedReader br) throws IOException {
         List<Node> nodes = new ArrayList<>();
-        HashMap<String, String> tags = new HashMap<>();
+        HashMap<String, String> tags = new HashMap<>(); // TODO: Can we use a HashSet instead of a HashMap here?
 
         long wayID = getAttributeLong(line, "id");
 
@@ -146,6 +149,22 @@ public class OsmParser extends AbstractParser<OsmData> {
                 String k = getAttribute(line, "k");
                 String v = getAttribute(line, "v");
                 tags.put(k, v);
+            }
+        }
+
+        if (tags.containsKey("highway") && nodes.size() > 1) {
+            boolean isOneWay = tags.get("oneway").equals("yes");
+
+            for (int i = 0; i < nodes.size() - 1; i++) {
+                Node from = nodes.get(i);
+                Node to = nodes.get(i + 1);
+
+                if (isOneWay) {
+                    graphBuilder.connectOneWay(from,to);
+                    continue;
+                }
+
+                graphBuilder.connectTwoWay(from,to);
             }
         }
 

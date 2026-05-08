@@ -5,6 +5,7 @@ import models.osm.Member;
 import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
+import models.utils.UtilityTools;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
@@ -86,7 +87,7 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
         Node firstNode = validNodes.getFirst();
         Node lastNode = validNodes.getLast();
         boolean isClosed = firstNode.getId() == lastNode.getId()
-                || distance(firstNode, lastNode) < SNAP_THRESHOLD;
+                || UtilityTools.euclideanDistance(firstNode.getCoordinate(), lastNode.getCoordinate()) < SNAP_THRESHOLD; // TODO: Test with haversineFormula
         if (!isClosed) return;
 
         boolean isFirst = true;
@@ -119,7 +120,7 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
         }
 
         while (!candidates.isEmpty()) {
-            LinkedList<Node> ring = new LinkedList<>(candidates.remove(0));
+            LinkedList<Node> ring = new LinkedList<>(candidates.removeFirst());
             if (ring.isEmpty()) continue;
 
             boolean progress = true;
@@ -135,8 +136,8 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
                         continue;
                     }
 
-                    Node candidateStart = nodes.get(0);
-                    Node candidateEnd = nodes.get(nodes.size() - 1);
+                    Node candidateStart = nodes.getFirst();
+                    Node candidateEnd = nodes.getLast();
 
                     boolean startToLast = isConnected(candidateStart, last);
                     boolean endToLast = isConnected(candidateEnd, last);
@@ -180,12 +181,6 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
     }
 
     private boolean isConnected(Node a, Node b) {
-        return a.getId() == b.getId() || distance(a, b) < SNAP_THRESHOLD;
-    }
-
-    private double distance(Node a, Node b) {
-        double dLat = a.getLat() - b.getLat();
-        double dLon = a.getLon() - b.getLon();
-        return Math.sqrt(dLat * dLat + dLon * dLon);
+        return a.getId() == b.getId() || UtilityTools.euclideanDistance(a.getCoordinate(), b.getCoordinate()) < SNAP_THRESHOLD; // TODO: Test with haversineFormula
     }
 }

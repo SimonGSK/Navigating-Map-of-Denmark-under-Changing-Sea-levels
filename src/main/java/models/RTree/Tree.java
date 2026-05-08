@@ -7,6 +7,7 @@ import models.osm.Element;
 import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
+import models.utils.UtilityTools;
 
 import java.util.*;
 
@@ -60,6 +61,7 @@ public class Tree {
         }
     }
 
+
     public Node getNearestNode(Coordinate cursor) {
         if (root == null) {
             return null;
@@ -71,11 +73,8 @@ public class Tree {
         Set<Node> nodes = new HashSet<>();
         for (TreeEntry entry : nearestTreeNode.entries) {
             if (entry instanceof LeafEntry(Element element)) {
-                switch (element) {
-                    case Node node -> nodes.add(node);
-                    case Way way -> nodes.addAll(way.getNodes());
-                    case Relation relation -> nodes.addAll(relation.getNodes());
-                    default -> {}
+                if (element instanceof Way way && way.getTag("highway") != null) {
+                    nodes.addAll(way.getNodes());
                 }
             }
         }
@@ -84,7 +83,7 @@ public class Tree {
             return null;
         }
 
-        nearestNodeDist nearestNode = _findNearestNodeDist(cursor, nodes.stream().toList());
+        nearestNodeDist nearestNode = _findNearestNodeDist(cursor, new ArrayList<>(nodes));
         double radius = nearestNode.dist();
 
         // Outer square
@@ -96,15 +95,17 @@ public class Tree {
         SearchResults searchResults = search(searchArea);
 
         nodes.clear();
-        nodes.addAll(searchResults.nodeList());
         for (Way w : searchResults.wayList()) {
-            nodes.addAll(w.getNodes());
+            if (w.getTag("highway") != null) {
+                nodes.addAll(w.getNodes());
+            }
         }
-        for (Relation r : searchResults.relationList()) {
-            nodes.addAll(r.getNodes());
-        }
-        nearestNodeDist result = _findNearestNodeDist(cursor, searchResults.nodeList());
 
+        if (nodes.isEmpty()) {
+            return null;
+        }
+
+        nearestNodeDist result = _findNearestNodeDist(cursor, new ArrayList<>(nodes));
         return result.node();
     }
 
@@ -114,10 +115,7 @@ public class Tree {
 
         for (Node n : nodes) {
             Coordinate center = n.getCoordinate();
-            double dist = Math.sqrt(
-                    Math.pow(cursor.getLat() - center.getLat(),2)
-                    + Math.pow(cursor.getLon() - center.getLon(),2)
-            );
+            double dist = UtilityTools.euclideanDistance(cursor,center);
 
             if (dist < nearestDist) {
                 nearestNode = n;

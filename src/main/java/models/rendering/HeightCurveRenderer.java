@@ -10,7 +10,7 @@ import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HeightCurveRenderer implements Drawable {
+public class HeightCurveRenderer implements Drawable { // TODO: Should extend AbstractRenderer and have HeightCurveData as the type
     private final HeightCurveData data;
     private final double cosMeanLat;
     private double seaLevel;

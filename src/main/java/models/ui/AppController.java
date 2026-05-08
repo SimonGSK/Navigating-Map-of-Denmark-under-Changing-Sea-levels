@@ -5,13 +5,16 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import models.RTree.SearchResults;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.geometry.ExtSuperAffine;
 import models.osm.Node;
+import models.pathfinding.Pathfinder;
 import models.pathfinding.PathfindingObject;
+import models.rendering.GraphicsRenderer;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
@@ -23,9 +26,12 @@ public class AppController extends DrawingApp {
     private final EventHandler eventHandler = new EventHandler();
     private final UserInterface userInterface = new UserInterface(this);
     private AppControllerState controllerState = AppControllerState.ready;
+    private Pathfinder pathfinder = new Pathfinder();
 
     private PathfindingObject pathfindingObject = PathfindingObject.getInstance();
     private final Path2D pathToNearestNode = new Path2D.Double();
+
+    private GraphicsRenderer graphicsRenderer = new GraphicsRenderer(this);
 
     private double prevMouseX = 0;
     private double prevMouseY = 0;
@@ -38,20 +44,20 @@ public class AppController extends DrawingApp {
 
     @Override
     public void start(Stage stage) {
-        StartupDialog dialog = new  StartupDialog();
-        StartupDialog.MapChoice choice = dialog.show();
-        if (choice == null) {
+        StartupDialog dialog = new  StartupDialog(); // TODO: Migrate StartUp dialog into the userInterface
+        StartupDialog.MapChoice mapChoice = dialog.show();
+        if (mapChoice == null) {
             Platform.exit();
             return;
         }
-        if (choice.binPath() != null) {
-            appData.loadFromBinary(choice.binPath());
+        if (mapChoice.binPath() != null) {
+            appData.loadFromBinary(mapChoice.binPath());
         }
         if (appData.getState() !=  AppData.AppDataState.complete) {
-            if (choice.hcPath() != null) {
-                appData.parse(choice.osmPath(), choice.hcPath());
+            if (mapChoice.hcPath() != null) {
+                appData.parse(mapChoice.osmPath(), mapChoice.hcPath());
             } else {
-                appData.parse(choice.osmPath());
+                appData.parse(mapChoice.osmPath());
             }
         }
         stage.setTitle("Drawing App");
@@ -61,6 +67,7 @@ public class AppController extends DrawingApp {
         switch (appData.getState()) {
             case AppData.AppDataState.complete -> {
                 controllerState = AppControllerState.active;
+                graphicsRenderer.init();
                 userInterface.init();
             }
             case AppData.AppDataState.error -> controllerState = AppControllerState.error;
@@ -70,7 +77,6 @@ public class AppController extends DrawingApp {
             System.out.println("Error parsing OSM and HC files. Shutting down.");
             return; // TODO: Implement better error handling so user can try again
         }
-
 
         imageView.setFitWidth(getWIDTH());
         imageView.setFitHeight(getHEIGHT());
@@ -167,6 +173,10 @@ public class AppController extends DrawingApp {
             gc.setStroke(new BasicStroke(0.0001f));
             gc.draw(pathToNearestNode);
         }
+
+        if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
+            graphicsRenderer.draws(gc);
+        }
     }
 
     private void handleMousePress(MouseEvent event) {
@@ -218,9 +228,11 @@ public class AppController extends DrawingApp {
 
                 if (pathfindingObject.isReady()) {
                     userInterface.setUserMode(UserInterface.UserMode.explore);
-                    // TODO: Call pathfinding
+                    pathfindingObject.setPath(
+                            pathfinder.getShortestPathTo(pathfindingObject.getStartNode(),pathfindingObject.getEndNode())
+                    );
+                    handleDraw();
                 }
-
                 System.out.println(pathfindingObject.toString());
             }
         }
