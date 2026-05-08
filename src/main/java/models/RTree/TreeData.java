@@ -2,10 +2,11 @@ package models.RTree;
 
 import models.osm.*;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class TreeData implements Iterable<Element> {
+public class TreeData implements Iterable<Element>, Serializable {
     private final Map<Long, Node> nodes;
     private final Map<Long, Way> ways;
     private final Map<Long, Relation> relations;

@@ -6,11 +6,12 @@ import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public record SearchResults(List<Node> nodeList, List<Way> wayList, List<Relation> relationList) {
+public record SearchResults(List<Node> nodeList, List<Way> wayList, List<Relation> relationList) implements Serializable {
     public SearchResults() {
         this(new ArrayList<>(),new ArrayList<>(),new ArrayList<>());
     }

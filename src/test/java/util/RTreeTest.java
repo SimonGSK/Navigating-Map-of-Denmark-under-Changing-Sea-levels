@@ -1,5 +1,6 @@
 package util;
 
+import enums.ElementType;
 import models.RTree.*;
 import models.geometry.BoundingBox;
 import models.osm.Node;

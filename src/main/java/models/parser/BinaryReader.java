@@ -1,5 +1,6 @@
 package models.parser;
 
+import models.RTree.Tree;
 import models.geometry.BoundingBox;
 import models.osm.Node;
 import models.osm.Relation;
@@ -22,7 +23,8 @@ public class BinaryReader {
             HashMap<Long, Relation> relations = (HashMap<Long, Relation>) in.readObject();
             BoundingBox mbr = (BoundingBox) in.readObject();
             HeightCurveData heightCurveData = (HeightCurveData) in.readObject();
-            return new MapData(ways, relations, nodes, mbr, heightCurveData);
+            Tree tree = (Tree) in.readObject();
+            return new MapData(ways, relations, nodes, mbr, heightCurveData, tree);
         }
     }
 }
