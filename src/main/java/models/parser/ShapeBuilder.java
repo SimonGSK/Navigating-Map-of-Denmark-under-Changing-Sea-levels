@@ -184,11 +184,12 @@ public class ShapeBuilder {
     }
 
     public Path2D buildHeightCurve(HeightCurve heightCurve){
-        Path2D path = getRegionPath(cosMeanLat, heightCurve);
+        Path2D path = getRegionPath(heightCurve);
         return path;
     }
 
-    public Path2D getBoundaryPath(double cosMeanLat, HeightCurve heightCurve) {
+    //Creates a heightCurve path
+    public Path2D getBoundaryPath(HeightCurve heightCurve) {
         Path2D.Double p = new Path2D.Double();
         List<Coordinate> coords = heightCurve.getCoords();
 
@@ -208,14 +209,15 @@ public class ShapeBuilder {
         return p;
     }
 
-    public Path2D getRegionPath(double cosMeanLat, HeightCurve heightCurve) {
+    //Creates an area consisting of a heightcurve and its children as holes
+    public Path2D getRegionPath(HeightCurve heightCurve) {
         Path2D.Double p = new Path2D.Double(Path2D.WIND_EVEN_ODD);
         List<HeightCurve> children = heightCurve.getChildren();
 
-        p.append(getBoundaryPath(cosMeanLat, heightCurve), false);
+        p.append(getBoundaryPath(heightCurve), false);
 
         for(HeightCurve child : children){
-            p.append(getBoundaryPath(cosMeanLat, child), false);
+            p.append(getBoundaryPath(child), false);
         }
         return p;
     }

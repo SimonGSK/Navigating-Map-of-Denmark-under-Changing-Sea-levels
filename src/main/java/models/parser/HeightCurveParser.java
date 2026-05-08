@@ -13,8 +13,8 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
     private final double cosMeanLat;
 
     public HeightCurveParser(String absoluteFilePath, double meanLat) throws IOException {
-        parse(absoluteFilePath);
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
+        parse(absoluteFilePath);
     }
 
     public void parse(String filePath) {
