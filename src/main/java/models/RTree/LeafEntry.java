@@ -3,7 +3,9 @@ package models.RTree;
 import models.geometry.BoundingBox;
 import models.osm.Element;
 
-public record LeafEntry(Element element) implements TreeEntry {
+import java.io.Serializable;
+
+public record LeafEntry(Element element) implements TreeEntry, Serializable {
     @Override
     public boolean overlaps(BoundingBox box) {
         return element.getMbr().isOverlappingOther(box);
