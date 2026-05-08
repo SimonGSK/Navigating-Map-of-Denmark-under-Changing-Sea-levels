@@ -2,6 +2,7 @@ package models.parser;
 
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
+import models.ui.AppData;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
