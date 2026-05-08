@@ -32,7 +32,7 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
                 continue;
             }
 
-            if (relation.getShape() == null) return;
+            if (relation.getShape() == null) continue;
 
             Path2D path = relation.getShape();
 
