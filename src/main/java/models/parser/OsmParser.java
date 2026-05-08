@@ -153,7 +153,7 @@ public class OsmParser extends AbstractParser<OsmData> {
         }
 
         if (tags.containsKey("highway") && nodes.size() > 1) {
-            boolean isOneWay = tags.get("oneway").equals("yes");
+            boolean isOneWay = tags.get("oneway") != null && tags.get("oneway").equals("yes");
 
             for (int i = 0; i < nodes.size() - 1; i++) {
                 Node from = nodes.get(i);

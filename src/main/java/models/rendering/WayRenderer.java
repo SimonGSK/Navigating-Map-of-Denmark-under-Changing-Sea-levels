@@ -16,23 +16,28 @@ public class WayRenderer extends AbstractRenderer<Way> {
         super(meanLat);
     }
 
-    private Path2D buildPath(List<Node> nodes, boolean closePath) {
+    private Path2D buildPath(List<Node> nodes, boolean closePath, long id) {
+        if (shapes.get(id) != null){
+            return shapes.get(id);
+        }
 
         Path2D path = new Path2D.Double();
 
-        boolean first = true; // TODO: Use "is"-naming convention for boolean flags: first -> isFirst
+        boolean isFirst = true;
         for (Node node : nodes) {
             if (node == null) continue;
             double x = node.getLon() * cosMeanLat;
             double y = -node.getCoordinate().getLat();
-            if (first) {
+            if (isFirst) {
                 path.moveTo(x, y);
-                first = false;
+                isFirst = false;
             } else {
                 path.lineTo(x, y);
             }
         }
         if (closePath) path.closePath();
+
+        shapes.put(id, path);
 
         return path;
     }
@@ -40,13 +45,16 @@ public class WayRenderer extends AbstractRenderer<Way> {
     @Override
     public void draws(Graphics2D gc) {
         for (Way way : elements) {
+            if (way.getId() == 1499690249 || way.getId() == 4120948){ //Strand og coastline på Tunø
+                System.out.println();
+            }
             List<Node> nodes = way.getNodes();
             if (nodes == null || nodes.size() < 2) continue;
 
             boolean isClosed = nodes.getFirst().getId() == nodes.getLast().getId();
             if (!shouldDraw(way, isClosed)) continue; //Funktion til at afgøre om noget skal tegnes
 
-            Path2D path = buildPath(nodes, isClosed);
+            Path2D path = buildPath(nodes, isClosed, way.getId());
             gc.setColor(way.getColor());
 
             if (!isClosed) {

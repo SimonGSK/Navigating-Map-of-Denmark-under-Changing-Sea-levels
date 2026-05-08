@@ -3,14 +3,18 @@ package models.parser;
 import Interfaces.Drawable;
 import models.osm.Element;
 
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractRenderer<T extends Element> implements Drawable {
     protected final double cosMeanLat;
     protected List<T> elements = new ArrayList<>();
     protected double currentZoomLevel = 0;
     protected double minGeoArea = 0;
+    protected Map<Long, Path2D> shapes = new HashMap<>();
 
     public AbstractRenderer(double meanLat) {
         cosMeanLat = Math.cos(Math.toRadians(meanLat));
