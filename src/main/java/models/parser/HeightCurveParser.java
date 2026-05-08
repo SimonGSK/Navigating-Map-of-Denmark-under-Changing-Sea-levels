@@ -10,8 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HeightCurveParser extends AbstractParser<HeightCurveData> {
-    public HeightCurveParser(String absoluteFilePath) throws IOException {
+    private final double cosMeanLat;
+
+    public HeightCurveParser(String absoluteFilePath, double meanLat) throws IOException {
         parse(absoluteFilePath);
+        this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
     }
 
     public void parse(String filePath) {
@@ -77,5 +80,11 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
             }
         }
         this.data = new HeightCurveData(minLat, minLon, maxLat, maxLon, sea, allCurves);
+
+        ShapeBuilder shapeBuilder = new ShapeBuilder(cosMeanLat);
+
+        for(HeightCurve heightCurve : allCurves){
+            heightCurve.setShape(shapeBuilder.buildHeightCurve(heightCurve));
+        }
     }
 }

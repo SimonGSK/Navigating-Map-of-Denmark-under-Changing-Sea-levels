@@ -15,36 +15,7 @@ public class HeightCurve implements Serializable {
     private List<HeightCurve> children;
     public boolean submerged;
     private transient HeightCurve parent;
-
-    public Path2D getBoundaryPath(double cosMeanLat) {
-        Path2D.Double p = new Path2D.Double();
-
-        Coordinate coordinate1 = coords.getFirst();
-        double x1 = coordinate1.getLon() * cosMeanLat;
-        double y1 = -coordinate1.getLat();
-        p.moveTo(x1, y1);
-
-        for (int i = 1; i < coords.size(); i++) {
-            Coordinate coordinate = coords.get(i);
-            double x = coordinate.getLon() * cosMeanLat;
-            double y = -coordinate.getLat();
-            p.lineTo(x, y);
-        }
-
-        p.closePath();
-        return p;
-    }
-
-    public Path2D getRegionPath(double cosMeanLat) {
-        Path2D.Double p = new Path2D.Double(Path2D.WIND_EVEN_ODD);
-
-        p.append(getBoundaryPath(cosMeanLat), false);
-
-        for(HeightCurve child : children){
-            p.append(child.getBoundaryPath(cosMeanLat), false);
-        }
-        return p;
-    }
+    protected Path2D shape = null;
 
     public Color getFillColor(double seaLevel) {
         double altitude = height - seaLevel;
@@ -127,10 +98,23 @@ public class HeightCurve implements Serializable {
     public void submerge(double seaLevel) {
         updateSubmersion(seaLevel, true);
     }
+
+    /*
     public Path2D getBoundaryPath() {
         return getBoundaryPath(1.0);
     }
     public Path2D getRegionPath() {
         return getRegionPath(1.0);
+    }
+
+     */
+
+
+    public void setShape(Path2D shape){
+        this.shape = shape;
+    }
+
+    public Path2D getShape(){
+        return shape;
     }
 }

@@ -78,8 +78,8 @@ public class OsmParser extends AbstractParser<OsmData> {
                 relationMap
         );
 
-        double meanLat = (mbr.maxLat() + mbr.minLat()) / 2.0;
-        ShapeBuilder shapeBuilder = new ShapeBuilder(meanLat);
+        double cosMeanLat = Math.cos(Math.toRadians((mbr.maxLat() + mbr.minLat()) / 2.0));
+        ShapeBuilder shapeBuilder = new ShapeBuilder(cosMeanLat);
 
         for (Way way : wayMap.values()){
             way.setShape(shapeBuilder.buildWay(way));

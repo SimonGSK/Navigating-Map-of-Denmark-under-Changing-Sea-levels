@@ -128,7 +128,7 @@ public class AppData {
     }
 
     private HeightCurveData parseHeightCurves(String heightCurveFilePath) throws IOException {
-        HeightCurveParser p = new HeightCurveParser(heightCurveFilePath);
+        HeightCurveParser p = new HeightCurveParser(heightCurveFilePath, meanLat);
         return p.getData();
     }
 
