@@ -97,7 +97,10 @@ public class Pathfinder {
 
     //public List<Node> getShortestPathTo(Node target, Map<Node, Node> previousNodes) {
     public List<Node> getShortestPathTo(Node start, Node target) {
-        Result result = _shortestPath(start, target, true);
+        Result result = _shortestPath(start, target, false);
+        System.out.println("prev map size: " + result.previousNodes().size());
+        System.out.println("target in prev: " + result.previousNodes().containsKey(target));
+
         List<Node> path = new ArrayList<>(result.previousNodes().size());
 
         Node current = target;
@@ -107,6 +110,8 @@ public class Pathfinder {
         }
 
         Collections.reverse(path);
+        System.out.println("path length: " + path.size());
+
         return path;
     }
 }

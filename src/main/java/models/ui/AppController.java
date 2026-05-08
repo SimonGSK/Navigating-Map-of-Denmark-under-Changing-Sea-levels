@@ -175,6 +175,7 @@ public class AppController extends DrawingApp {
         }
 
         if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
+            System.out.println("DRAWING GRAPHICS!");
             graphicsRenderer.draws(gc);
         }
     }

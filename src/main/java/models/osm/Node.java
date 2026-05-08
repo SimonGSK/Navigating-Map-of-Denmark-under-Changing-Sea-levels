@@ -22,8 +22,6 @@ public class Node extends Element implements Comparable<Node>, Serializable {
         this.adjacencyList = new ArrayList<>();
     }
 
-
-
     public void resolveSubmersion(HeightCurveData heightCurveData) {
         this.isSubmerged = heightCurveData.isCoordinateSubmerged(this.coord); // TODO: Map nodes to height curves during parsing
     }
@@ -31,8 +29,6 @@ public class Node extends Element implements Comparable<Node>, Serializable {
     public boolean isSubmerged() {
         return isSubmerged;
     }
-
-
 
     public List<Edge> getAdjacencyList() {
         if (adjacencyList == null) return new ArrayList<>();

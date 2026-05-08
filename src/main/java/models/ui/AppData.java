@@ -70,7 +70,7 @@ public class AppData {
             if (tags == null || !tags.containsKey("highway")) continue;
             List<Node> nodes = way.getNodes();
             if (nodes.size() < 2) continue;
-            boolean isOneWay = (tags.get("oneway").equals("yes"));
+            boolean isOneWay = tags.containsKey("oneway") && tags.get("oneway").equals("yes");
             for (int i = 0; i < nodes.size() - 1; i++) {
                 Node from = nodes.get(i);
                 Node to = nodes.get(i + 1);

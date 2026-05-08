@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import models.osm.Node;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class PathfindingObject {
@@ -66,6 +67,7 @@ public class PathfindingObject {
     }
 
     public void setPath(List<Node> path) {
+        System.out.println(Arrays.toString(path.toArray()));
         this.path.set(path);
     }
 
