@@ -67,6 +67,7 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
                 break;
             }
         }
+
         double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
         double minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
 

@@ -4,7 +4,6 @@ import Interfaces.Drawable;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
 import models.parser.HeightCurveData;
-import models.parser.ShapeBuilder;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
@@ -80,12 +79,10 @@ public class HeightCurveRenderer implements Drawable { // TODO: Should extend Ab
     public void drawSubmergedCurves(Graphics2D gc) {
         if (seaLevel <= 0) return;
 
-        ShapeBuilder shapebuilder = new ShapeBuilder(cosMeanLat);
-
         Composite originalComposite = gc.getComposite(); //Saves the original composite
 
         //Farver området mellem havet og yderste height curve
-        Path2D coastArea = shapebuilder.getRegionPath(data.sea);
+        Path2D coastArea = data.sea.getShape();
         gc.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // 60% uigennemsigtig (værdier mellem 0.0 og 1.0)
         gc.setColor(Color.decode("#a9d3de"));
         gc.fill(coastArea);
@@ -98,7 +95,7 @@ public class HeightCurveRenderer implements Drawable { // TODO: Should extend Ab
         for (HeightCurve curve : sorted) {
             if (!curve.isSubmerged()) continue;
 
-            Path2D path = shapebuilder.getRegionPath(curve);
+            Path2D path = curve.getShape();
             gc.setColor(curve.getFillColor(seaLevel));
             gc.draw(path);
             gc.fill(path);
