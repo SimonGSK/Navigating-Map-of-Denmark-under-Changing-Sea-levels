@@ -26,12 +26,12 @@ public class AppController extends DrawingApp {
     private final EventHandler eventHandler = new EventHandler();
     private final UserInterface userInterface = new UserInterface(this);
     private AppControllerState controllerState = AppControllerState.ready;
-    private Pathfinder pathfinder = new Pathfinder();
+    private final Pathfinder pathfinder = new Pathfinder();
 
     private PathfindingObject pathfindingObject = PathfindingObject.getInstance();
     private final Path2D pathToNearestNode = new Path2D.Double();
 
-    private GraphicsRenderer graphicsRenderer = new GraphicsRenderer(this);
+    private final GraphicsRenderer graphicsRenderer = new GraphicsRenderer(this);
 
     private double prevMouseX = 0;
     private double prevMouseY = 0;
@@ -40,6 +40,10 @@ public class AppController extends DrawingApp {
         ready,
         active,
         error
+    }
+
+    public UserInterface getUserInterface() {
+        return userInterface;
     }
 
     @Override
@@ -107,8 +111,10 @@ public class AppController extends DrawingApp {
         int w = getWIDTH();
         int h = getHEIGHT();
 
-        Point2D topLeft = superAffine.inverseTransform(w * 0.2, h * 0.2);
-        Point2D bottomRight = superAffine.inverseTransform(w * 0.8, h * 0.8);
+        Point2D topLeft = superAffine.inverseTransform(userInterface.isViewportDebug() ? w * 0.2 : 0,
+                                                       userInterface.isViewportDebug() ? h * 0.2 : 0);
+        Point2D bottomRight = superAffine.inverseTransform(userInterface.isViewportDebug() ? w * 0.8 : w,
+                                                           userInterface.isViewportDebug() ? h * 0.8 : h);
         double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
 
         double minLon = topLeft.getX() / cosMeanLat;
@@ -175,6 +181,8 @@ public class AppController extends DrawingApp {
         }
 
         if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
+            graphicsRenderer.draws(gc);
+        } else if (userInterface.isBoundingBoxDebug()){
             graphicsRenderer.draws(gc);
         }
     }
@@ -292,10 +300,18 @@ public class AppController extends DrawingApp {
         System.out.println("Key pressed!");
         System.out.println(event.getCode());
         switch (event.getCode()) {
-            case ESCAPE -> userInterface.setUserMode(UserInterface.UserMode.explore);
+            case ESCAPE -> {
+                userInterface.setUserMode(UserInterface.UserMode.explore);
+            }
             case S -> {
                 pathfindingObject.clear();
                 userInterface.setUserMode(UserInterface.UserMode.select);
+            }
+            case V -> {
+                userInterface.setViewportDebug(!userInterface.isViewportDebug());
+            }
+            case B -> {
+                userInterface.setBoundingBoxDebug(!userInterface.isBoundingBoxDebug());
             }
         }
         handleDraw();

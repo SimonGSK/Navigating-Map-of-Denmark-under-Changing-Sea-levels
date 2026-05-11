@@ -1,5 +1,6 @@
 package models.RTree;
 
+import models.geometry.BoundingBox;
 import models.geometry.SpatialElement;
 
 import java.util.ArrayList;
@@ -22,5 +23,12 @@ public class TreeNode extends SpatialElement {
 
     public boolean isOverflowing(int max) {
         return entries.size() > max;
+    }
+
+    public void _getMBR(List<BoundingBox> mbrList) {
+        mbrList.add(this.getMbr());
+        for (TreeEntry entry : entries) {
+            mbrList.add(entry.getMbr());
+        }
     }
 }

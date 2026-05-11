@@ -61,6 +61,13 @@ public class Tree {
         }
     }
 
+    public List<BoundingBox> getMBR() {
+        List<BoundingBox> mbrList = new ArrayList<>();
+        if (root != null) {
+            root._getMBR(mbrList);
+        }
+        return mbrList;
+    }
 
     public Node getNearestNode(Coordinate cursor) {
         if (root == null) {

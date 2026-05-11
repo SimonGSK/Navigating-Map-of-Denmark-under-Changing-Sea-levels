@@ -1,8 +1,8 @@
 package models.rendering;
 
 import Interfaces.Drawable;
+import models.geometry.BoundingBox;
 import models.osm.Node;
-import models.parser.AbstractRenderer;
 import models.pathfinding.PathfindingObject;
 import models.ui.AppController;
 
@@ -59,5 +59,37 @@ public class GraphicsRenderer implements Drawable {
             gc.setStroke(new BasicStroke(0.005f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
             gc.draw(buildPath(pathfindingObject.getPath()));
         }
+        if(appController.getUserInterface().isBoundingBoxDebug()) {
+            List<BoundingBox> allBoundingBoxes = appController.getAppData().getTree().getMBR();
+            for (BoundingBox bbox : allBoundingBoxes) {
+                drawBoundingBoxDebug(gc, bbox, Color.RED);
+            }
+        }
+    }
+
+    private void drawBoundingBoxDebug(Graphics2D gc, BoundingBox bbox, Color color) {
+        if (bbox == null) {
+            return;
+        }
+
+        gc.setColor(color);
+        gc.setStroke(new BasicStroke(0.0001f));
+
+        Path2D path = new Path2D.Double();
+
+        // Transform coordinates: lon * cosMeanLat, -lat
+        double x1 = bbox.minLon() * cosMeanLat;
+        double y1 = -bbox.maxLat();
+        double x2 = bbox.maxLon() * cosMeanLat;
+        double y2 = -bbox.minLat();
+
+        // Draw rectangle
+        path.moveTo(x1, y1);
+        path.lineTo(x2, y1);
+        path.lineTo(x2, y2);
+        path.lineTo(x1, y2);
+        path.closePath();
+
+        gc.draw(path);
     }
 }
