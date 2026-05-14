@@ -5,6 +5,7 @@ import models.heightcurve.HeightCurve;
 import models.osm.Node;
 import models.ui.AppData;
 
+import java.awt.geom.Path2D;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -94,7 +95,9 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
         ShapeBuilder shapeBuilder = new ShapeBuilder(cosMeanLat);
 
         for(HeightCurve heightCurve : allCurves){
-            heightCurve.setShape(shapeBuilder.buildHeightCurve(heightCurve));
+            Path2D path = shapeBuilder.buildHeightCurve(heightCurve);
+            System.out.println("Curve " + heightCurve.getId() + " shape = " + path);
+            heightCurve.setShape(path);
         }
     }
 }

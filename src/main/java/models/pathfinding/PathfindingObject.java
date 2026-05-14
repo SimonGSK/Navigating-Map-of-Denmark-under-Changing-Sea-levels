@@ -70,6 +70,9 @@ public class PathfindingObject {
     }
 
     public void updatePath() {
+        if(!isReady()){
+            return;
+        }
         Pathfinder.Path result = pathfinder.getShortestPathTo(getStartNode(),getEndNode());
         setPath(result.path());
         setVisited(result.visitedNodes());

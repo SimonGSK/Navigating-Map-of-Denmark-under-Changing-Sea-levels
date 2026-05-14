@@ -15,7 +15,6 @@ import java.util.List;
 public class Node extends OsmElement implements Comparable<Node>, Serializable {
     private final Coordinate coord;
     private transient List<Edge> adjacencyList;
-    private boolean isSubmerged = false;
     private HeightCurve containingHeightCurve;
 
     public Node(long id, double lat, double lon) { // add hc
@@ -24,15 +23,9 @@ public class Node extends OsmElement implements Comparable<Node>, Serializable {
         this.adjacencyList = new ArrayList<>();
     }
 
-    public void resolveSubmersion(HeightCurveData heightCurveData) {
-        this.isSubmerged = heightCurveData.isCoordinateSubmerged(this.coord); // TODO: Map nodes to height curves during parsing
-    }
-
     public boolean isSubmerged() {
-        return isSubmerged;
+        return containingHeightCurve != null && containingHeightCurve.isSubmerged();
     }
-
-
 
     public List<Edge> getAdjacencyList() {
 
@@ -82,9 +75,5 @@ public class Node extends OsmElement implements Comparable<Node>, Serializable {
 
     public HeightCurve getContainingHeightCurve() {
         return containingHeightCurve;
-    }
-
-    public boolean isInSubmergedHeightCurve() {
-        return containingHeightCurve != null && containingHeightCurve.isSubmerged();
     }
 }
