@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import models.geometry.BoundingBox;
+import models.parser.OsmData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -54,11 +55,14 @@ public class OsmParserTests {
     @Order(1)
     void ParserCreatesNodes (ParserResults pr) {
        try {
-           AbstractParser expectedParser = pr.getExpectedParser();
-           AbstractParser actualParser = pr.getActualParser();
+           AbstractParser<OsmData> expectedParser = pr.getExpectedParser();
+           AbstractParser<OsmData> actualParser = pr.getActualParser();
 
-           HashMap<Long, Node> expectedNodes = expectedParser.getOsmNodeMap();
-           HashMap<Long, Node> actualNodes = actualParser.getOsmNodeMap();
+           OsmData expectedData = expectedParser.getData();
+           OsmData actualData = actualParser.getData();
+
+           HashMap<Long, Node> expectedNodes = expectedData.nodeMap();
+           HashMap<Long, Node> actualNodes = actualData.nodeMap();
 
            assertEquals(expectedNodes.size(), actualNodes.size());
        } catch (Exception e) {
@@ -72,11 +76,11 @@ public class OsmParserTests {
     @DependsOn("ParserCreatesNodes")
     void OsmNodeIdsAreCorrect(ParserResults pr) {
         try {
-            AbstractParser expectedParser = pr.getExpectedParser();
-            AbstractParser actualParser = pr.getActualParser();
+            AbstractParser<OsmData> expectedParser = pr.getExpectedParser();
+            AbstractParser<OsmData> actualParser = pr.getActualParser();
 
-            HashMap<Long, Node> expectedNodes = expectedParser.getOsmNodeMap();
-            HashMap<Long, Node> actualNodes = actualParser.getOsmNodeMap();
+            HashMap<Long, Node> expectedNodes = expectedParser.getData().nodeMap();
+            HashMap<Long, Node> actualNodes = actualParser.getData().nodeMap();
 
             for (Long nodeId: expectedNodes.keySet()) {
                 assertTrue(actualNodes.containsKey(nodeId), () -> String.format("Expected node with id %s not found", nodeId));
@@ -95,11 +99,11 @@ public class OsmParserTests {
     @DependsOn("OsmNodeIdsAreCorrect")
     public void OsmNodeCoordinatesAreCorrect(ParserResults pr) {
         try {
-            AbstractParser expectedParser = pr.getExpectedParser();
-            AbstractParser actualParser = pr.getActualParser();
+            AbstractParser<OsmData> expectedParser = pr.getExpectedParser();
+            AbstractParser<OsmData> actualParser = pr.getActualParser();
 
-            HashMap<Long, Node> expectedNodes = expectedParser.getOsmNodeMap();
-            HashMap<Long,  Node> actualNodes = actualParser.getOsmNodeMap();
+            HashMap<Long, Node> expectedNodes = expectedParser.getData().nodeMap();
+            HashMap<Long,  Node> actualNodes = actualParser.getData().nodeMap();
 
             for(Long nodeId: expectedNodes.keySet()) {
                 Node expectedNode = expectedNodes.get(nodeId);
@@ -118,11 +122,11 @@ public class OsmParserTests {
     @Order(4)
     void ParserCreatesWays(ParserResults pr) {
         try {
-            AbstractParser expectedParser = pr.getExpectedParser();
-            AbstractParser actualParser = pr.getActualParser();
+            AbstractParser<OsmData> expectedParser = pr.getExpectedParser();
+            AbstractParser<OsmData> actualParser = pr.getActualParser();
 
-            HashMap<Long, Way> expectedWays = expectedParser.getOsmWayMap();
-            HashMap<Long, Way> actualWays = actualParser.getOsmWayMap();
+            HashMap<Long, Way> expectedWays = expectedParser.getData().wayMap();
+            HashMap<Long, Way> actualWays = actualParser.getData().wayMap();
 
             assertEquals(expectedWays.size(), actualWays.size());
         } catch (Exception e) {
@@ -136,11 +140,11 @@ public class OsmParserTests {
     @DependsOn("ParserCreatesWays")
     public void OsmWayIdsAreCorrect(ParserResults pr) {
         try {
-            AbstractParser expectedParser = pr.getExpectedParser();
-            AbstractParser actualParser = pr.getActualParser();
+            AbstractParser<OsmData> expectedParser = pr.getExpectedParser();
+            AbstractParser<OsmData> actualParser = pr.getActualParser();
 
-            HashMap<Long, Way> expectedWays = expectedParser.getOsmWayMap();
-            HashMap<Long, Way> actualWays = actualParser.getOsmWayMap();
+            HashMap<Long, Way> expectedWays = expectedParser.getData().wayMap();
+            HashMap<Long, Way> actualWays = actualParser.getData().wayMap();
 
             for(Map.Entry<Long, Way> entry: expectedWays.entrySet()) {
                 assertTrue(actualWays.containsKey(entry.getKey()), () -> String.format("Expected way with id %s not found", entry.getKey()));
@@ -159,17 +163,17 @@ public class OsmParserTests {
     @DependsOn("ParserCreatesWays")
     public void OsmWayNodeReferencesAreCorrect(ParserResults pr) {
         try {
-            AbstractParser expectedParser = pr.getExpectedParser();
-            AbstractParser actualParser = pr.getActualParser();
+            AbstractParser<OsmData> expectedParser = pr.getExpectedParser();
+            AbstractParser<OsmData> actualParser = pr.getActualParser();
 
-            HashMap<Long, Way> expectedWays = expectedParser.getOsmWayMap();
-            HashMap<Long, Way> actualWays = actualParser.getOsmWayMap();
+            HashMap<Long, Way> expectedWays = expectedParser.getData().wayMap();
+            HashMap<Long, Way> actualWays = actualParser.getData().wayMap();
 
             for(Map.Entry<Long, Way> entry: expectedWays.entrySet()) {
                 Way actual = actualWays.get(entry.getKey());
-                Set<Long> actualNodeIds = actual.getNodeList().stream().map(Node::getId).collect(Collectors.toSet());
+                Set<Long> actualNodeIds = actual.getNodes().stream().map(Node::getId).collect(Collectors.toSet());
 
-                for(Node node: entry.getValue().getNodeList()) {
+                for(Node node: entry.getValue().getNodes()) {
                     assertTrue(actualNodeIds.contains(node.getId()), () -> String.format("[ERROR - %s] : Node #%d is missing on Way #%d", pr.getName(), node.getId(), entry.getKey()));
                 }
             }
@@ -183,11 +187,11 @@ public class OsmParserTests {
     @DependsOn("ParserCreatesWays")
     public void OsmWayTagsAreCorrect(ParserResults pr) {
          try {
-            AbstractParser expectedParser = pr.getExpectedParser();
-            AbstractParser actualParser = pr.getActualParser();
+            AbstractParser<OsmData> expectedParser = pr.getExpectedParser();
+            AbstractParser<OsmData> actualParser = pr.getActualParser();
 
-            HashMap<Long, Way> expectedWays = expectedParser.getOsmWayMap();
-            HashMap<Long, Way> actualWays = actualParser.getOsmWayMap();
+            HashMap<Long, Way> expectedWays = expectedParser.getData().wayMap();
+            HashMap<Long, Way> actualWays = actualParser.getData().wayMap();
 
             for(Way way:expectedWays.values()) {
                 HashMap<String, String> expectedTags = way.getTags();
@@ -210,11 +214,11 @@ public class OsmParserTests {
     @Order(8)
     public void ParserCreatesRelations(ParserResults pr) {
        try {
-           AbstractParser expectedParser = pr.getExpectedParser();
-           AbstractParser actualParser = pr.getActualParser();
+           AbstractParser<OsmData> expectedParser = pr.getExpectedParser();
+           AbstractParser<OsmData> actualParser = pr.getActualParser();
 
-           HashMap<Long, Relation> expectedRelations = expectedParser.getOsmRelationMap();
-           HashMap<Long, Relation> actualRelations = actualParser.getOsmRelationMap();
+           HashMap<Long, Relation> expectedRelations = expectedParser.getData().relationMap();
+           HashMap<Long, Relation> actualRelations = actualParser.getData().relationMap();
 
            assertEquals(expectedRelations.size(), actualRelations.size());
        } catch (Exception e) {
@@ -227,11 +231,11 @@ public class OsmParserTests {
     @DependsOn("ParserCreatesRelations")
     public void OsmRelationIdsAreCorrect(ParserResults pr) {
         try {
-            AbstractParser expectedParser = pr.getExpectedParser();
-            AbstractParser actualParser = pr.getActualParser();
+            AbstractParser<OsmData> expectedParser = pr.getExpectedParser();
+            AbstractParser<OsmData> actualParser = pr.getActualParser();
 
-            HashMap<Long, Relation> expectedRelations = expectedParser.getOsmRelationMap();
-            HashMap<Long, Relation> actualRelations = actualParser.getOsmRelationMap();
+            HashMap<Long, Relation> expectedRelations = expectedParser.getData().relationMap();
+            HashMap<Long, Relation> actualRelations = actualParser.getData().relationMap();
 
             for(Relation expected: expectedRelations.values()) {
                 assertTrue(actualRelations.containsKey(expected.getId()), () -> String.format("[ERROR - %s] : Relation #%d was missing in OsmRelationMap", pr.getName(), expected.getId()));
@@ -250,11 +254,11 @@ public class OsmParserTests {
     @DependsOn("ParserCreatesRelations")
     public void OsmRelationTagsAreCorrect(ParserResults pr) {
         try {
-            AbstractParser expectedParser = pr.getExpectedParser();
-            AbstractParser actualParser = pr.getActualParser();
+            AbstractParser<OsmData> expectedParser = pr.getExpectedParser();
+            AbstractParser<OsmData> actualParser = pr.getActualParser();
 
-            HashMap<Long, Relation> expectedRelations = expectedParser.getOsmRelationMap();
-            HashMap<Long, Relation> actualRelations = actualParser.getOsmRelationMap();
+            HashMap<Long, Relation> expectedRelations = expectedParser.getData().relationMap();
+            HashMap<Long, Relation> actualRelations = actualParser.getData().relationMap();
 
             for(Relation expectedRelation: expectedRelations.values()) {
                 Relation actualRelation = actualRelations.get(expectedRelation.getId());
@@ -279,11 +283,11 @@ public class OsmParserTests {
     @DependsOn("ParserCreatesRelations")
     public void OsmRelationMembersAreCorrect(ParserResults pr) {
         try {
-            AbstractParser expectedParser = pr.getExpectedParser();
-            AbstractParser actualParser = pr.getActualParser();
+            AbstractParser<OsmData> expectedParser = pr.getExpectedParser();
+            AbstractParser<OsmData> actualParser = pr.getActualParser();
 
-            HashMap<Long, Relation> expectedRelations = expectedParser.getOsmRelationMap();
-            HashMap<Long, Relation> actualRelations = actualParser.getOsmRelationMap();
+            HashMap<Long, Relation> expectedRelations = expectedParser.getData().relationMap();
+            HashMap<Long, Relation> actualRelations = actualParser.getData().relationMap();
 
             for(Relation expectedRelation: expectedRelations.values()) {
                 Relation actualRelation = actualRelations.get(expectedRelation.getId());
@@ -306,11 +310,11 @@ public class OsmParserTests {
     @Order(12)
     void BoundingBoxIsCorrect(ParserResults pr) {
        try {
-           AbstractParser expectedParser = pr.getExpectedParser();
-           AbstractParser actualParser = pr.getActualParser();
+           AbstractParser<OsmData> expectedParser = pr.getExpectedParser();
+           AbstractParser<OsmData> actualParser = pr.getActualParser();
 
-           BoundingBox actualBounds = actualParser.getBoundingBox();
-           BoundingBox expectedBounds = expectedParser.getBoundingBox();
+           BoundingBox actualBounds = actualParser.getData().bounds();
+           BoundingBox expectedBounds = expectedParser.getData().bounds();
 
            double expectedMinLat = expectedBounds.minLat();
            double expectedMinLon = expectedBounds.minLon();

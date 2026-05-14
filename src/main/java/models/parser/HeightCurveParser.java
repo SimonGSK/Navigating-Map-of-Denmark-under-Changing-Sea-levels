@@ -2,8 +2,10 @@ package models.parser;
 
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
+import models.osm.Node;
 import models.ui.AppData;
 
+import java.awt.geom.Path2D;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -11,9 +13,11 @@ import java.util.List;
 
 public class HeightCurveParser extends AbstractParser<HeightCurveData> {
     private final double cosMeanLat;
+    private final OsmData osmData;
 
-    public HeightCurveParser(String absoluteFilePath, double meanLat) throws IOException {
+    public HeightCurveParser(String absoluteFilePath, double meanLat, OsmData osmData) throws IOException {
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
+        this.osmData = osmData;
         parse(absoluteFilePath);
     }
 
@@ -50,7 +54,14 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
                     double lon = getAttributeDouble(line, "lon");
                     currentCurve.getCoords().add(new Coordinate(lat, lon));
 
+                } else if (line.contains("<nd") && currentCurve != null){
+                    long nodeID = getAttributeLong(line, "ref");
+                    if (osmData.nodeMap().containsKey(nodeID)){
+                        osmData.nodeMap().get(nodeID).setContainingHeightCurve(currentCurve);
+                    }
+
                 } else if (line.contains("</hc>") && currentCurve != null){
+                    currentCurve.updateMbr();
                     allCurves.add(currentCurve);
                     currentCurve = null;
                 }
@@ -85,7 +96,9 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
         ShapeBuilder shapeBuilder = new ShapeBuilder(cosMeanLat);
 
         for(HeightCurve heightCurve : allCurves){
-            heightCurve.setShape(shapeBuilder.buildHeightCurve(heightCurve));
+            Path2D path = shapeBuilder.buildHeightCurve(heightCurve);
+            System.out.println("Curve " + heightCurve.getId() + " shape = " + path);
+            heightCurve.setShape(path);
         }
     }
 }
