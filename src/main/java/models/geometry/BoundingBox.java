@@ -1,18 +1,16 @@
 package models.geometry;
 
-import models.osm.Element;
-
 import java.io.Serializable;
 import java.util.List;
 
 public record BoundingBox(double minLat, double minLon, double maxLat, double maxLon) implements Serializable {
-    static public BoundingBox computeMbr(List<? extends Element> elements) {
-        double minLat = Double.MAX_VALUE;
-        double minLon = Double.MAX_VALUE;
-        double maxLat = Double.MIN_VALUE;
-        double maxLon = Double.MIN_VALUE;
+    static public BoundingBox computeMbr(List<? extends SpatialElement> elements) {
+        double minLat = Double.POSITIVE_INFINITY;
+        double minLon = Double.POSITIVE_INFINITY;
+        double maxLat = Double.NEGATIVE_INFINITY;
+        double maxLon = Double.NEGATIVE_INFINITY;
 
-        for (Element e : elements) {
+        for (SpatialElement e : elements) {
             minLat = Math.min(minLat, e.getMbr().minLat());
             minLon = Math.min(minLon, e.getMbr().minLon());
             maxLat = Math.max(maxLat, e.getMbr().maxLat());

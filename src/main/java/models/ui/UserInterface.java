@@ -23,6 +23,24 @@ public class UserInterface {
     private boolean showHeightCurves = false;
     private MapState mapState = MapState.osm;
     private final ObjectProperty<UserMode> userMode = new SimpleObjectProperty<>(UserMode.menu);
+    private final ObjectProperty<Boolean> isViewportDebug = new SimpleObjectProperty<>(false);
+    private final ObjectProperty<Boolean> isBoundingBoxDebug = new SimpleObjectProperty<>(false);
+
+    public boolean isViewportDebug() {
+        return isViewportDebug.get();
+    }
+
+    public void setViewportDebug(boolean isViewportDebug) {
+        this.isViewportDebug.set(isViewportDebug);
+    }
+
+    public boolean isBoundingBoxDebug() {
+        return isBoundingBoxDebug.get();
+    }
+
+    public void setBoundingBoxDebug(boolean isBoundingBoxDebug) {
+        this.isBoundingBoxDebug.set(isBoundingBoxDebug);
+    }
 
     public enum MapState {
         osm,
@@ -90,18 +108,9 @@ public class UserInterface {
         }
         controlPanel.getChildren().addAll(zoomButtonGroup.toNodes());
 
+
         appLayout.setTop(statusPanel);
-
-        StackPane mapPane = new StackPane(
-                appController.imageView,
-                appController.getEventHandler().getMapMouseEventComponent()
-        );
-        mapPane.setMinSize(0, 0);
-
-        appController.imageView.fitWidthProperty().bind(mapPane.widthProperty());
-        appController.imageView.fitHeightProperty().bind(mapPane.heightProperty());
-        appController.imageView.setPreserveRatio(false);
-        appLayout.setCenter(mapPane);
+        appLayout.setCenter(new StackPane(appController.imageView, appController.getEventHandler().getMapMouseEventComponent()));
         appLayout.setBottom(controlPanel);
 
         controlPanel.setStyle("--fx-background-color: white");
@@ -226,10 +235,10 @@ public class UserInterface {
         });
 
         Button buttonZoomOut = new Button("-");
-        buttonZoomOut.setOnAction(e -> appController.handleZoom(1/1.5, appController.getWIDTH() / 2.0, appController.getHEIGHT() / 2.0));
+        buttonZoomOut.setOnAction(e -> appController.handleZoom(1/1.5, DrawingApp.getWIDTH() / 2.0, DrawingApp.getHEIGHT() / 2.0));
 
         Button buttonZoomIn = new Button("+");
-        buttonZoomIn.setOnAction(e -> appController.handleZoom(1.5, appController.getWIDTH() / 2.0, appController.getHEIGHT() / 2.0));
+        buttonZoomIn.setOnAction(e -> appController.handleZoom(1.5, DrawingApp.getWIDTH() / 2.0, DrawingApp.getHEIGHT() / 2.0));
 
         return new LabelledButtonGroup(label,buttonZoomOut,buttonZoomIn);
     }

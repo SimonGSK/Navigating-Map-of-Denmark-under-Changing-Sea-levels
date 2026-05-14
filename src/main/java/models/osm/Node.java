@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class Node extends Element implements Comparable<Node>, Serializable {
+public class Node extends OsmElement implements Comparable<Node>, Serializable {
     private final Coordinate coord;
     private transient List<Edge> adjacencyList;
     private boolean flooded = false;
@@ -23,8 +23,6 @@ public class Node extends Element implements Comparable<Node>, Serializable {
         this.adjacencyList = new ArrayList<>();
     }
 
-
-
     public void resolveFlooding(HeightCurveData heightCurveData) {
         this.flooded = heightCurveData.isCoordinateSubmerged(this.coord);
     }
@@ -32,8 +30,6 @@ public class Node extends Element implements Comparable<Node>, Serializable {
     public boolean isFlooded() {
         return flooded;
     }
-
-
 
     public List<Edge> getAdjacencyList() {
 

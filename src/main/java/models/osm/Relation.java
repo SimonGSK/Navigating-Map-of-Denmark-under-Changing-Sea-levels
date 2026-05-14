@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.List;
 
 
-public class Relation extends Element implements Iterable<Member>, Serializable {
+public class Relation extends OsmElement implements Iterable<Member>, Serializable {
     private List<Member> members;
 
     public Relation(long id, HashMap<String, String> tags, List<Member> members) {
