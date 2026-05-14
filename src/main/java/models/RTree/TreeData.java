@@ -36,7 +36,7 @@ public class TreeData implements Iterable<Element>, Serializable {
         for (Relation r : relations.values()) {
             String relType = r.getTag("type");
 
-            if (relType == null || (!relType.equals("multipolygon") && !relType.equals("boundary"))) {
+            if (!"multipolygon".equals(relType)) {
                 continue;
             }
 
