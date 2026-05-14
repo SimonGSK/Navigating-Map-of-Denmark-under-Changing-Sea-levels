@@ -8,3 +8,41 @@ dijkstra                            183,0 ns       1,21    2097152
 dijkstra                            182,1 ns       0,75    2097152
 dijkstra                            178,7 ns       1,14    2097152
 dijkstra                            185,9 ns       1,16    2097152
+
+
+=== Pathfinding Benchmark ===
+NO WARMUPS
+Start Node: ID=1271128810, Lat=55,2490, Lon=14,7967
+Target Node: ID=1175056665, Lat=55,0232, Lon=15,0423
+
+Dijkstra                       56426326,8 ns 8161286,78         16
+A*                             15357283,7 ns  347385,44         32
+
+Dijkstra                       50946499,2 ns 4587624,18         16
+A*                             15368218,2 ns  437315,07         64
+
+Dijkstra                       57312718,7 ns 11469423,68         8
+A*                             19033456,1 ns 6392098,60         32
+
+Dijkstra                       52311633,6 ns 5527582,28         16
+A*                             15347459,4 ns  267141,22         64
+
+Dijkstra                       53112781,3 ns 6084705,05         16
+A*                             15464106,6 ns  606092,24         32
+
+Dijkstra                       52271722,4 ns 5869867,40         16
+A*                             16135773,1 ns  881663,30         64
+
+=== Pathfinding Benchmark ===
+WITH 5 WARMUPS
+Start Node: ID=1271128810, Lat=55,2490, Lon=14,7967
+Target Node: ID=1175056665, Lat=55,0232, Lon=15,0423
+
+Dijkstra                       52983360,3 ns 2219518,63         64
+A*                             15399414,3 ns  177370,65        128
+
+Dijkstra                       52027963,0 ns 3569388,61         64
+A*                             15600999,9 ns  429682,01        128
+
+Dijkstra                       50094274,5 ns 1531109,32         64
+A*                             16951194,6 ns 2310988,78        256
