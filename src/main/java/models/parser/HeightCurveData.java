@@ -45,14 +45,14 @@ public class HeightCurveData implements Serializable {
 
     //Sorterer alle HeightCurves fra størst til mindst så vi får dem i rækkefølge - parents er større end deres children
     //Derefter kaldes findParent() på alle HeightCurves for at finde deres parents
-    private void buildTree(HeightCurve sea, List<HeightCurve> curves) {
+    private void buildTree(HeightCurve root, List<HeightCurve> curves) {
         List<HeightCurve> sorted = curves.stream()
                 .filter(c -> c.getId() != -1)
                 .sorted((a, b) -> Double.compare(boundingArea(b), boundingArea(a)))
                 .toList();
 
         for (HeightCurve hc : sorted) {
-            HeightCurve parent = findParent(hc, sorted, sea);
+            HeightCurve parent = findParent(hc, sorted, root);
             parent.addChild(hc);
         }
     }

@@ -181,7 +181,7 @@ public class AppData {
         heightCurveRenderer = new HeightCurveRenderer(heightCurveData, meanLat);
     }
     private void addCoastlineAsContour(OsmData osmData, HeightCurveData hcData) {
-        if (hcData == null || hcData.sea == null) return;
+        if (hcData == null || hcData.root == null) return;
 
         Set<Long> existingIds = new HashSet<>();
         for (HeightCurve c : hcData.curves) existingIds.add(c.getId());
@@ -206,7 +206,7 @@ public class AppData {
         merged.addAll(toAdd);
         hcData.curves = merged;
 
-        for (HeightCurve c : toAdd) hcData.sea.addChild(c);
+        for (HeightCurve c : toAdd) hcData.root.addChild(c);
 
     }
 
