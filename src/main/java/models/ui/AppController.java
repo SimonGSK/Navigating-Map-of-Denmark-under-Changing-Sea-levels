@@ -5,8 +5,8 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+
 import models.RTree.SearchResults;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
@@ -17,6 +17,7 @@ import models.pathfinding.PathfindingObject;
 import models.rendering.GraphicsRenderer;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 
@@ -187,6 +188,34 @@ public class AppController extends DrawingApp {
         } else if (userInterface.isBoundingBoxDebug()){
             graphicsRenderer.draws(gc);
         }
+
+        // Draw filled circles at start and end nodes
+        if (pathfindingObject.getStartNode() != null) {
+            Ellipse2D.Double startCircle = getNodeCircle(pathfindingObject.getStartNode());
+            gc.setColor(Color.BLUE);
+            gc.fill(startCircle);
+        }
+
+        if (pathfindingObject.getEndNode() != null) {
+            Ellipse2D.Double endCircle = getNodeCircle(pathfindingObject.getEndNode());
+            gc.setColor(Color.RED);
+            gc.fill(endCircle);
+        }
+    }
+
+    private Ellipse2D.Double getNodeCircle(Node pathfindingObject) {
+        Coordinate node = pathfindingObject.getCoordinate();
+        double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
+        double startWorldX = node.getLon() * cosMeanLat;
+        double startWorldY = -node.getLat();
+
+        float radius = 0.0005f;
+        return new Ellipse2D.Double(
+                startWorldX - radius,
+                startWorldY - radius,
+                radius * 2,
+                radius * 2
+        );
     }
 
     private void handleMousePress(MouseEvent event) {
@@ -374,5 +403,5 @@ public class AppController extends DrawingApp {
 
     public double getZoomLevel() {
         return Math.log(superAffine.getScaleX()) / Math.log(2);
-    };
+    }
 }

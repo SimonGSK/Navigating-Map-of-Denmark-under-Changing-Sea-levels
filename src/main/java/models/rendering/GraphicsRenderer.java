@@ -2,6 +2,7 @@ package models.rendering;
 
 import Interfaces.Drawable;
 import models.geometry.BoundingBox;
+import models.geometry.Coordinate;
 import models.osm.Node;
 import models.pathfinding.PathfindingObject;
 import models.ui.AppController;
