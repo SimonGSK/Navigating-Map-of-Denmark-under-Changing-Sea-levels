@@ -3,6 +3,7 @@ package models.osm;
 import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
+import models.heightcurve.HeightCurve;
 import models.parser.HeightCurveData;
 import models.pathfinding.Edge;
 
@@ -15,6 +16,7 @@ public class Node extends OsmElement implements Comparable<Node>, Serializable {
     private final Coordinate coord;
     private transient List<Edge> adjacencyList;
     private boolean isSubmerged = false;
+    private HeightCurve containingHeightCurve;
 
     public Node(long id, double lat, double lon) { // add hc
         super(id, ElementType.node, null, new BoundingBox(lat, lon, lat, lon));
@@ -72,5 +74,17 @@ public class Node extends OsmElement implements Comparable<Node>, Serializable {
     @Override
     public String toString() {
         return getLat() + " " + getLon();
+    }
+
+    public void setContainingHeightCurve(HeightCurve heightCurve) {
+        this.containingHeightCurve = heightCurve;
+    }
+
+    public HeightCurve getContainingHeightCurve() {
+        return containingHeightCurve;
+    }
+
+    public boolean isInSubmergedHeightCurve() {
+        return containingHeightCurve != null && containingHeightCurve.isSubmerged();
     }
 }
