@@ -1,5 +1,7 @@
 package models.parser;
 
+import models.geometry.Coordinate;
+import models.heightcurve.HeightCurve;
 import models.osm.Member;
 import models.osm.Node;
 import models.osm.Relation;
@@ -13,8 +15,8 @@ public class ShapeBuilder {
     double cosMeanLat;
     private static final double SNAP_THRESHOLD = 0.0001;
 
-    public ShapeBuilder(double meanLat){
-        this.cosMeanLat = Math.cos(Math.toRadians(meanLat));;
+    public ShapeBuilder(double cosMeanLat){
+        this.cosMeanLat = cosMeanLat;;
     }
 
     public Path2D buildWay(Way way){
@@ -180,4 +182,44 @@ public class ShapeBuilder {
     private boolean isConnected(Node a, Node b) {
         return a.getId() == b.getId() || UtilityTools.euclideanDistance(a.getCoordinate(), b.getCoordinate()) < SNAP_THRESHOLD; // TODO: Test with haversineFormula
     }
+
+    public Path2D buildHeightCurve(HeightCurve heightCurve){
+        Path2D path = getRegionPath(heightCurve);
+        return path;
+    }
+
+    //Creates a heightCurve path
+    public Path2D getBoundaryPath(HeightCurve heightCurve) {
+        Path2D.Double p = new Path2D.Double();
+        List<Coordinate> coords = heightCurve.getCoords();
+
+        Coordinate coordinate1 = coords.getFirst();
+        double x1 = coordinate1.getLon() * cosMeanLat;
+        double y1 = -coordinate1.getLat();
+        p.moveTo(x1, y1);
+
+        for (int i = 1; i < coords.size(); i++) {
+            Coordinate coordinate = coords.get(i);
+            double x = coordinate.getLon() * cosMeanLat;
+            double y = -coordinate.getLat();
+            p.lineTo(x, y);
+        }
+
+        p.closePath();
+        return p;
+    }
+
+    //Creates an area consisting of a heightcurve and its children as holes
+    public Path2D getRegionPath(HeightCurve heightCurve) {
+        Path2D.Double p = new Path2D.Double(Path2D.WIND_EVEN_ODD);
+        List<HeightCurve> children = heightCurve.getChildren();
+
+        p.append(getBoundaryPath(heightCurve), false);
+
+        for(HeightCurve child : children){
+            p.append(getBoundaryPath(child), false);
+        }
+        return p;
+    }
+
 }

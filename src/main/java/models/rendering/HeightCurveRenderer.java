@@ -27,7 +27,7 @@ public class HeightCurveRenderer implements Drawable { // TODO: Should extend Ab
        curves.remove(data.sea);
 
        for (HeightCurve curve: curves) {
-           Path2D path = curve.getRegionPath(cosMeanLat);
+           Path2D path = curve.getShape();
            gc.setColor(Color.darkGray);
            gc.draw(path);
        }
@@ -82,7 +82,7 @@ public class HeightCurveRenderer implements Drawable { // TODO: Should extend Ab
         Composite originalComposite = gc.getComposite(); //Saves the original composite
 
         //Farver området mellem havet og yderste height curve
-        Path2D coastArea = data.sea.getRegionPath(cosMeanLat);
+        Path2D coastArea = data.sea.getShape();
         gc.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // 60% uigennemsigtig (værdier mellem 0.0 og 1.0)
         gc.setColor(Color.decode("#a9d3de"));
         gc.fill(coastArea);
@@ -95,7 +95,7 @@ public class HeightCurveRenderer implements Drawable { // TODO: Should extend Ab
         for (HeightCurve curve : sorted) {
             if (!curve.isSubmerged()) continue;
 
-            Path2D path = curve.getRegionPath(cosMeanLat);
+            Path2D path = curve.getShape();
             gc.setColor(curve.getFillColor(seaLevel));
             gc.draw(path);
             gc.fill(path);
