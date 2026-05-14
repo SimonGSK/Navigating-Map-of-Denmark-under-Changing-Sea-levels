@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class TreeData implements Iterable<Element>, Serializable {
+public class TreeData implements Iterable<OsmElement>, Serializable {
     private final Map<Long, Node> nodes;
     private final Map<Long, Way> ways;
     private final Map<Long, Relation> relations;
@@ -55,7 +55,7 @@ public class TreeData implements Iterable<Element>, Serializable {
     }
 
     @Override
-    public Iterator<Element> iterator() {
+    public Iterator<OsmElement> iterator() {
         return Stream.concat(
                 Stream.concat(nodes.values().stream(), ways.values().stream().filter(w -> !waysInRelations.contains(w))),
                 relations.values().stream()

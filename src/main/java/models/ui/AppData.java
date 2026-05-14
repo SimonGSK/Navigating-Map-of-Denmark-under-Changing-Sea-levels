@@ -40,7 +40,6 @@ public class AppData {
         complete
     }
 
-
     public AppDataState getState() {
         return state;
     }
@@ -76,7 +75,7 @@ public class AppData {
             if (tags == null || !tags.containsKey("highway")) continue;
             List<Node> nodes = way.getNodes();
             if (nodes.size() < 2) continue;
-            boolean isOneWay = "yes".equals(tags.get("highway"));
+            boolean isOneWay = tags.containsKey("oneway") && tags.get("oneway").equals("yes");
             for (int i = 0; i < nodes.size() - 1; i++) {
                 Node from = nodes.get(i);
                 Node to = nodes.get(i + 1);
@@ -106,6 +105,8 @@ public class AppData {
     public void parse(String osmFilePath, String heightCurveFilePath) {
         try {
             OsmData osmData = parseOsm(osmFilePath);
+
+            meanLat = (osmData.bounds().maxLat() + osmData.bounds().minLat()) / 2.0;
             HeightCurveData heightCurveData = parseHeightCurves(heightCurveFilePath);
             init(osmData, heightCurveData);
             state = AppDataState.complete;
@@ -134,7 +135,7 @@ public class AppData {
     }
 
     private HeightCurveData parseHeightCurves(String heightCurveFilePath) throws IOException {
-        HeightCurveParser p = new HeightCurveParser(heightCurveFilePath);
+        HeightCurveParser p = new HeightCurveParser(heightCurveFilePath, meanLat);
         return p.getData();
     }
 
@@ -152,7 +153,6 @@ public class AppData {
         this.bounds = osmData.bounds();
         long start = System.currentTimeMillis();
         if (this.tree == null) {
-
             tree = new Tree(
                     osmData.bounds(),
                     osmData.nodeMap(),
