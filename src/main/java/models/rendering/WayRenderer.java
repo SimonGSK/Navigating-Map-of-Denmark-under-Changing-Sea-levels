@@ -22,7 +22,7 @@ public class WayRenderer extends AbstractRenderer<Way> {
 
             boolean isClosed = nodes.getFirst().getId() == nodes.getLast().getId();
 
-            if (!shouldDraw(way, isClosed)) continue; //Funktion til at afgøre om noget skal tegnes
+            if (!shouldDraw(way)) continue; //Funktion til at afgøre om noget skal tegnes
 
             Path2D path = way.getShape();
             if (path instanceof models.geometry.AdaptivePath ap) {
@@ -31,7 +31,8 @@ public class WayRenderer extends AbstractRenderer<Way> {
             gc.setColor(way.getColor());
 
             if (!isClosed) {
-                gc.setStroke(new BasicStroke(0.0001f));
+                float strokeWidth = (float)(1.5/Math.pow(2, currentZoomLevel));
+                gc.setStroke(new BasicStroke(strokeWidth));
                 gc.draw(path);
             } else {
                 gc.setStroke(new BasicStroke(0));

@@ -13,7 +13,6 @@ public abstract class AbstractRenderer<T extends Element> implements Drawable {
     protected final double cosMeanLat;
     protected List<T> elements = new ArrayList<>();
     protected double currentZoomLevel = 0;
-    protected double minGeoArea = 0;
 
     public AbstractRenderer(double meanLat) {
         cosMeanLat = Math.cos(Math.toRadians(meanLat));
@@ -37,11 +36,7 @@ public abstract class AbstractRenderer<T extends Element> implements Drawable {
         this.currentZoomLevel = zoomLevel;
     }
 
-    public void setMinGeoArea(double minGeoArea) {
-        this.minGeoArea = minGeoArea;
-    }
-
-    protected boolean shouldDraw(T element, boolean isClosed) {
-        return element.isVisible(currentZoomLevel, minGeoArea, isClosed);
+    protected boolean shouldDraw(T element) {
+        return element.isVisible(currentZoomLevel);
     }
 }
