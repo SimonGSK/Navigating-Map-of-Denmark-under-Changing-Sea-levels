@@ -5,8 +5,8 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+
 import models.RTree.SearchResults;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
@@ -17,6 +17,7 @@ import models.pathfinding.PathfindingObject;
 import models.rendering.GraphicsRenderer;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 
@@ -26,11 +27,14 @@ public class AppController extends DrawingApp {
     private final EventHandler eventHandler = new EventHandler();
     private final UserInterface userInterface = new UserInterface(this);
     private AppControllerState controllerState = AppControllerState.ready;
+    private final Pathfinder pathfinder = new Pathfinder();
 
     private PathfindingObject pathfindingObject = PathfindingObject.getInstance();
     private final Path2D pathToNearestNode = new Path2D.Double();
 
-    private GraphicsRenderer graphicsRenderer = new GraphicsRenderer(this);
+    private final GraphicsRenderer graphicsRenderer = new GraphicsRenderer(this);
+
+    private double seaLevel = 0;
 
     private double prevMouseX = 0;
     private double prevMouseY = 0;
@@ -39,6 +43,10 @@ public class AppController extends DrawingApp {
         ready,
         active,
         error
+    }
+
+    public UserInterface getUserInterface() {
+        return userInterface;
     }
 
     @Override
@@ -106,8 +114,10 @@ public class AppController extends DrawingApp {
         int w = getWIDTH();
         int h = getHEIGHT();
 
-        Point2D topLeft = superAffine.inverseTransform(w * 0.2, h * 0.2);
-        Point2D bottomRight = superAffine.inverseTransform(w * 0.8, h * 0.8);
+        Point2D topLeft = superAffine.inverseTransform(userInterface.isViewportDebug() ? w * 0.2 : 0,
+                                                       userInterface.isViewportDebug() ? h * 0.2 : 0);
+        Point2D bottomRight = superAffine.inverseTransform(userInterface.isViewportDebug() ? w * 0.8 : w,
+                                                           userInterface.isViewportDebug() ? h * 0.8 : h);
         double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
 
         double minLon = topLeft.getX() / cosMeanLat;
@@ -176,7 +186,37 @@ public class AppController extends DrawingApp {
         if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
             System.out.println("DRAWING GRAPHICS!");
             graphicsRenderer.draws(gc);
+        } else if (userInterface.isBoundingBoxDebug()){
+            graphicsRenderer.draws(gc);
         }
+
+        // Draw filled circles at start and end nodes
+        if (pathfindingObject.getStartNode() != null) {
+            Ellipse2D.Double startCircle = getNodeCircle(pathfindingObject.getStartNode());
+            gc.setColor(Color.BLUE);
+            gc.fill(startCircle);
+        }
+
+        if (pathfindingObject.getEndNode() != null) {
+            Ellipse2D.Double endCircle = getNodeCircle(pathfindingObject.getEndNode());
+            gc.setColor(Color.RED);
+            gc.fill(endCircle);
+        }
+    }
+
+    private Ellipse2D.Double getNodeCircle(Node pathfindingObject) {
+        Coordinate node = pathfindingObject.getCoordinate();
+        double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
+        double startWorldX = node.getLon() * cosMeanLat;
+        double startWorldY = -node.getLat();
+
+        float radius = 0.0005f;
+        return new Ellipse2D.Double(
+                startWorldX - radius,
+                startWorldY - radius,
+                radius * 2,
+                radius * 2
+        );
     }
 
     private void handleMousePress(MouseEvent event) {
@@ -288,10 +328,18 @@ public class AppController extends DrawingApp {
         System.out.println("Key pressed!");
         System.out.println(event.getCode());
         switch (event.getCode()) {
-            case ESCAPE -> userInterface.setUserMode(UserInterface.UserMode.explore);
+            case ESCAPE -> {
+                userInterface.setUserMode(UserInterface.UserMode.explore);
+            }
             case S -> {
                 pathfindingObject.clear();
                 userInterface.setUserMode(UserInterface.UserMode.select);
+            }
+            case V -> {
+                userInterface.setViewportDebug(!userInterface.isViewportDebug());
+            }
+            case B -> {
+                userInterface.setBoundingBoxDebug(!userInterface.isBoundingBoxDebug());
             }
         }
         handleDraw();
@@ -302,13 +350,18 @@ public class AppController extends DrawingApp {
         render();
     }
 
-    public void updateSeaLevel(float level) {
+    public double getSeaLevel() {
+        return seaLevel;
+    }
+
+    public void updateSeaLevel(float seaLevel) {
         if (appData.getHeightCurveData() == null) {
             return;
         }
 
-        appData.getHeightCurveData().updateFlooding(level);
-        appData.getHeightCurveRenderer().setSeaLevel(level);
+        this.seaLevel = seaLevel;
+        appData.getHeightCurveData().updateFlooding(seaLevel);
+        appData.getHeightCurveRenderer().setSeaLevel(seaLevel);
         pathfindingObject.updatePath();
     }
 
@@ -350,5 +403,5 @@ public class AppController extends DrawingApp {
 
     public double getZoomLevel() {
         return Math.log(superAffine.getScaleX()) / Math.log(2);
-    };
+    }
 }

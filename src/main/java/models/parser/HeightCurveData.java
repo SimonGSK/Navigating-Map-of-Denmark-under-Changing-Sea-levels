@@ -57,6 +57,8 @@ public class HeightCurveData implements Serializable {
     //Kalder Contains() for at tjekke om en større HeightCurve indeholder den hc vi ønsker at finde parent på
     //Returnerer havet hvis der ikke er andre HeightCurves som parent
     private HeightCurve findParent(HeightCurve hc, List<HeightCurve> sorted, HeightCurve sea) {
+        // TODO: Requires cleanup. bestArea is unused varibale. bestParent is initialized as sea, but variable is never reassigned. Could just return sea
+
         HeightCurve bestParent = sea;
         double bestArea = Double.MAX_VALUE;
 
@@ -67,6 +69,7 @@ public class HeightCurveData implements Serializable {
                 return potentialParent;
             }
         }
+
         return bestParent;
     }
 

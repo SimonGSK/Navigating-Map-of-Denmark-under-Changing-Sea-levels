@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
+import models.parser.ShapeBuilder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -198,25 +199,27 @@ public class HeightCurveTest {
     @Test
     @Order(1)
     public void boundaryPath_returnsNonNullPath2D() {
+        ShapeBuilder shapeBuilder = new ShapeBuilder(1.0);
         HeightCurve c = curve(1L, 0.0,
                 new Coordinate(1.0, 2.0),
                 new Coordinate(2.0, 3.0),
                 new Coordinate(3.0, 4.0),
                 new Coordinate(1.0, 2.0)
         );
-        assertNotNull(c.getBoundaryPath(1.0), "Task 'Construct the boundary path': getBoundaryPath() must return a Path2D (not null)");
+        assertNotNull(shapeBuilder.getBoundaryPath(c), "Task 'Construct the boundary path': getBoundaryPath() must return a Path2D (not null)");
     }
 
     @Test
     @Order(2)
     public void regionPath_returnsNonNullPath2D() {
+        ShapeBuilder shapeBuilder = new ShapeBuilder(1.0);
         HeightCurve c = curve(1L, 0.0,
                 new Coordinate(1.0, 2.0),
                 new Coordinate(2.0, 3.0),
                 new Coordinate(3.0, 4.0),
                 new Coordinate(1.0, 2.0)
         );
-        assertNotNull(c.getRegionPath(1.0), "Task 'Construct the region path': getRegionPath() must return a Path2D (not null)");
+        assertNotNull(shapeBuilder.getRegionPath(c), "Task 'Construct the region path': getRegionPath() must return a Path2D (not null)");
     }
 
     @Test
@@ -228,7 +231,8 @@ public class HeightCurveTest {
                 new Coordinate(3.0, 4.0),
                 new Coordinate(1.0, 2.0)
         );
-        assertNotNull(c.getFillColor(0.0), "Task 'Colour the region': getFillColor(seaLevel) must return a Color (not null)");
+        c.setSeaLevel(0.0);
+        assertNotNull(c.getColor(), "Task 'Colour the region': getColor(seaLevel) must return a Color (not null)");
     }
 
     @Test
@@ -260,13 +264,15 @@ public class HeightCurveTest {
                 new Coordinate(55.0, 10.0)
         );
 
+        ShapeBuilder shapeBuilder = new ShapeBuilder(1.0);
+
         Path2D expected = new Path2D.Double();
         expected.moveTo(10.0, -55.0);
         expected.lineTo(11.0, -56.0);
         expected.lineTo(12.0, -57.0);
         expected.lineTo(10.0, -55.0);
         assertTrue(
-                pathsEqual(expected, c.getBoundaryPath(1.0)),
+                pathsEqual(expected, shapeBuilder.getBoundaryPath(c)),
                 "Boundary path should match the expected polygon regardless of start point or direction"
         );
     }
@@ -281,6 +287,9 @@ public class HeightCurveTest {
                 new Coordinate(1.0, 0.0),
                 new Coordinate(0.0, 0.0)
         );
+
+        ShapeBuilder shapeBuilder = new ShapeBuilder(1.0);
+
         Path2D expected = new Path2D.Double(Path2D.WIND_EVEN_ODD);
         expected.moveTo(0.0, 0.0);
         expected.lineTo(1.0, 0.0);
@@ -288,11 +297,11 @@ public class HeightCurveTest {
         expected.lineTo(0.0, 0.0);
         assertEquals(
                 Path2D.WIND_EVEN_ODD,
-                c.getRegionPath(1.0).getWindingRule(),
+                shapeBuilder.getRegionPath(c).getWindingRule(),
                 "Task 'Construct the region path': use WIND_EVEN_ODD so child curves become holes"
         );
         assertTrue(
-                pathsEqual(expected, c.getRegionPath(1.0)),
+                pathsEqual(expected, shapeBuilder.getRegionPath(c)),
                 "Region path geometry should match the boundary polygon"
         );
     }
@@ -314,6 +323,8 @@ public class HeightCurveTest {
         );
         parent.getChildren().add(child);
 
+        ShapeBuilder shapeBuilder = new ShapeBuilder(1.0);
+
         Path2D expected = new Path2D.Double(Path2D.WIND_EVEN_ODD);
         expected.moveTo(0.0, 0.0);
         expected.lineTo(4.0, 0.0);
@@ -324,7 +335,7 @@ public class HeightCurveTest {
         expected.lineTo(1.0, -2.0);
         expected.lineTo(1.0, -1.0);
         assertTrue(
-                pathsEqual(expected, parent.getRegionPath(1.0)),
+                pathsEqual(expected, shapeBuilder.getRegionPath(parent)),
                 "Region path should include the parent boundary and immediate child as a hole"
         );
     }
@@ -354,6 +365,8 @@ public class HeightCurveTest {
         parent.getChildren().add(child);
         child.getChildren().add(grandchild);
 
+        ShapeBuilder shapeBuilder = new ShapeBuilder(1.0);
+
         Path2D expected = new Path2D.Double(Path2D.WIND_EVEN_ODD);
         expected.moveTo(0.0, 0.0);
         expected.lineTo(4.0, 0.0);
@@ -364,7 +377,7 @@ public class HeightCurveTest {
         expected.lineTo(1.0, -2.0);
         expected.lineTo(1.0, -1.0);
         assertTrue(
-                pathsEqual(expected, parent.getRegionPath(1.0)),
+                pathsEqual(expected, shapeBuilder.getRegionPath(parent)),
                 "Region path should include only the parent and immediate child boundaries"
         );
     }
@@ -539,8 +552,9 @@ public class HeightCurveTest {
     public void fillColor_elevationBelow0_submergedTrue_isWater() {
         HeightCurve c = curve(1L, 0.0);
         c.submerged = true;
+        c.setSeaLevel(1.0);
         assertEquals(Color.decode("#a9d3de"),
-                c.getFillColor(1.0),
+                c.getColor(),
                 "Task 'Colour the region': if elevation (height - seaLevel) < 0 and submerged=true, use water #2b8cbe"
         );
     }
@@ -551,9 +565,10 @@ public class HeightCurveTest {
         HeightCurve c = curve(1L, 0.0);
         c.submerged = false;
         Color expected = Color.decode("#ffffcc");
+        c.setSeaLevel(1.0);
         assertEquals(
                 expected,
-                c.getFillColor(1.0),
+                c.getColor(),
                 "Task 'Colour the region': if elevation (height - seaLevel) < 0 and submerged=false, use sand #ffffcc"
         );
     }
@@ -564,32 +579,40 @@ public class HeightCurveTest {
         // Elevation is height - seaLevel (see assignment text).
 
         HeightCurve land0 = curve(1L, 5.0);
-        assertEquals(Color.decode("#5E7F5A"), land0.getFillColor(0.0), "0 <= elevation < 10");
+        land0.setSeaLevel(0.0);
+        assertEquals(Color.decode("#5E7F5A"), land0.getColor(), "0 <= elevation < 10");
 
         HeightCurve land1 = curve(2L, 15.0);
-        assertEquals(Color.decode("#7FA878"), land1.getFillColor(0.0), "10 <= elevation < 20");
+        land1.setSeaLevel(0.0);
+        assertEquals(Color.decode("#7FA878"), land1.getColor(), "10 <= elevation < 20");
 
         HeightCurve land2 = curve(3L, 25.0);
-        assertEquals(Color.decode("#A3C18A"), land2.getFillColor(0.0), "20 <= elevation < 35");
+        land2.setSeaLevel(0.0);
+        assertEquals(Color.decode("#A3C18A"), land2.getColor(), "20 <= elevation < 35");
 
         HeightCurve land3 = curve(4L, 45.0);
-        assertEquals(Color.decode("#C9D6A3"), land3.getFillColor(0.0), "35 <= elevation < 55");
+        land3.setSeaLevel(0.0);
+        assertEquals(Color.decode("#C9D6A3"), land3.getColor(), "35 <= elevation < 55");
     }
 
     @Test
     @Order(33)
     public void fillColor_thresholdBoundaries_exactValues() {
         HeightCurve c = curve(1L, 0.0);
-        assertEquals(Color.decode("#5E7F5A"), c.getFillColor(0.0), "elevation == 0 uses land0");
+        c.setSeaLevel(0.0);
+        assertEquals(Color.decode("#5E7F5A"), c.getColor(), "elevation == 0 uses land0");
 
         HeightCurve land1 = curve(2L, 10.0);
-        assertEquals(Color.decode("#7FA878"), land1.getFillColor(0.0), "elevation == 10 uses land1");
+        land1.setSeaLevel(0.0);
+        assertEquals(Color.decode("#7FA878"), land1.getColor(), "elevation == 10 uses land1");
 
         HeightCurve land2 = curve(3L, 20.0);
-        assertEquals(Color.decode("#A3C18A"), land2.getFillColor(0.0), "elevation == 20 uses land2");
+        land2.setSeaLevel(0.0);
+        assertEquals(Color.decode("#A3C18A"), land2.getColor(), "elevation == 20 uses land2");
 
         HeightCurve land3 = curve(4L, 35.0);
-        assertEquals(Color.decode("#C9D6A3"), land3.getFillColor(0.0), "elevation == 35 uses land3");
+        land3.setSeaLevel(0.0);
+        assertEquals(Color.decode("#C9D6A3"), land3.getColor(), "elevation == 35 uses land3");
     }
 
     @Test
@@ -597,9 +620,10 @@ public class HeightCurveTest {
     public void fillColor_submergedIgnoredForNonNegativeElevation() {
         HeightCurve c = curve(1L, 2.5);
         c.submerged = true;
+        c.setSeaLevel(1.0);
         assertEquals(
                 Color.decode("#5E7F5A"),
-                c.getFillColor(1.0),
+                c.getColor(),
                 "Task 'Colour the region': submerged should not affect colors when elevation >= 0"
         );
     }
@@ -610,25 +634,32 @@ public class HeightCurveTest {
         double eps = 1e-9;
 
         HeightCurve near0 = curve(1L, eps);
-        assertEquals(Color.decode("#5E7F5A"), near0.getFillColor(0.0), "just above 0 uses land0");
+        near0.setSeaLevel(0.0);
+        assertEquals(Color.decode("#5E7F5A"), near0.getColor(), "just above 0 uses land0");
 
         HeightCurve below10 = curve(2L, 10.0 - eps);
-        assertEquals(Color.decode("#5E7F5A"), below10.getFillColor(0.0), "just below 10 uses land0");
+        below10.setSeaLevel(0.0);
+        assertEquals(Color.decode("#5E7F5A"), below10.getColor(), "just below 10 uses land0");
 
         HeightCurve above10 = curve(3L, 10.0 + eps);
-        assertEquals(Color.decode("#7FA878"), above10.getFillColor(0.0), "just above 10 uses land1");
+        above10.setSeaLevel(0.0);
+        assertEquals(Color.decode("#7FA878"), above10.getColor(), "just above 10 uses land1");
 
         HeightCurve below20 = curve(4L, 20.0 - eps);
-        assertEquals(Color.decode("#7FA878"), below20.getFillColor(0.0), "just below 20 uses land1");
+        below20.setSeaLevel(0.0);
+        assertEquals(Color.decode("#7FA878"), below20.getColor(), "just below 20 uses land1");
 
         HeightCurve above20 = curve(5L, 20.0 + eps);
-        assertEquals(Color.decode("#A3C18A"), above20.getFillColor(0.0), "just above 20 uses land2");
+        above20.setSeaLevel(0.0);
+        assertEquals(Color.decode("#A3C18A"), above20.getColor(), "just above 20 uses land2");
 
         HeightCurve below35 = curve(6L, 35.0 - eps);
-        assertEquals(Color.decode("#A3C18A"), below35.getFillColor(0.0), "just below 35 uses land2");
+        below35.setSeaLevel(0.0);
+        assertEquals(Color.decode("#A3C18A"), below35.getColor(), "just below 35 uses land2");
 
         HeightCurve above35 = curve(7L, 35.0 + eps);
-        assertEquals(Color.decode("#C9D6A3"), above35.getFillColor(0.0), "just above 35 uses land3");
+        above35.setSeaLevel(0.0);
+        assertEquals(Color.decode("#C9D6A3"), above35.getColor(), "just above 35 uses land3");
     }
 
     // 5) Task 'Resetting the submergence state'

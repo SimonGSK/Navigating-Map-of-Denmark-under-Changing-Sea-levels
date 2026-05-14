@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Node extends Element implements Comparable<Node>, Serializable {
+public class Node extends OsmElement implements Comparable<Node>, Serializable {
     private final Coordinate coord;
     private transient List<Edge> adjacencyList;
     private boolean isSubmerged = false;
@@ -30,7 +30,10 @@ public class Node extends Element implements Comparable<Node>, Serializable {
         return isSubmerged;
     }
 
+
+
     public List<Edge> getAdjacencyList() {
+
         if (adjacencyList == null) return new ArrayList<>();
         return adjacencyList;
     }

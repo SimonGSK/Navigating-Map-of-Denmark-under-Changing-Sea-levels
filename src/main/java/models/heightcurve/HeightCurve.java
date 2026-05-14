@@ -5,48 +5,60 @@ import java.awt.geom.Path2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import enums.ElementType;
+import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
+import models.osm.Element;
 
-public class HeightCurve implements Serializable {
-
-    private long id;
-    private double height;
-    private List<Coordinate> coords;
-    private List<HeightCurve> children;
+public class HeightCurve extends Element implements Serializable {
+    private final double height;
+    private final List<Coordinate> coords;
+    private final List<HeightCurve> children;
     public boolean submerged;
     private transient HeightCurve parent;
+    protected Path2D shape = null;
+    private double seaLevel = 0;
 
-    public Path2D getBoundaryPath(double cosMeanLat) {
-        Path2D.Double p = new Path2D.Double();
-
-        Coordinate coordinate1 = coords.getFirst();
-        double x1 = coordinate1.getLon() * cosMeanLat;
-        double y1 = -coordinate1.getLat();
-        p.moveTo(x1, y1);
-
-        for (int i = 1; i < coords.size(); i++) {
-            Coordinate coordinate = coords.get(i);
-            double x = coordinate.getLon() * cosMeanLat;
-            double y = -coordinate.getLat();
-            p.lineTo(x, y);
-        }
-
-        p.closePath();
-        return p;
+    public HeightCurve(long id, double height, List<Coordinate> coords, List<HeightCurve> children) {
+        super(id, ElementType.heightCurve, computeMbr(coords));
+        this.height = height;
+        this.coords = coords != null ? coords : new ArrayList<>();
+        this.children = children != null ? children : new ArrayList<>();
+        this.submerged = false;
+        this.parent = null;
     }
 
-    public Path2D getRegionPath(double cosMeanLat) {
-        Path2D.Double p = new Path2D.Double(Path2D.WIND_EVEN_ODD);
-
-        p.append(getBoundaryPath(cosMeanLat), false);
-
-        for(HeightCurve child : children){
-            p.append(child.getBoundaryPath(cosMeanLat), false);
-        }
-        return p;
+    public HeightCurve(long id, double height, List<Coordinate> coords) {
+        this(id, height, coords, new ArrayList<>());
     }
 
-    public Color getFillColor(double seaLevel) {
+    static private BoundingBox computeMbr(List<Coordinate> coords) {
+        return BoundingBox.computeMbr(coords);
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public List<Coordinate> getCoords() {
+        return coords;
+    }
+
+    public List<HeightCurve> getChildren() {
+        return children;
+    }
+
+    public void addChild(HeightCurve child) {
+        this.children.add(child);
+        child.setParent(this);
+    }
+
+    public void setSeaLevel(double seaLevel) {
+        this.seaLevel = seaLevel;
+    }
+
+    public Color getColor() {
         double altitude = height - seaLevel;
 
         if (altitude < 0 && submerged) return Color.decode("#a9d3de");   // water
@@ -72,45 +84,11 @@ public class HeightCurve implements Serializable {
     public void updateSubmersion(double seaLevel, boolean parentSubmerged) {
         // This curve is submerged if parent is submerged AND this curve's height is below sea level
         this.submerged = parentSubmerged && this.height < seaLevel;
-        
+
         // Recursively update children
         for (HeightCurve child : this.children) {
             child.updateSubmersion(seaLevel, this.submerged);
         }
-    }
-
-    public HeightCurve(long id, double height, List<Coordinate> coords) {
-        this(id, height, coords, new ArrayList<>());
-    }
-
-    public HeightCurve(long id, double height, List<Coordinate> coords, List<HeightCurve> children) {
-        this.id = id;
-        this.height = height;
-        this.coords = coords != null ? coords : new ArrayList<>();
-        this.children = children != null ? children : new ArrayList<>();
-        this.submerged = false;
-        this.parent = null;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public double getHeight() {
-        return height;
-    }
-
-    public List<Coordinate> getCoords() {
-        return coords;
-    }
-
-    public List<HeightCurve> getChildren() {
-        return children;
-    }
-
-    public void addChild(HeightCurve child) {
-        this.children.add(child);
-        child.setParent(this);
     }
 
     public boolean isSubmerged() {
@@ -127,10 +105,17 @@ public class HeightCurve implements Serializable {
     public void submerge(double seaLevel) {
         updateSubmersion(seaLevel, true);
     }
-    public Path2D getBoundaryPath() {
-        return getBoundaryPath(1.0);
+
+    public void setShape(Path2D shape){
+        this.shape = shape;
     }
-    public Path2D getRegionPath() {
-        return getRegionPath(1.0);
+
+    public Path2D getShape(){
+        return shape;
+    }
+
+    @Override
+    public void draws(Graphics2D gc) {
+
     }
 }
