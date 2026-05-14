@@ -86,6 +86,9 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
             Path2D path = curve.getShape();
             curve.setSeaLevel(seaLevel);
             gc.setColor(curve.getColor());
+            if (path == null){
+                throw new Error("Path is null");
+            }
             gc.draw(path);
             gc.fill(path);
         }
