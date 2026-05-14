@@ -12,7 +12,8 @@ public class PathfindingObject {
     private static PathfindingObject INSTANCE;
     private final ObjectProperty<Node> startNode = new SimpleObjectProperty<>(null);
     private final ObjectProperty<Node> endNode = new SimpleObjectProperty<>(null);
-    private ObjectProperty<List<Node>> path = new SimpleObjectProperty<>(null);
+    private final ObjectProperty<List<Node>> path = new SimpleObjectProperty<>(null);
+    private final Pathfinder pathfinder = new Pathfinder();
 
     private PathfindingObject() {};
 
@@ -64,6 +65,12 @@ public class PathfindingObject {
         startNode.set(null);
         endNode.set(null);
         path.set(null);
+    }
+
+    public void updatePath() {
+        setPath(
+                pathfinder.getShortestPathTo(getStartNode(),getEndNode())
+        );
     }
 
     public void setPath(List<Node> path) {

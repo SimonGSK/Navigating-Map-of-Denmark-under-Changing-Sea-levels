@@ -26,7 +26,6 @@ public class AppController extends DrawingApp {
     private final EventHandler eventHandler = new EventHandler();
     private final UserInterface userInterface = new UserInterface(this);
     private AppControllerState controllerState = AppControllerState.ready;
-    private Pathfinder pathfinder = new Pathfinder();
 
     private PathfindingObject pathfindingObject = PathfindingObject.getInstance();
     private final Path2D pathToNearestNode = new Path2D.Double();
@@ -229,9 +228,7 @@ public class AppController extends DrawingApp {
 
                 if (pathfindingObject.isReady()) {
                     userInterface.setUserMode(UserInterface.UserMode.explore);
-                    pathfindingObject.setPath(
-                            pathfinder.getShortestPathTo(pathfindingObject.getStartNode(),pathfindingObject.getEndNode())
-                    );
+                    pathfindingObject.updatePath();
                     handleDraw();
                 }
                 System.out.println(pathfindingObject.toString());
@@ -262,8 +259,6 @@ public class AppController extends DrawingApp {
 
         double nodeWorldX = nearestNode.getCoordinate().getLon() * cosMeanLat;
         double nodeWorldY = -nearestNode.getCoordinate().getLat();
-
-        System.out.println(nearestNode.getCoordinate().toString());
 
         pathToNearestNode.reset();
         pathToNearestNode.moveTo(cursorWorldX,cursorWorldY);
@@ -308,10 +303,13 @@ public class AppController extends DrawingApp {
     }
 
     public void updateSeaLevel(float level) {
-        if (appData.getHeightCurveData() != null) {
-            appData.getHeightCurveData().updateFlooding(level);
-            appData.getHeightCurveRenderer().setSeaLevel(level);
+        if (appData.getHeightCurveData() == null) {
+            return;
         }
+
+        appData.getHeightCurveData().updateFlooding(level);
+        appData.getHeightCurveRenderer().setSeaLevel(level);
+        pathfindingObject.updatePath();
     }
 
     public void handleRecenter(BoundingBox mbr, double meanLat) {
