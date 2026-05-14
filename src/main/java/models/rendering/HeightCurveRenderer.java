@@ -1,14 +1,14 @@
-package models.rendering;
+    package models.rendering;
 
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
 import models.parser.AbstractRenderer;
 import models.parser.HeightCurveData;
 
-import java.awt.*;
-import java.awt.geom.Path2D;
-import java.util.ArrayList;
-import java.util.List;
+    import java.awt.*;
+    import java.awt.geom.Path2D;
+    import java.util.ArrayList;
+    import java.util.List;
 
 public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO: Should extend AbstractRenderer and have HeightCurveData as the type
     private final HeightCurveData data;
@@ -19,11 +19,11 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
         this.data = data;
     }
 
-    //Bruges til at tegne height curves
-    @Override
-    public void draws(Graphics2D gc) {
-        List<HeightCurve> curves = new ArrayList<>(data.curves);
-       curves.remove(data.sea);
+        //Bruges til at tegne height curves
+        @Override
+        public void draws(Graphics2D gc) {
+            List<HeightCurve> curves = new ArrayList<>(data.curves);
+           curves.remove(data.sea);
 
        for (HeightCurve curve: curves) {
            Path2D path = curve.getShape();
@@ -43,13 +43,13 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
         sorted.remove(data.sea);
         sorted.sort((a, b) -> Double.compare(b.getArea(), a.getArea()));
 
-        for (HeightCurve curve: sorted) {
-            Path2D path = new Path2D.Double();
-            boolean first = true;
+            for (HeightCurve curve: sorted) {
+                Path2D path = new Path2D.Double();
+                boolean first = true;
 
-            for (Coordinate coord : curve.getCoords()) {
-                double x = coord.getLon() * cosMeanLat;
-                double y = -coord.getLat();
+                for (Coordinate coord : curve.getCoords()) {
+                    double x = coord.getLon() * cosMeanLat;
+                    double y = -coord.getLat();
 
                 if (first) {
                     path.moveTo(x, y);
@@ -63,11 +63,11 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
         }
     }
 
-    //Bruges til at farve oversvømmede height curves på OSM-kortet
-    public void drawSubmergedCurves(Graphics2D gc) {
-        if (seaLevel <= 0) return;
+        //Bruges til at farve oversvømmede height curves på OSM-kortet
+        public void drawSubmergedCurves(Graphics2D gc) {
+            if (seaLevel <= 0) return;
 
-        Composite originalComposite = gc.getComposite(); //Saves the original composite
+            Composite originalComposite = gc.getComposite(); //Saves the original composite
 
         //Farver området mellem havet og yderste height curve
         Path2D coastArea = data.sea.getShape();
