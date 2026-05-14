@@ -212,6 +212,21 @@ public class AppController extends DrawingApp {
             gc.setColor(Color.RED);
             gc.fill(endCircle);
         }
+
+        //Viewport debug square to show the boundaries of the viewport
+        if (userInterface.isViewportDebug()) {
+            gc.setTransform(new java.awt.geom.AffineTransform());
+            int w = getWIDTH();
+            int h = getHEIGHT();
+            int rectX      = (int)(w * 0.2);
+            int rectY      = (int)(h * 0.2);
+            int rectWidth  = (int)(w * 0.6);
+            int rectHeight = (int)(h * 0.6);
+
+            gc.setColor(Color.RED);
+            gc.setStroke(new BasicStroke(2f));
+            gc.drawRect(rectX, rectY, rectWidth, rectHeight);
+        }
     }
 
     private Ellipse2D.Double getNodeCircle(Node pathfindingObject) {
