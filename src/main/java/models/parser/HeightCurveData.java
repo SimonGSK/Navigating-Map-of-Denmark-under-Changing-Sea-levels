@@ -100,7 +100,12 @@ public class HeightCurveData implements Serializable {
     }
 
     private boolean contains(HeightCurve outer, HeightCurve inner) {
-        if (inner.getCoords().isEmpty()) return false;
+        if (inner.getCoords().isEmpty() || outer.getCoords().isEmpty()) return false;
+
+        if (!inner.getMbr().isInside(outer.getMbr())) {
+            return false;
+        }
+
         // Tjek om første koordinat i inner ligger inde i outer
         Coordinate testPoint = inner.getCoords().get(0);
         return pointInPolygon(testPoint, outer.getCoords());
