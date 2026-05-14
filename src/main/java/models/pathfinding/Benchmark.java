@@ -50,8 +50,11 @@ public class Benchmark {
             return;
         }
 
-        Node startNode = nodes.get(0);
-        Node targetNode = nodes.get(1);
+        long startId = 1271128810;
+        long endId = 1175056665;
+
+        Node startNode = nodeMap.get(startId);
+        Node targetNode = nodeMap.get(endId);
 
         Pathfinder pathfinder = new Pathfinder();
 
@@ -62,32 +65,29 @@ public class Benchmark {
                 targetNode.getId(), targetNode.getLat(), targetNode.getLon());
         System.out.println();
 
-        // Benchmark Dijkstra
+        // ── Warmup ──────────────────────────────────────────────────────────────
+        int WARMUP_ROUNDS = 5;
+        System.out.println("Warming up...");
+        for (int i = 0; i < WARMUP_ROUNDS; i++) {
+            pathfinder._shortestPath(startNode, targetNode, true);  // Dijkstra
+            pathfinder._shortestPath(startNode, targetNode, false); // A*
+        }
+        System.out.println("Warmup complete.\n");
+
+// ── Benchmarks ───────────────────────────────────────────────────────────
         Mark8("Dijkstra", "",
                 i -> {
                     Pathfinder.Result result = pathfinder._shortestPath(startNode, targetNode, true);
                     return result.distances().getOrDefault(targetNode, Double.POSITIVE_INFINITY);
                 },
-                10, 0.5);  // 10 iterations, minimum 0.5 seconds
+                20, 2.0);  // 20 repetitions, minimum 2 seconds
 
-        // Benchmark A*
         Mark8("A*", "",
                 i -> {
                     Pathfinder.Result result = pathfinder._shortestPath(startNode, targetNode, false);
                     return result.distances().getOrDefault(targetNode, Double.POSITIVE_INFINITY);
                 },
-                10, 0.5);  // 10 iterations, minimum 0.5 seconds
-
-
-
-
-        /*
-        Mark7("dijkstra", i -> {
-            // TODO: Fix this
-            Dijkstra.Result result = dijkstra.shortestPath(a, allNodes);
-            return result.distances().get(e); // dummy value
-        });
-        */
+                20, 2.0);
 }
 
     public static double Mark8(String msg, String info, IntToDoubleFunction f,
