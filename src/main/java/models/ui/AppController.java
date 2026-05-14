@@ -197,8 +197,39 @@ public class AppController extends DrawingApp {
         }
 
         if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
+            System.out.println("DRAWING GRAPHICS!");
+            graphicsRenderer.draws(gc);
+        } else if (userInterface.isBoundingBoxDebug()){
             graphicsRenderer.draws(gc);
         }
+
+        // Draw filled circles at start and end nodes
+        if (pathfindingObject.getStartNode() != null) {
+            Ellipse2D.Double startCircle = getNodeCircle(pathfindingObject.getStartNode());
+            gc.setColor(Color.BLUE);
+            gc.fill(startCircle);
+        }
+
+        if (pathfindingObject.getEndNode() != null) {
+            Ellipse2D.Double endCircle = getNodeCircle(pathfindingObject.getEndNode());
+            gc.setColor(Color.RED);
+            gc.fill(endCircle);
+        }
+    }
+
+    private Ellipse2D.Double getNodeCircle(Node pathfindingObject) {
+        Coordinate node = pathfindingObject.getCoordinate();
+        double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
+        double startWorldX = node.getLon() * cosMeanLat;
+        double startWorldY = -node.getLat();
+
+        float radius = 0.0005f;
+        return new Ellipse2D.Double(
+                startWorldX - radius,
+                startWorldY - radius,
+                radius * 2,
+                radius * 2
+        );
     }
 
     private void handleMousePress(MouseEvent event) {
@@ -250,9 +281,7 @@ public class AppController extends DrawingApp {
 
                 if (pathfindingObject.isReady()) {
                     userInterface.setUserMode(UserInterface.UserMode.explore);
-                    pathfindingObject.setPath(
-                            pathfinder.getShortestPathTo(pathfindingObject.getStartNode(),pathfindingObject.getEndNode())
-                    );
+                    pathfindingObject.updatePath();
                     handleDraw();
                 }
                 System.out.println(pathfindingObject.toString());
@@ -284,8 +313,6 @@ public class AppController extends DrawingApp {
         double nodeWorldX = nearestNode.getCoordinate().getLon() * cosMeanLat;
         double nodeWorldY = -nearestNode.getCoordinate().getLat();
 
-        System.out.println(nearestNode.getCoordinate().toString());
-
         pathToNearestNode.reset();
         pathToNearestNode.moveTo(cursorWorldX,cursorWorldY);
         pathToNearestNode.lineTo(nodeWorldX,nodeWorldY);
@@ -314,10 +341,18 @@ public class AppController extends DrawingApp {
         System.out.println("Key pressed!");
         System.out.println(event.getCode());
         switch (event.getCode()) {
-            case ESCAPE -> userInterface.setUserMode(UserInterface.UserMode.explore);
+            case ESCAPE -> {
+                userInterface.setUserMode(UserInterface.UserMode.explore);
+            }
             case S -> {
                 pathfindingObject.clear();
                 userInterface.setUserMode(UserInterface.UserMode.select);
+            }
+            case V -> {
+                userInterface.setViewportDebug(!userInterface.isViewportDebug());
+            }
+            case B -> {
+                userInterface.setBoundingBoxDebug(!userInterface.isBoundingBoxDebug());
             }
         }
         handleDraw();
@@ -328,11 +363,19 @@ public class AppController extends DrawingApp {
         render();
     }
 
-    public void updateSeaLevel(float level) {
-        if (appData.getHeightCurveData() != null) {
-            appData.getHeightCurveData().updateFlooding(level);
-            appData.getHeightCurveRenderer().setSeaLevel(level);
+    public double getSeaLevel() {
+        return seaLevel;
+    }
+
+    public void updateSeaLevel(float seaLevel) {
+        if (appData.getHeightCurveData() == null) {
+            return;
         }
+
+        this.seaLevel = seaLevel;
+        appData.getHeightCurveData().updateFlooding(seaLevel);
+        appData.getHeightCurveRenderer().setSeaLevel(seaLevel);
+        pathfindingObject.updatePath();
     }
 
     public void handleRecenter(BoundingBox mbr, double meanLat) {

@@ -5,13 +5,15 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import models.osm.Node;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class PathfindingObject {
     private static PathfindingObject INSTANCE;
     private final ObjectProperty<Node> startNode = new SimpleObjectProperty<>(null);
     private final ObjectProperty<Node> endNode = new SimpleObjectProperty<>(null);
-    private ObjectProperty<List<Node>> path = new SimpleObjectProperty<>(null);
+    private final ObjectProperty<List<Node>> path = new SimpleObjectProperty<>(null);
+    private final Pathfinder pathfinder = new Pathfinder();
 
     private PathfindingObject() {};
 
@@ -65,7 +67,14 @@ public class PathfindingObject {
         path.set(null);
     }
 
+    public void updatePath() {
+        setPath(
+                pathfinder.getShortestPathTo(getStartNode(),getEndNode())
+        );
+    }
+
     public void setPath(List<Node> path) {
+        System.out.println(Arrays.toString(path.toArray()));
         this.path.set(path);
     }
 

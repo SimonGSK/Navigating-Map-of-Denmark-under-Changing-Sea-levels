@@ -10,12 +10,11 @@ import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class Node extends OsmElement implements Comparable<Node>, Serializable {
     private final Coordinate coord;
     private transient List<Edge> adjacencyList;
-    private boolean flooded = false;
+    private boolean isSubmerged = false;
 
     public Node(long id, double lat, double lon) { // add hc
         super(id, ElementType.node, null, new BoundingBox(lat, lon, lat, lon));
@@ -23,13 +22,15 @@ public class Node extends OsmElement implements Comparable<Node>, Serializable {
         this.adjacencyList = new ArrayList<>();
     }
 
-    public void resolveFlooding(HeightCurveData heightCurveData) {
-        this.flooded = heightCurveData.isCoordinateSubmerged(this.coord);
+    public void resolveSubmersion(HeightCurveData heightCurveData) {
+        this.isSubmerged = heightCurveData.isCoordinateSubmerged(this.coord); // TODO: Map nodes to height curves during parsing
     }
 
-    public boolean isFlooded() {
-        return flooded;
+    public boolean isSubmerged() {
+        return isSubmerged;
     }
+
+
 
     public List<Edge> getAdjacencyList() {
 
