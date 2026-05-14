@@ -354,6 +354,11 @@ public class AppController extends DrawingApp {
             case B -> {
                 userInterface.setBoundingBoxDebug(!userInterface.isBoundingBoxDebug());
             }
+            case P -> {
+                if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
+                    userInterface.setPathfindingDebug(!userInterface.isPathfindingDebug());
+                }
+            }
         }
         handleDraw();
     }
