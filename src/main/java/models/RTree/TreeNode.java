@@ -41,4 +41,11 @@ public class TreeNode implements SpatialElement, Serializable {
     public double getArea() {
         return area;
     }
+
+    public void _getMBR(List<BoundingBox> mbrList) {
+        mbrList.add(this.getMbr());
+        for (TreeEntry entry : entries) {
+            mbrList.add(entry.getMbr());
+        }
+    }
 }
