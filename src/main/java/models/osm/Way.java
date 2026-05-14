@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
-public class Way extends Element implements Iterable<Node>, Serializable {
+public class Way extends OsmElement implements Iterable<Node>, Serializable {
     private final List<Node> nodes;
 
     public Way(long id, HashMap<String, String> tags, List<Node> nodes) {
@@ -41,8 +41,6 @@ public class Way extends Element implements Iterable<Node>, Serializable {
         }
 
         return Math.abs(area) / 2.0;
-
-        //TODO: Hække bliver i byen tegner oven på veje. Find en løsning på dette
     }
 
     public List<Node> getNodes() {

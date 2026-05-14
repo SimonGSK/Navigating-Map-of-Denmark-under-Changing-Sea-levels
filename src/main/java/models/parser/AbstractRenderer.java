@@ -3,9 +3,11 @@ package models.parser;
 import Interfaces.Drawable;
 import models.osm.Element;
 
-import java.awt.*;
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractRenderer<T extends Element> implements Drawable {
     protected final double cosMeanLat;

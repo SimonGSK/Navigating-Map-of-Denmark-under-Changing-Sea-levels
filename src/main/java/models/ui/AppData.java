@@ -9,10 +9,12 @@ import models.rendering.HeightCurveRenderer;
 import models.rendering.NodeRenderer;
 import models.rendering.RelationRenderer;
 import models.rendering.WayRenderer;
+import models.pathfinding.GraphBuilder;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 public class AppData {
     private Tree tree;
@@ -43,14 +45,38 @@ public class AppData {
 
     public void loadFromBinary(String binPath) {
         try {
+            long start = System.currentTimeMillis();
             MapData mapData = BinaryReader.load(binPath);
             OsmData osmData = new OsmData(mapData.mbr, (HashMap<Long, Node>) mapData.nodeMap, (HashMap<Long, Way>) mapData.wayMap, (HashMap<Long, models.osm.Relation>) mapData.relationMap);
+            this.tree = mapData.tree;
             init(osmData, mapData.hcData);
+            try {
+                buildAdjacencyGraph(osmData);
+            } catch (Exception e) {
+                System.out.println("Graph build failed: " + e.getMessage());
+            }
+            long end = System.currentTimeMillis();
             state = AppDataState.complete;
-            System.out.println("Loaded from binary");
+            System.out.println("Loaded from binary in " + (end - start) + " ms");
         } catch (Exception e) {
             System.out.println("Binary not found, falling back to parsing: " + e.getMessage());
             state = AppDataState.error;
+        }
+    }
+    private void buildAdjacencyGraph(OsmData osmData) {
+        GraphBuilder graphBuilder = new GraphBuilder();
+        for (Way way: osmData.wayMap().values()) {
+            HashMap<String, String> tags = way.getTags();
+            if (tags == null || !tags.containsKey("highway")) continue;
+            List<Node> nodes = way.getNodes();
+            if (nodes.size() < 2) continue;
+            boolean isOneWay = (tags.get("oneway").equals("yes"));
+            for (int i = 0; i < nodes.size() - 1; i++) {
+                Node from = nodes.get(i);
+                Node to = nodes.get(i + 1);
+                if (isOneWay) graphBuilder.connectOneWay(from, to);
+                else graphBuilder.connectTwoWay(from, to);
+            }
         }
     }
 
@@ -74,12 +100,14 @@ public class AppData {
     public void parse(String osmFilePath, String heightCurveFilePath) {
         try {
             OsmData osmData = parseOsm(osmFilePath);
+
+            meanLat = (osmData.bounds().maxLat() + osmData.bounds().minLat()) / 2.0;
             HeightCurveData heightCurveData = parseHeightCurves(heightCurveFilePath);
             init(osmData, heightCurveData);
             state = AppDataState.complete;
             try {
                 String binPath = "src/main/Resources/data/" + osmFilePath.replace(".osm", ".bin");
-                BinaryWriter.write(osmData, heightCurveData, binPath);
+                BinaryWriter.write(osmData, heightCurveData, tree, binPath);
                 System.out.println("Binary written: " + binPath);
             } catch (Exception ex) {
                 System.out.println("Could not write binary: " + ex.getMessage());
@@ -102,7 +130,7 @@ public class AppData {
     }
 
     private HeightCurveData parseHeightCurves(String heightCurveFilePath) throws IOException {
-        HeightCurveParser p = new HeightCurveParser(heightCurveFilePath);
+        HeightCurveParser p = new HeightCurveParser(heightCurveFilePath, meanLat);
         return p.getData();
     }
 
@@ -118,12 +146,18 @@ public class AppData {
 
     public void init(OsmData osmData) {
         this.bounds = osmData.bounds();
-        tree = new Tree(
-                osmData.bounds(),
-                osmData.nodeMap(),
-                osmData.wayMap(),
-                osmData.relationMap()
-        );
+        long start = System.currentTimeMillis();
+        if (this.tree == null) {
+            tree = new Tree(
+                    osmData.bounds(),
+                    osmData.nodeMap(),
+                    osmData.wayMap(),
+                    osmData.relationMap()
+            );
+            long end = System.currentTimeMillis();
+            System.out.println("Loaded from binary in " + (end - start) + " ms");
+
+        }
 
         meanLat = (osmData.bounds().maxLat() + osmData.bounds().minLat()) / 2.0;
         relationRenderer = new RelationRenderer(meanLat);

@@ -2,6 +2,7 @@ package models.parser;
 
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
+import models.ui.AppData;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -9,7 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HeightCurveParser extends AbstractParser<HeightCurveData> {
-    public HeightCurveParser(String absoluteFilePath) throws IOException {
+    private final double cosMeanLat;
+
+    public HeightCurveParser(String absoluteFilePath, double meanLat) throws IOException {
+        this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
         parse(absoluteFilePath);
     }
 
@@ -63,6 +67,7 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
                 break;
             }
         }
+
         double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
         double minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
 
@@ -76,5 +81,11 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
             }
         }
         this.data = new HeightCurveData(minLat, minLon, maxLat, maxLon, sea, allCurves);
+
+        ShapeBuilder shapeBuilder = new ShapeBuilder(cosMeanLat);
+
+        for(HeightCurve heightCurve : allCurves){
+            heightCurve.setShape(shapeBuilder.buildHeightCurve(heightCurve));
+        }
     }
 }

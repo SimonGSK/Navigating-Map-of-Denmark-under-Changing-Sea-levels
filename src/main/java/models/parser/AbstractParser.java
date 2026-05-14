@@ -1,5 +1,7 @@
 package models.parser;
 
+import models.ui.AppData;
+
 import java.io.IOException;
 
 public abstract class AbstractParser<T> {
