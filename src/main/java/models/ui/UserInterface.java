@@ -25,6 +25,15 @@ public class UserInterface {
     private final ObjectProperty<UserMode> userMode = new SimpleObjectProperty<>(UserMode.menu);
     private final ObjectProperty<Boolean> isViewportDebug = new SimpleObjectProperty<>(false);
     private final ObjectProperty<Boolean> isBoundingBoxDebug = new SimpleObjectProperty<>(false);
+    private final ObjectProperty<Boolean> isPathfindingDebug = new SimpleObjectProperty<>(false);
+
+    public boolean isPathfindingDebug() {
+        return isPathfindingDebug.get();
+    }
+
+    public void setPathfindingDebug(boolean isPathfindingDebug) {
+        this.isPathfindingDebug.set(isPathfindingDebug);
+    }
 
     public boolean isViewportDebug() {
         return isViewportDebug.get();
@@ -88,25 +97,42 @@ public class UserInterface {
         HBox selectedLocationsIndicator = new HBox(labelPathfindingStartLocation(), labelPathfindingEndLocation());
         selectedLocationsIndicator.setSpacing(4.0);
 
+        Node viewportIndicator = labelViewportIndicator();
+        Node boundingBoxIndicator = labelBoundingBoxIndicator();
+        Node pathfindingIndicator = labelPathfindingIndicator();
+        HBox commandGroup = new HBox(viewportIndicator, boundingBoxIndicator, pathfindingIndicator);
+
+        commandGroup.setSpacing(12.0);
+
         Node userModeIndicator = labelUserModeIndicator();
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer,Priority.ALWAYS);
+        Region spacer1 = new Region();
+        Region spacer2 = new Region();
 
-        HBox statusPanel = new HBox(userModeIndicator, spacer, selectedLocationsIndicator);
+        HBox.setHgrow(spacer1,Priority.ALWAYS);
+        HBox.setHgrow(spacer2,Priority.ALWAYS);
+
+        HBox statusPanel = new HBox(userModeIndicator, spacer1, commandGroup, spacer2, selectedLocationsIndicator);
         statusPanel.setSpacing(8.0);
         statusPanel.setPadding(new Insets(8));
         statusPanel.setAlignment(Pos.CENTER);
+
+        Region spacer3 = new Region();
+        Region spacer4 = new Region();
+        HBox.setHgrow(spacer3,Priority.ALWAYS);
+        HBox.setHgrow(spacer4,Priority.ALWAYS);
 
         HBox controlPanel = new HBox();
         controlPanel.setSpacing(8.0);
         controlPanel.setPadding(new Insets(8));
         controlPanel.setAlignment(Pos.CENTER_LEFT);
         if (appController.getAppData().getHeightCurveData() != null) {
-            controlPanel.getChildren().addAll(mapStateToggle, heightCurvesToggle);
+            controlPanel.getChildren().addAll(mapStateToggle, heightCurvesToggle, spacer3);
             controlPanel.getChildren().addAll(seaLevelSlider.toNodes());
+            controlPanel.getChildren().add(spacer4);
         }
         controlPanel.getChildren().addAll(zoomButtonGroup.toNodes());
+
 
         appLayout.setTop(statusPanel);
 
@@ -132,7 +158,9 @@ public class UserInterface {
         return appLayout;
     }
 
-    public record UserControlCollection(HashMap<String,Button> buttonList, HashMap<String,LabelledButtonGroup> buttonGroupList, HashMap<String,LabelledSlider> sliderList) { }
+    public record UserControlCollection(HashMap<String,Button> buttonList,
+                                        HashMap<String,LabelledButtonGroup> buttonGroupList,
+                                        HashMap<String,LabelledSlider> sliderList) { }
 
     private Label labelUserModeIndicator() {
         Function<UserMode, String> labelText = (UserMode userMode) -> switch (userMode) {
@@ -145,6 +173,54 @@ public class UserInterface {
 
         userMode.addListener((obs,oldVal,newVal) -> {
             label.setText(labelText.apply(userMode.get()));
+        });
+
+        return label;
+    };
+
+    private Label labelViewportIndicator() {
+
+        Function<Boolean, String> labelText = (Boolean isViewportDebug) -> {
+            if (isViewportDebug) {
+                return "Viewport Debug ON [V]";
+            }
+            return "Viewport Debug OFF [V]";
+        };
+
+        return getLabel(labelText, isViewportDebug);
+    };
+
+    private Label labelBoundingBoxIndicator() {
+
+        Function<Boolean, String> labelText = (Boolean isBoundingBox) -> {
+            if (isBoundingBox) {
+                return "BoundingBox Debug ON [B]";
+            }
+            return "BoundingBox Debug OFF [B]";
+        };
+
+        return getLabel(labelText, isBoundingBoxDebug);
+    };
+
+    private Label labelPathfindingIndicator() {
+
+        Function<Boolean, String> labelText = (Boolean isPathfindingDebug) -> {
+            if (isPathfindingDebug) {
+                return "Pathfinding Debug ON [P]";
+            }
+            return "Pathfinding Debug OFF [P]";
+        };
+
+        return getLabel(labelText, isPathfindingDebug);
+    };
+
+    private Label getLabel(Function<Boolean, String> labelText, ObjectProperty<Boolean> isDebug) {
+        Label label = new Label(labelText.apply(isDebug.get()));
+        label.setStyle(isDebug.get() ? "-fx-font-weight: bold;" : "");
+
+        isDebug.addListener((obs, oldVal, newVal) -> {
+            label.setText(labelText.apply(isDebug.get()));
+            label.setStyle(isDebug.get() ? "-fx-font-weight: bold;" : "");
         });
 
         return label;
