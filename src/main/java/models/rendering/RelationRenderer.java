@@ -35,6 +35,9 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
             if (relation.getShape() == null) continue;
 
             Path2D path = relation.getShape();
+            if (path instanceof models.geometry.AdaptivePath ap) {
+                ap.updateForZoom(currentZoomLevel);
+            }
 
             gc.setColor(relation.getColor());
             gc.fill(path);

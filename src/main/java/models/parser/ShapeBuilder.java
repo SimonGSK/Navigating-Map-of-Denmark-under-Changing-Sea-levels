@@ -20,26 +20,15 @@ public class ShapeBuilder {
     }
 
     public Path2D buildWay(Way way){
-        Path2D path = new Path2D.Double();
         List<Node> nodes = way.getNodes();
-
         boolean isClosed = nodes.getFirst().getId() == nodes.getLast().getId();
 
-        boolean isFirst = true;
-        for (Node node : nodes) {
+        List<double[]> points = new java.util.ArrayList<>(nodes.size());
+        for (Node node: nodes) {
             if (node == null) continue;
-            double x = node.getLon() * cosMeanLat;
-            double y = -node.getCoordinate().getLat();
-            if (isFirst) {
-                path.moveTo(x, y);
-                isFirst = false;
-            } else {
-                path.lineTo(x, y);
-            }
+            points.add(new double[] { node.getLon() * cosMeanLat, -node.getCoordinate().getLat() });
         }
-        if (isClosed) path.closePath();
-
-        return path;
+        return new models.geometry.AdaptivePath(points, isClosed);
     }
 
     public Path2D buildRelation(Relation relation){

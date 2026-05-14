@@ -25,6 +25,9 @@ public class WayRenderer extends AbstractRenderer<Way> {
             if (!shouldDraw(way, isClosed)) continue; //Funktion til at afgøre om noget skal tegnes
 
             Path2D path = way.getShape();
+            if (path instanceof models.geometry.AdaptivePath ap) {
+                ap.updateForZoom(currentZoomLevel);
+            }
             gc.setColor(way.getColor());
 
             if (!isClosed) {
