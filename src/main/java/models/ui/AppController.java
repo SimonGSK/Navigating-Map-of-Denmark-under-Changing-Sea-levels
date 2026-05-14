@@ -184,6 +184,7 @@ public class AppController extends DrawingApp {
         }
 
         if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
+            System.out.println("DRAWING GRAPHICS!");
             graphicsRenderer.draws(gc);
         } else if (userInterface.isBoundingBoxDebug()){
             graphicsRenderer.draws(gc);
@@ -267,9 +268,7 @@ public class AppController extends DrawingApp {
 
                 if (pathfindingObject.isReady()) {
                     userInterface.setUserMode(UserInterface.UserMode.explore);
-                    pathfindingObject.setPath(
-                            pathfinder.getShortestPathTo(pathfindingObject.getStartNode(),pathfindingObject.getEndNode())
-                    );
+                    pathfindingObject.updatePath();
                     handleDraw();
                 }
                 System.out.println(pathfindingObject.toString());
@@ -300,8 +299,6 @@ public class AppController extends DrawingApp {
 
         double nodeWorldX = nearestNode.getCoordinate().getLon() * cosMeanLat;
         double nodeWorldY = -nearestNode.getCoordinate().getLat();
-
-        System.out.println(nearestNode.getCoordinate().toString());
 
         pathToNearestNode.reset();
         pathToNearestNode.moveTo(cursorWorldX,cursorWorldY);
@@ -358,11 +355,14 @@ public class AppController extends DrawingApp {
     }
 
     public void updateSeaLevel(float seaLevel) {
-        this.seaLevel = seaLevel;
-        if (appData.getHeightCurveData() != null) {
-            appData.getHeightCurveData().updateFlooding(seaLevel);
-            appData.getHeightCurveRenderer().setSeaLevel(seaLevel);
+        if (appData.getHeightCurveData() == null) {
+            return;
         }
+
+        this.seaLevel = seaLevel;
+        appData.getHeightCurveData().updateFlooding(seaLevel);
+        appData.getHeightCurveRenderer().setSeaLevel(seaLevel);
+        pathfindingObject.updatePath();
     }
 
     public void handleRecenter(BoundingBox mbr, double meanLat) {

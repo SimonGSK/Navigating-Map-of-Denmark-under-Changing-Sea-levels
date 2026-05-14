@@ -57,7 +57,7 @@ public class GraphicsRenderer implements Drawable {
         // Draw pathfinding route
         if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
             gc.setColor(Color.decode("#FF1DCE"));
-            gc.setStroke(new BasicStroke(0.005f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            gc.setStroke(new BasicStroke(0.0003f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
             gc.draw(buildPath(pathfindingObject.getPath()));
         }
         if(appController.getUserInterface().isBoundingBoxDebug()) {

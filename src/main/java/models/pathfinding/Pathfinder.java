@@ -1,6 +1,5 @@
 package models.pathfinding;
 
-import jdk.jshell.execution.Util;
 import models.osm.Node;
 import models.utils.UtilityTools;
 
@@ -12,84 +11,107 @@ public class Pathfinder {
     public record Result(Map<Node, Double> distances, Map<Node, Node> previousNodes) {
     }
 
-    public Result _shortestPath(Node startNode, boolean isDijkstra) {
+    public Result _shortestPath(Node start, boolean isDijkstra) {
         if (!isDijkstra) {
-            throw new RuntimeException("Must pass startNode and endNode, if you want to use A* for pathfinding");
+            throw new RuntimeException("Must pass start and endNode, if you want to use A* for pathfinding");
         }
-        return _shortestPath(startNode, null, true);
+        return _shortestPath(start, null, true);
     }
 
-    public Result _shortestPath(Node startNode, Node endNode, boolean isDijkstra) {
-        if (startNode == null || endNode == null) {
-            throw new IllegalArgumentException("startNode and endNode can't be null");
+    public Result _shortestPath(Node start, Node target, boolean isDijkstra) {
+        if (start == null || target == null) {
+            throw new IllegalArgumentException("start and target can't be null");
         }
 
-        Map<Node, Double> distances = new HashMap<>();
-        Map<Node, Node> previousNodes = new HashMap<>();
+        record QueueEntry(Node node, double fScore) {};
+
+        Map<Node, Double> gScore = new HashMap<>();
+        Map<Node, Node> prev = new HashMap<>();
         Set<Node> visited = new HashSet<>();
+        PriorityQueue<QueueEntry> queue = new PriorityQueue<>(
+                Comparator.comparingDouble(QueueEntry::fScore)
+        );
 
-        distances.put(startNode, 0.0);
+        gScore.put(start, 0.0);
+        double hScore = isDijkstra ?
+                0.0 :
+                UtilityTools.euclideanDistance(start.getCoordinate(),target.getCoordinate());
+        queue.add(new QueueEntry(start, hScore));
 
-        // Priority queue comparing by known distance
-        PriorityQueue<Node> queue;
+        /*
         if (isDijkstra) {
             // Dijkstra comparator
-            queue = new PriorityQueue<>(Comparator.comparingDouble(distances::get));
+            queue = new PriorityQueue<>(Comparator.comparingDouble(node -> gScore.getOrDefault(node,Double.POSITIVE_INFINITY)));
         } else {
             // A* comparator
-            queue = new PriorityQueue<>(Comparator.comparingDouble(node -> distances.getOrDefault(node,Double.POSITIVE_INFINITY) + UtilityTools.euclideanDistance(node.getCoordinate(), endNode.getCoordinate())));
+            queue = new PriorityQueue<>(Comparator.comparingDouble(node -> gScore.getOrDefault(node,Double.POSITIVE_INFINITY) + UtilityTools.euclideanDistance(node.getCoordinate(), target.getCoordinate())));
         }
-        queue.add(startNode);
+        queue.add(start);*/
 
         while (!queue.isEmpty()) {
-            Node current = queue.poll();
+            QueueEntry entry = queue.poll();
+            Node current = entry.node();
 
             // Lazy deletion: skip if already settled
             if (visited.contains(current)) {
                 continue;
             }
 
-            if(current.equals(endNode)) {
+            // Early exit if target node is reached
+            if (current.equals(target)) {
                 break;
             }
 
+            // Mark this node as visited
             visited.add(current);
 
             for (Edge edge : current.getAdjacencyList()) {
                 Node neighbour = edge.getTargetNode();
 
+                // Skip visited nodes
                 if (visited.contains(neighbour)) {
                     continue;
                 }
 
-                if (neighbour.isFlooded()) {
+                // Skip unavailable nodes
+                if (neighbour.isSubmerged()) {
                     continue;
                 }
 
-                double newDist = distances.get(current) + edge.getWeight();
+                double g = gScore.get(current) + edge.getWeight();
 
-                if (newDist < distances.getOrDefault(neighbour, Double.POSITIVE_INFINITY)) {
-                    distances.put(neighbour, newDist);
-                    previousNodes.put(neighbour, current);
-                    queue.add(neighbour); // lazy: old entry stays will be skipped
+                // Update distance to get to this node if a shorter path is found
+                if (g < gScore.getOrDefault(neighbour, Double.POSITIVE_INFINITY)) {
+                    gScore.put(neighbour, g);
+                    prev.put(neighbour, current);
+
+                    double fScore = isDijkstra ?
+                            g :
+                            g + UtilityTools.euclideanDistance(neighbour.getCoordinate(),target.getCoordinate());
+                    queue.add(new QueueEntry(neighbour, fScore)); // lazy: old entry stays will be skipped
                 }
             }
         }
-        return new Result(distances, previousNodes);
+        return new Result(gScore, prev);
     }
 
     //public List<Node> getShortestPathTo(Node target, Map<Node, Node> previousNodes) {
-    public List<Node> getShortestPathTo(Node from, Node to) {
-        Result result = _shortestPath(from, to, false);
+    public List<Node> getShortestPathTo(Node start, Node target) {
+        Result result = _shortestPath(start, target, false);
+        System.out.println("prev map size: " + result.previousNodes().size());
+        System.out.println("target in prev: " + result.previousNodes().containsKey(target));
+
         List<Node> path = new ArrayList<>(result.previousNodes().size());
 
-        Node current = to;
+        Node current = target;
         while (current != null) {
             path.add(current);
             current = result.previousNodes().get(current);
         }
 
         Collections.reverse(path);
+        System.out.println("path length: " + path.size());
+
         return path;
     }
 }
