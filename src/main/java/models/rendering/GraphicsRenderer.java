@@ -8,8 +8,11 @@ import models.pathfinding.PathfindingObject;
 import models.ui.AppController;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class GraphicsRenderer implements Drawable {
     private final AppController appController;
@@ -66,6 +69,19 @@ public class GraphicsRenderer implements Drawable {
                 drawBoundingBoxDebug(gc, bbox, Color.RED);
             }
         }
+        if(appController.getUserInterface().isPathfindingDebug()) {
+            Set<Node> visited = appController.getPathfindingObject().getVisited();
+            if (visited != null) {
+                gc.setColor(Color.MAGENTA);
+                for (Node node : visited) {
+                    double worldX = node.getLon() * cosMeanLat;
+                    double worldY = -node.getCoordinate().getLat();
+                    Ellipse2D.Double circle = new Ellipse2D.Double(worldX - 0.00015f, worldY - 0.00015f, 0.0003f, 0.0003f);
+                    gc.fill(circle);
+                }
+            }
+        }
+
     }
 
     private void drawBoundingBoxDebug(Graphics2D gc, BoundingBox bbox, Color color) {

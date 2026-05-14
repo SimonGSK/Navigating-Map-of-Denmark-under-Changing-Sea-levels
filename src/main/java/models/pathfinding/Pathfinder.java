@@ -8,7 +8,7 @@ import java.util.*;
 public class Pathfinder {
 
     // Holds results of a single Dijkstra run
-    public record Result(Map<Node, Double> distances, Map<Node, Node> previousNodes) {
+    public record Result(Map<Node, Double> distances, Map<Node, Node> previousNodes, Set<Node> visitedNodes) {
     }
 
     public Result _shortestPath(Node start, boolean isDijkstra) {
@@ -92,11 +92,14 @@ public class Pathfinder {
                 }
             }
         }
-        return new Result(gScore, prev);
+        return new Result(gScore, prev, visited);
+    }
+
+    public record Path(List<Node> path, Set<Node> visitedNodes) {
     }
 
     //public List<Node> getShortestPathTo(Node target, Map<Node, Node> previousNodes) {
-    public List<Node> getShortestPathTo(Node start, Node target) {
+    public Path getShortestPathTo(Node start, Node target) {
         Result result = _shortestPath(start, target, false);
         System.out.println("prev map size: " + result.previousNodes().size());
         System.out.println("target in prev: " + result.previousNodes().containsKey(target));
@@ -112,6 +115,6 @@ public class Pathfinder {
         Collections.reverse(path);
         System.out.println("path length: " + path.size());
 
-        return path;
+        return new Path(path, result.visitedNodes());
     }
 }

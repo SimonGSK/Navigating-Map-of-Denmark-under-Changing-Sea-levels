@@ -25,6 +25,15 @@ public class UserInterface {
     private final ObjectProperty<UserMode> userMode = new SimpleObjectProperty<>(UserMode.menu);
     private final ObjectProperty<Boolean> isViewportDebug = new SimpleObjectProperty<>(false);
     private final ObjectProperty<Boolean> isBoundingBoxDebug = new SimpleObjectProperty<>(false);
+    private final ObjectProperty<Boolean> isPathfindingDebug = new SimpleObjectProperty<>(false);
+
+    public boolean isPathfindingDebug() {
+        return isPathfindingDebug.get();
+    }
+
+    public void setPathfindingDebug(boolean isPathfindingDebug) {
+        this.isPathfindingDebug.set(isPathfindingDebug);
+    }
 
     public boolean isViewportDebug() {
         return isViewportDebug.get();
@@ -90,7 +99,8 @@ public class UserInterface {
 
         Node viewportIndicator = labelViewportIndicator();
         Node boundingBoxIndicator = labelBoundingBoxIndicator();
-        HBox commandGroup = new HBox(viewportIndicator, boundingBoxIndicator);
+        Node pathfindingIndicator = labelPathfindingIndicator();
+        HBox commandGroup = new HBox(viewportIndicator, boundingBoxIndicator, pathfindingIndicator);
 
         commandGroup.setSpacing(12.0);
 
@@ -180,6 +190,18 @@ public class UserInterface {
         };
 
         return getLabel(labelText, isBoundingBoxDebug);
+    };
+
+    private Label labelPathfindingIndicator() {
+
+        Function<Boolean, String> labelText = (Boolean isPathfindingDebug) -> {
+            if (isPathfindingDebug) {
+                return "Pathfinding Debug ON [P]";
+            }
+            return "Pathfinding Debug OFF [P]";
+        };
+
+        return getLabel(labelText, isPathfindingDebug);
     };
 
     private Label getLabel(Function<Boolean, String> labelText, ObjectProperty<Boolean> isDebug) {
