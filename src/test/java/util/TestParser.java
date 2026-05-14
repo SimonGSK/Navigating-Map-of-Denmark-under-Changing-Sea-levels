@@ -18,45 +18,48 @@ import models.osm.Element;
 import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
+import models.parser.OsmData;
 import models.ui.AppData;
 
+import static java.lang.reflect.Array.getDouble;
+import static models.geometry.BoundingBox.computeMbr;
 
-public class TestParser implements AbstractParser {
+
+public class TestParser extends AbstractParser<OsmData> {
     String fileName;
-    private final List<Double> boundingBox = new ArrayList<>();
+    private BoundingBox boundingBox;
     private final HashMap<Long, Node> nodeMap = new HashMap<>();
     private final HashMap<Long, Way> wayMap = new HashMap<>();
     private final HashMap<Long, Relation> relationMap = new HashMap<>();
 
-    ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public TestParser(String filename) {
         this.fileName = filename;
     }
 
     @Override
-    public void parse() {
-        try {
-            InputStream is = loadResource("jsonData/" + fileName);
-            if (is == null) {
-                System.out.println("File " + fileName + " not found using any method");
-                return;
-            }
-            JsonNode root = mapper.readTree(is);
-            is.close();
-
-            parseBoundingBox(root);
-            parseNodes(root);
-
-            if (boundingBox.isEmpty()) {
-                computeBoundingBoxFromNodes();
-            }
-            parseWays(root);
-            parseRelations(root);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
+    public void parse(String filePath) throws IOException {
+        this.fileName = filePath;
+        InputStream is = loadResource("jsonData/" + filePath);
+        if (is == null) {
+            throw new IOException("File " + filePath + " not found");
         }
+        JsonNode root = mapper.readTree(is);
+        is.close();
+
+        parseBoundingBox(root);
+        parseNodes(root);
+
+        if (boundingBox == null) {
+            boundingBox = computeMbr(nodeMap.values().stream().toList());
+        }
+        parseWays(root);
+        parseRelations(root);
+
+        data = new OsmData(boundingBox, nodeMap, wayMap, relationMap);
     }
+
 
     private InputStream loadResource(String resourcePath) throws IOException {
         // Try 1: Thread context classloader
@@ -98,36 +101,24 @@ public class TestParser implements AbstractParser {
             bounds = root.path("bounds");
         }
 
-        if (!bounds.isMissingNode() && !bounds.isNull()) {
-
-            double minLat = bounds.has("minLat") ? bounds.path("minLat").asDouble()
-                                                           : bounds.path("minLat").asDouble();
-            double maxLat = bounds.has("maxLat") ? bounds.path("maxLat").asDouble()
-                                                           :  bounds.path("maxLat").asDouble();
-            double minLon = bounds.has("minLon") ? bounds.path("minLon").asDouble()
-                                                           : bounds.path("minLon").asDouble();
-            double maxLon = bounds.has("maxLon") ? bounds.path("maxLon").asDouble()
-                                                           :  bounds.path("maxLon").asDouble();
-
-            boundingBox.addAll(List.of(minLat, minLon, maxLat, maxLon));
+        if (bounds.isMissingNode() || bounds.isNull()) {
+            return;
         }
-    }
-    private void computeBoundingBoxFromNodes() {
-        if (nodeMap.isEmpty()) return;
 
-        double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
-        double minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
+          double minLat = getDouble(bounds, "minlat", "minLat");
+          double minLon = getDouble(bounds, "minlon", "minLon");
+          double maxLat = getDouble(bounds, "maxlat", "maxLat");
+          double maxLon = getDouble(bounds, "maxlon", "maxLon");
 
-        for (Node node: nodeMap.values()) {
-            double lat = node.getLat();
-            double lon = node.getLon();
-            if (lat < minLat) minLat = lat;
-            if (lat > maxLat) maxLat = lat;
-            if (lon < minLon) minLon = lon;
-            if (lon > maxLon) maxLon = lon;
+            boundingBox = new BoundingBox(minLat, minLon, maxLat, maxLon);
         }
-        boundingBox.addAll(List.of(minLat, minLon, maxLat, maxLon));
-    }
+        private double getDouble(JsonNode node, String primaryKey, String fallbackKey) {
+        if (node.has(primaryKey)) {
+            return node.path(primaryKey).asDouble();
+        }
+        return node.path(fallbackKey).asDouble();
+        }
+
 
     private void parseNodes(JsonNode root) {
         for (JsonNode node : root.path("nodes")) {
@@ -244,20 +235,22 @@ public class TestParser implements AbstractParser {
         }
     }
 
-    @Override
+
     public BoundingBox getBoundingBox() {
-        if (boundingBox.size() < 4) return new BoundingBox(0,0,0,0);
-        return new BoundingBox(boundingBox.get(0), boundingBox.get(1), boundingBox.get(2), boundingBox.get(3));
+        if (boundingBox == null) {
+            return new BoundingBox(0, 0, 0, 0);
+        }
+        return boundingBox;
     }
-    @Override
+
     public HashMap<Long, Node> getOsmNodeMap() {
         return nodeMap;
     }
-    @Override
+
     public HashMap<Long, Way> getOsmWayMap() {
         return wayMap;
     }
-    @Override
+
     public HashMap<Long, Relation> getOsmRelationMap() {
         return relationMap;
     }
