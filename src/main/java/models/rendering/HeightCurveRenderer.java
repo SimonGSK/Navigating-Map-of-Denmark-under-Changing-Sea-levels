@@ -4,6 +4,8 @@ import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
 import models.parser.AbstractRenderer;
 import models.parser.HeightCurveData;
+import models.ui.AppController;
+import models.ui.AppSettings;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
@@ -22,14 +24,25 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
     //Bruges til at tegne height curves
     @Override
     public void draws(Graphics2D gc) {
-        List<HeightCurve> curves = new ArrayList<>(data.curves);
-       curves.remove(data.sea);
+        if (appSettings.getMapState() == AppSettings.MapState.elevation) {
+            drawHeightCurveMap(gc);
+            return;
+        }
+        if (appSettings.getIsHeightCurvesVisible()) {
+            drawHeightCurveLines(gc);
+        }
+        drawSubmergedCurves(gc);
+    }
 
-       for (HeightCurve curve: curves) {
-           Path2D path = curve.getShape();
-           gc.setColor(Color.darkGray);
-           gc.draw(path);
-       }
+    private void drawHeightCurveLines(Graphics2D gc) {
+        List<HeightCurve> curves = new ArrayList<>(data.curves);
+        curves.remove(data.sea);
+
+        for (HeightCurve curve: curves) {
+            Path2D path = curve.getShape();
+            gc.setColor(Color.darkGray);
+            gc.draw(path);
+        }
     }
 
     public void setSeaLevel(double level) {
