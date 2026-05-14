@@ -202,6 +202,11 @@ public class AppData {
         }
         if (toAdd.isEmpty()) return;
 
+        ShapeBuilder shapeBuilder = new ShapeBuilder(Math.cos(Math.toRadians(meanLat)));
+        for (HeightCurve c : toAdd) {
+            c.setShape(shapeBuilder.buildHeightCurve(c));
+        }
+
         List<HeightCurve> merged = new ArrayList<>(hcData.curves);
         merged.addAll(toAdd);
         hcData.curves = merged;

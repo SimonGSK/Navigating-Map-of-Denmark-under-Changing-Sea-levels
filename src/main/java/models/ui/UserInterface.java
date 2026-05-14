@@ -21,6 +21,7 @@ public class UserInterface {
     private final UserControlCollection controlCollection = new UserControlCollection(new HashMap<>(),new HashMap<>(),new HashMap<>());
     private final BorderPane appLayout = new BorderPane();
     private boolean showHeightCurves = false;
+    private final AppSettings appSettings = AppSettings.getInstance();
     private MapState mapState = MapState.osm;
     private final ObjectProperty<UserMode> userMode = new SimpleObjectProperty<>(UserMode.menu);
     private final ObjectProperty<Boolean> isViewportDebug = new SimpleObjectProperty<>(false);
@@ -261,15 +262,18 @@ public class UserInterface {
     }
 
     private Button buttonToggleMapState() {
-        Function<MapState,String> buttonLabel = (MapState mapState) -> switch (mapState) {
+        Function<AppSettings.MapState,String> buttonLabel = (AppSettings.MapState state) -> switch (state) {
             case osm -> "Show elevation map";
             default -> "Show normal map";
         };
 
-        Button button = new Button(buttonLabel.apply(mapState));
+        Button button = new Button(buttonLabel.apply(appSettings.getMapState()));
         button.setOnAction(e -> {
-            mapState = mapState == MapState.osm ? MapState.elevation : MapState.osm;
-            button.setText(buttonLabel.apply(mapState));
+            AppSettings.MapState newState = appSettings.getMapState() == AppSettings.MapState.osm
+                    ? AppSettings.MapState.elevation
+                    : AppSettings.MapState.osm;
+            appSettings.setMapState(newState);
+            button.setText(buttonLabel.apply(newState));
             appController.handleDraw();
         });
 
@@ -284,10 +288,11 @@ public class UserInterface {
             return "Show height curves";
         };
 
-        Button button = new Button(buttonLabel.apply(showHeightCurves));
+        Button button = new Button(buttonLabel.apply(appSettings.getIsHeightCurvesVisible()));
         button.setOnAction(e -> {
-            showHeightCurves = !showHeightCurves;
-            button.setText(buttonLabel.apply(showHeightCurves));
+            boolean nowVisible = !appSettings.getIsHeightCurvesVisible();
+            appSettings.setIsHeightCurvesVisible(nowVisible);
+            button.setText(buttonLabel.apply(nowVisible));
             appController.handleDraw();
         });
 
@@ -327,10 +332,6 @@ public class UserInterface {
         buttonZoomIn.setOnAction(e -> appController.handleZoom(1.5, appController.getWIDTH() / 2.0, appController.getHEIGHT() / 2.0));
 
         return new LabelledButtonGroup(label,buttonZoomOut,buttonZoomIn);
-    }
-
-    public boolean isShowHeightCurves() {
-        return showHeightCurves;
     }
 
     private record LabelledSlider(Label label, Slider slider) {

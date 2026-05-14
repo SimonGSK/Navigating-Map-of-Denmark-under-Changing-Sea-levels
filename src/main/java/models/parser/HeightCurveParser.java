@@ -95,6 +95,7 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
 
         ShapeBuilder shapeBuilder = new ShapeBuilder(cosMeanLat);
 
+        System.out.println("Beginning to build heightCurves");
         for(HeightCurve heightCurve : allCurves){
             Path2D path = shapeBuilder.buildHeightCurve(heightCurve);
             System.out.println("Curve " + heightCurve.getId() + " shape = " + path);
