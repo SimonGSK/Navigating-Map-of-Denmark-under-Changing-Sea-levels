@@ -10,11 +10,16 @@ import models.rendering.NodeRenderer;
 import models.rendering.RelationRenderer;
 import models.rendering.WayRenderer;
 import models.pathfinding.GraphBuilder;
+import models.heightcurve.HeightCurve;
+import models.geometry.Coordinate;
+import java.util.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+
+import static enums.ElementType.way;
 
 public class AppData {
     private Tree tree;
@@ -171,7 +176,37 @@ public class AppData {
     public void init(OsmData osmData, HeightCurveData heightCurveData) {
         init(osmData);
         this.heightCurveData = heightCurveData;
+        addCoastlineAsContour(osmData, heightCurveData);
         heightCurveRenderer = new HeightCurveRenderer(heightCurveData, meanLat);
+    }
+    private void addCoastlineAsContour(OsmData osmData, HeightCurveData hcData) {
+        if (hcData == null || hcData.sea == null) return;
+
+        Set<Long> existingIds = new HashSet<>();
+        for (HeightCurve c : hcData.curves) existingIds.add(c.getId());
+        List<HeightCurve> toAdd = new ArrayList<>();
+        for (Way way : osmData.wayMap().values()) {
+            if (existingIds.contains(way.getId())) continue;
+
+            HashMap<String, String> tags = way.getTags();
+            if (tags == null || !"coastline".equals(tags.get("natural"))) continue;
+
+            List<Node> nodes = way.getNodes();
+            if(nodes.size() < 3) continue;
+            if (nodes.get(0).getId() != nodes.get(nodes.size() - 1).getId()) continue;
+
+            List<Coordinate> coords = new ArrayList<>();
+            for (Node n : nodes) coords.add(n.getCoordinate());
+            toAdd.add(new HeightCurve(way.getId(), 0.0, coords));
+        }
+        if (toAdd.isEmpty()) return;
+
+        List<HeightCurve> merged = new ArrayList<>(hcData.curves);
+        merged.addAll(toAdd);
+        hcData.curves = merged;
+
+        for (HeightCurve c : toAdd) hcData.sea.addChild(c);
+
     }
 
     public Tree getTree() {

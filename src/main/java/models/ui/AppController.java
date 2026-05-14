@@ -1,10 +1,13 @@
 package models.ui;
 
 import javafx.application.Platform;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.shape.Circle;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import models.RTree.SearchResults;
@@ -68,8 +71,13 @@ public class AppController extends DrawingApp {
             }
         }
         stage.setTitle("Drawing App");
-        stage.setResizable(false);
-        stage.setWidth(getWIDTH());
+        stage.setResizable(true);
+
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds(); //Sets the startup window's size to 80% of the screen's dimensions
+        double w = screenBounds.getWidth() * 0.8;
+        double h = screenBounds.getHeight() * 0.8;
+        stage.setWidth(w);
+        stage.setHeight(h);
 
         switch (appData.getState()) {
             case AppData.AppDataState.complete -> {
@@ -85,21 +93,26 @@ public class AppController extends DrawingApp {
             return; // TODO: Implement better error handling so user can try again
         }
 
-        imageView.setFitWidth(getWIDTH());
-        imageView.setFitHeight(getHEIGHT());
-        imageView.setPreserveRatio(false);
-
-        Scene scene = new Scene(userInterface.getLayout());
+        Scene scene = new Scene(userInterface.getLayout(), w, h);
+        userInterface.getLayout().prefWidthProperty().bind(scene.widthProperty());
+        userInterface.getLayout().prefHeightProperty().bind(scene.heightProperty());
 
         eventHandler.initKeyboardEventComponent(scene, this::handleKeyPress);
         eventHandler.initMapMouseEventComponent(this::handleMousePress,this::handleMouseClick,this::handleMouseDrag,this::handleMouseMove,this::handleScroll);
 
         stage.setScene(scene);
-        stage.sizeToScene();
         stage.show();
 
-        handleRecenter(appData.getBounds(), appData.getMeanLat());
+        imageView.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
+            int width = (int) newBounds.getWidth();
+            int height = (int) newBounds.getHeight();
+            if (width > 0 && height > 0) {
+                resize(width, height);
+                handleDraw();
+            }
+        });
 
+        handleRecenter(appData.getBounds(), appData.getMeanLat());
         userInterface.setUserMode(UserInterface.UserMode.explore);
 
         // Initial draw and render
@@ -408,5 +421,5 @@ public class AppController extends DrawingApp {
 
     public double getZoomLevel() {
         return Math.log(superAffine.getScaleX()) / Math.log(2);
-    }
+    };
 }

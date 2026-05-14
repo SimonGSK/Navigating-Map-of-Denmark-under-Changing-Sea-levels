@@ -135,8 +135,18 @@ public class UserInterface {
 
 
         appLayout.setTop(statusPanel);
-        appLayout.setCenter(new StackPane(appController.imageView,
-                                          appController.getEventHandler().getMapMouseEventComponent()));
+
+        StackPane mapPane = new StackPane(
+                appController.imageView,
+                appController.getEventHandler().getMapMouseEventComponent()
+        );
+        mapPane.setMinSize(0, 0);
+
+        appController.imageView.fitWidthProperty().bind(mapPane.widthProperty());
+        appController.imageView.fitHeightProperty().bind(mapPane.heightProperty());
+        appController.imageView.setPreserveRatio(false);
+        appLayout.setCenter(mapPane);
+
         appLayout.setBottom(controlPanel);
 
         controlPanel.setStyle("--fx-background-color: white");
@@ -311,10 +321,10 @@ public class UserInterface {
         });
 
         Button buttonZoomOut = new Button("-");
-        buttonZoomOut.setOnAction(e -> appController.handleZoom(1/1.5, DrawingApp.getWIDTH() / 2.0, DrawingApp.getHEIGHT() / 2.0));
+        buttonZoomOut.setOnAction(e -> appController.handleZoom(1/1.5, appController.getWIDTH() / 2.0, appController.getHEIGHT() / 2.0));
 
         Button buttonZoomIn = new Button("+");
-        buttonZoomIn.setOnAction(e -> appController.handleZoom(1.5, DrawingApp.getWIDTH() / 2.0, DrawingApp.getHEIGHT() / 2.0));
+        buttonZoomIn.setOnAction(e -> appController.handleZoom(1.5, appController.getWIDTH() / 2.0, appController.getHEIGHT() / 2.0));
 
         return new LabelledButtonGroup(label,buttonZoomOut,buttonZoomIn);
     }
