@@ -3,17 +3,27 @@ package models.pathfinding;
 // sestoft@itu.dk * 2013-06-02, 2015-09-15
 // jst@itu.dk * 2021-09-05 Moved code to Benchmark contructor
 
+
+
 import models.osm.Node;
+import models.parser.OsmData;
+import models.parser.OsmParser;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 
-import java.util.Set;
+import java.util.HashMap;
+import java.util.List;
 import java.util.function.IntToDoubleFunction;
-public class Benchmark {
-    public static void main(String[] args) { new Benchmark(); }
 
-    public Benchmark() {
+
+public class Benchmark {
+    public static void main(String[] args) throws IOException {
+        new Benchmark();
+    }
+
+    public Benchmark() throws IOException {
         SystemInfo();
         System.out.println("Starting benchmark...");
 
@@ -23,21 +33,53 @@ public class Benchmark {
             e.printStackTrace();
         }
 
-        Node a = new Node(1, 55.0000, 15.0000);
-        Node b = new Node(2, 55.0001, 15.0000);
-        Node c = new Node(3, 55.0000, 15.0010);
-        Node d = new Node(4, 55.0002, 15.0000);
-        Node e = new Node(5, 55.0003, 15.0000);
+        // Load OSM data
+        OsmParser parser = new OsmParser("Bornholm.osm");
+        OsmData osmData = parser.getData();
+        HashMap<Long, Node> nodeMap = osmData.nodeMap();
 
-        GraphBuilder graphBuilder = new GraphBuilder();
-        graphBuilder.connectTwoWay(a, b);
-        graphBuilder.connectTwoWay(b, d);
-        graphBuilder.connectTwoWay(a, c);
-        graphBuilder.connectTwoWay(c, e);
-        graphBuilder.connectTwoWay(d, e);
+        // Get two nodes from the map (you may need to adjust these node IDs based on your Bornholm.osm data)
+        // For demonstration, using the first two valid nodes found
+        List<Node> nodes = nodeMap.values().stream()
+                .filter(n -> !n.isSubmerged())  // Only use non-submerged nodes
+                .limit(2)
+                .toList();
 
-        Set<Node> allNodes = Set.of(a, b, c, d, e);
-        Pathfinder dijkstra = new Pathfinder();
+        if (nodes.size() < 2) {
+            System.out.println("Not enough valid nodes found for benchmarking");
+            return;
+        }
+
+        Node startNode = nodes.get(0);
+        Node targetNode = nodes.get(1);
+
+        Pathfinder pathfinder = new Pathfinder();
+
+        System.out.println("\n=== Pathfinding Benchmark ===");
+        System.out.printf("Start Node: ID=%d, Lat=%.4f, Lon=%.4f%n",
+                startNode.getId(), startNode.getLat(), startNode.getLon());
+        System.out.printf("Target Node: ID=%d, Lat=%.4f, Lon=%.4f%n",
+                targetNode.getId(), targetNode.getLat(), targetNode.getLon());
+        System.out.println();
+
+        // Benchmark Dijkstra
+        Mark8("Dijkstra", "",
+                i -> {
+                    Pathfinder.Result result = pathfinder._shortestPath(startNode, targetNode, true);
+                    return result.distances().getOrDefault(targetNode, Double.POSITIVE_INFINITY);
+                },
+                10, 0.5);  // 10 iterations, minimum 0.5 seconds
+
+        // Benchmark A*
+        Mark8("A*", "",
+                i -> {
+                    Pathfinder.Result result = pathfinder._shortestPath(startNode, targetNode, false);
+                    return result.distances().getOrDefault(targetNode, Double.POSITIVE_INFINITY);
+                },
+                10, 0.5);  // 10 iterations, minimum 0.5 seconds
+
+
+
 
         /*
         Mark7("dijkstra", i -> {
@@ -46,7 +88,7 @@ public class Benchmark {
             return result.distances().get(e); // dummy value
         });
         */
-    }
+}
 
     public static double Mark8(String msg, String info, IntToDoubleFunction f,
                                int n, double minTime) {

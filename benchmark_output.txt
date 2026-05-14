@@ -8,3 +8,19 @@ dijkstra                            183,0 ns       1,21    2097152
 dijkstra                            182,1 ns       0,75    2097152
 dijkstra                            178,7 ns       1,14    2097152
 dijkstra                            185,9 ns       1,16    2097152
+
+
+=== Pathfinding Benchmark ===
+Start Node: ID=1846570512, Lat=55,0330, Lon=15,0940
+Target Node: ID=8559590973, Lat=55,6668, Lon=12,5708
+
+Dijkstra                            195,9 ns     150,10   16777216
+A*                                  650,7 ns     102,11    1048576
+
+=== Pathfinding Benchmark ===
+Start Node: ID=1846570512, Lat=55,0330, Lon=15,0940
+Target Node: ID=8559590973, Lat=55,6668, Lon=12,5708
+
+Dijkstra                             33,1 ns       0,09   16777216
+A*                                   81,6 ns       0,80    8388608
+
