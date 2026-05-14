@@ -36,6 +36,7 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
     private void drawHeightCurveLines(Graphics2D gc) {
         for (HeightCurve e : elements) {
             Path2D path = e.getShape();
+            if (path == null) continue;
             gc.setColor(Color.darkGray);
             gc.draw(path);
         }

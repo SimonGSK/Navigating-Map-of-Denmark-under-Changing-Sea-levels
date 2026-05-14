@@ -393,6 +393,7 @@ public class AppController extends DrawingApp {
         appData.getHeightCurveData().updateFlooding(seaLevel);
         appData.getHeightCurveRenderer().setSeaLevel(seaLevel);
         pathfindingObject.updatePath();
+        handleDraw();
     }
 
     public void handleRecenter(BoundingBox mbr, double meanLat) {
