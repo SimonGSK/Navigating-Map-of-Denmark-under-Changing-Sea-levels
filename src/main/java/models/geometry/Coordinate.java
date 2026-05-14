@@ -2,7 +2,7 @@ package models.geometry;
 
 import java.io.Serializable;
 
-public class Coordinate implements Serializable {
+public class Coordinate implements SpatialElement, Serializable {
     private final double lat;
     private final double lon;
 
@@ -21,5 +21,15 @@ public class Coordinate implements Serializable {
 
     public Coordinate copy() {
         return new Coordinate(lat, lon);
+    }
+
+    @Override
+    public BoundingBox getMbr() {
+        return new BoundingBox(lat,lon,lat,lon);
+    }
+
+    @Override
+    public double getArea() {
+        return 0;
     }
 }

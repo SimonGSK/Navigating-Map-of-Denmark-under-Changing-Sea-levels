@@ -33,6 +33,8 @@ public class AppController extends DrawingApp {
 
     private GraphicsRenderer graphicsRenderer = new GraphicsRenderer(this);
 
+    private double seaLevel = 0;
+
     private double prevMouseX = 0;
     private double prevMouseY = 0;
 
@@ -306,10 +308,15 @@ public class AppController extends DrawingApp {
         render();
     }
 
-    public void updateSeaLevel(float level) {
+    public double getSeaLevel() {
+        return seaLevel;
+    }
+
+    public void updateSeaLevel(float seaLevel) {
+        this.seaLevel = seaLevel;
         if (appData.getHeightCurveData() != null) {
-            appData.getHeightCurveData().updateFlooding(level);
-            appData.getHeightCurveRenderer().setSeaLevel(level);
+            appData.getHeightCurveData().updateFlooding(seaLevel);
+            appData.getHeightCurveRenderer().setSeaLevel(seaLevel);
         }
     }
 
