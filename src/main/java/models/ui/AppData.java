@@ -107,7 +107,7 @@ public class AppData {
             OsmData osmData = parseOsm(osmFilePath);
 
             meanLat = (osmData.bounds().maxLat() + osmData.bounds().minLat()) / 2.0;
-            HeightCurveData heightCurveData = parseHeightCurves(heightCurveFilePath);
+            HeightCurveData heightCurveData = parseHeightCurves(heightCurveFilePath, osmData);
             init(osmData, heightCurveData);
             state = AppDataState.complete;
             try {
@@ -134,8 +134,8 @@ public class AppData {
         return p.getData();
     }
 
-    private HeightCurveData parseHeightCurves(String heightCurveFilePath) throws IOException {
-        HeightCurveParser p = new HeightCurveParser(heightCurveFilePath, meanLat);
+    private HeightCurveData parseHeightCurves(String heightCurveFilePath, OsmData osmData) throws IOException {
+        HeightCurveParser p = new HeightCurveParser(heightCurveFilePath, meanLat, osmData);
         return p.getData();
     }
 

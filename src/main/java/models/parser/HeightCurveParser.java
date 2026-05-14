@@ -2,6 +2,7 @@ package models.parser;
 
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
+import models.osm.Node;
 import models.ui.AppData;
 
 import java.io.*;
@@ -11,9 +12,11 @@ import java.util.List;
 
 public class HeightCurveParser extends AbstractParser<HeightCurveData> {
     private final double cosMeanLat;
+    private final OsmData osmData;
 
-    public HeightCurveParser(String absoluteFilePath, double meanLat) throws IOException {
+    public HeightCurveParser(String absoluteFilePath, double meanLat, OsmData osmData) throws IOException {
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
+        this.osmData = osmData;
         parse(absoluteFilePath);
     }
 
@@ -49,6 +52,12 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
                     double lat = getAttributeDouble(line, "lat");
                     double lon = getAttributeDouble(line, "lon");
                     currentCurve.getCoords().add(new Coordinate(lat, lon));
+
+                } else if (line.contains("<nd") && currentCurve != null){
+                    long nodeID = getAttributeLong(line, "ref");
+                    if (osmData.nodeMap().containsKey(nodeID)){
+                        osmData.nodeMap().get(nodeID).setContainingHeightCurve(currentCurve);
+                    }
 
                 } else if (line.contains("</hc>") && currentCurve != null){
                     allCurves.add(currentCurve);
