@@ -1,12 +1,15 @@
 package models.ui;
 
 import javafx.application.Platform;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.shape.Circle;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+
 import models.RTree.SearchResults;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
@@ -18,6 +21,7 @@ import models.pathfinding.PathfindingObject;
 import models.rendering.GraphicsRenderer;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.List;
@@ -29,12 +33,12 @@ public class AppController extends DrawingApp {
     private final EventHandler eventHandler = new EventHandler();
     private final UserInterface userInterface = new UserInterface(this);
     private AppControllerState controllerState = AppControllerState.ready;
-    private Pathfinder pathfinder = new Pathfinder();
+    private final Pathfinder pathfinder = new Pathfinder();
 
     private PathfindingObject pathfindingObject = PathfindingObject.getInstance();
     private final Path2D pathToNearestNode = new Path2D.Double();
 
-    private GraphicsRenderer graphicsRenderer = new GraphicsRenderer(this);
+    private final GraphicsRenderer graphicsRenderer = new GraphicsRenderer(this);
 
     private double seaLevel = 0;
 
@@ -45,6 +49,10 @@ public class AppController extends DrawingApp {
         ready,
         active,
         error
+    }
+
+    public UserInterface getUserInterface() {
+        return userInterface;
     }
 
     @Override
@@ -66,8 +74,13 @@ public class AppController extends DrawingApp {
             }
         }
         stage.setTitle("Drawing App");
-        stage.setResizable(false);
-        stage.setWidth(getWIDTH());
+        stage.setResizable(true);
+
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds(); //Sets the startup window's size to 80% of the screen's dimensions
+        double w = screenBounds.getWidth() * 0.8;
+        double h = screenBounds.getHeight() * 0.8;
+        stage.setWidth(w);
+        stage.setHeight(h);
 
         switch (appData.getState()) {
             case AppData.AppDataState.complete -> {
@@ -83,21 +96,26 @@ public class AppController extends DrawingApp {
             return; // TODO: Implement better error handling so user can try again
         }
 
-        imageView.setFitWidth(getWIDTH());
-        imageView.setFitHeight(getHEIGHT());
-        imageView.setPreserveRatio(false);
-
-        Scene scene = new Scene(userInterface.getLayout());
+        Scene scene = new Scene(userInterface.getLayout(), w, h);
+        userInterface.getLayout().prefWidthProperty().bind(scene.widthProperty());
+        userInterface.getLayout().prefHeightProperty().bind(scene.heightProperty());
 
         eventHandler.initKeyboardEventComponent(scene, this::handleKeyPress);
         eventHandler.initMapMouseEventComponent(this::handleMousePress,this::handleMouseClick,this::handleMouseDrag,this::handleMouseMove,this::handleScroll);
 
         stage.setScene(scene);
-        stage.sizeToScene();
         stage.show();
 
-        handleRecenter(appData.getBounds(), appData.getMeanLat());
+        imageView.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
+            int width = (int) newBounds.getWidth();
+            int height = (int) newBounds.getHeight();
+            if (width > 0 && height > 0) {
+                resize(width, height);
+                handleDraw();
+            }
+        });
 
+        handleRecenter(appData.getBounds(), appData.getMeanLat());
         userInterface.setUserMode(UserInterface.UserMode.explore);
 
         // Initial draw and render
@@ -112,8 +130,10 @@ public class AppController extends DrawingApp {
         int w = getWIDTH();
         int h = getHEIGHT();
 
-        Point2D topLeft = superAffine.inverseTransform(w * 0.2, h * 0.2);
-        Point2D bottomRight = superAffine.inverseTransform(w * 0.8, h * 0.8);
+        Point2D topLeft = superAffine.inverseTransform(userInterface.isViewportDebug() ? w * 0.2 : 0,
+                                                       userInterface.isViewportDebug() ? h * 0.2 : 0);
+        Point2D bottomRight = superAffine.inverseTransform(userInterface.isViewportDebug() ? w * 0.8 : w,
+                                                           userInterface.isViewportDebug() ? h * 0.8 : h);
         double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
 
         double minLon = topLeft.getX() / cosMeanLat;
@@ -174,8 +194,39 @@ public class AppController extends DrawingApp {
         }
 
         if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
+            System.out.println("DRAWING GRAPHICS!");
+            graphicsRenderer.draws(gc);
+        } else if (userInterface.isBoundingBoxDebug()){
             graphicsRenderer.draws(gc);
         }
+
+        // Draw filled circles at start and end nodes
+        if (pathfindingObject.getStartNode() != null) {
+            Ellipse2D.Double startCircle = getNodeCircle(pathfindingObject.getStartNode());
+            gc.setColor(Color.BLUE);
+            gc.fill(startCircle);
+        }
+
+        if (pathfindingObject.getEndNode() != null) {
+            Ellipse2D.Double endCircle = getNodeCircle(pathfindingObject.getEndNode());
+            gc.setColor(Color.RED);
+            gc.fill(endCircle);
+        }
+    }
+
+    private Ellipse2D.Double getNodeCircle(Node pathfindingObject) {
+        Coordinate node = pathfindingObject.getCoordinate();
+        double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
+        double startWorldX = node.getLon() * cosMeanLat;
+        double startWorldY = -node.getLat();
+
+        float radius = 0.0005f;
+        return new Ellipse2D.Double(
+                startWorldX - radius,
+                startWorldY - radius,
+                radius * 2,
+                radius * 2
+        );
     }
 
     private void handleMousePress(MouseEvent event) {
@@ -227,9 +278,7 @@ public class AppController extends DrawingApp {
 
                 if (pathfindingObject.isReady()) {
                     userInterface.setUserMode(UserInterface.UserMode.explore);
-                    pathfindingObject.setPath(
-                            pathfinder.getShortestPathTo(pathfindingObject.getStartNode(),pathfindingObject.getEndNode())
-                    );
+                    pathfindingObject.updatePath();
                     handleDraw();
                 }
                 System.out.println(pathfindingObject.toString());
@@ -261,8 +310,6 @@ public class AppController extends DrawingApp {
         double nodeWorldX = nearestNode.getCoordinate().getLon() * cosMeanLat;
         double nodeWorldY = -nearestNode.getCoordinate().getLat();
 
-        System.out.println(nearestNode.getCoordinate().toString());
-
         pathToNearestNode.reset();
         pathToNearestNode.moveTo(cursorWorldX,cursorWorldY);
         pathToNearestNode.lineTo(nodeWorldX,nodeWorldY);
@@ -291,10 +338,23 @@ public class AppController extends DrawingApp {
         System.out.println("Key pressed!");
         System.out.println(event.getCode());
         switch (event.getCode()) {
-            case ESCAPE -> userInterface.setUserMode(UserInterface.UserMode.explore);
+            case ESCAPE -> {
+                userInterface.setUserMode(UserInterface.UserMode.explore);
+            }
             case S -> {
                 pathfindingObject.clear();
                 userInterface.setUserMode(UserInterface.UserMode.select);
+            }
+            case V -> {
+                userInterface.setViewportDebug(!userInterface.isViewportDebug());
+            }
+            case B -> {
+                userInterface.setBoundingBoxDebug(!userInterface.isBoundingBoxDebug());
+            }
+            case P -> {
+                if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
+                    userInterface.setPathfindingDebug(!userInterface.isPathfindingDebug());
+                }
             }
         }
         handleDraw();
@@ -310,11 +370,14 @@ public class AppController extends DrawingApp {
     }
 
     public void updateSeaLevel(float seaLevel) {
-        this.seaLevel = seaLevel;
-        if (appData.getHeightCurveData() != null) {
-            appData.getHeightCurveData().updateFlooding(seaLevel);
-            appData.getHeightCurveRenderer().setSeaLevel(seaLevel);
+        if (appData.getHeightCurveData() == null) {
+            return;
         }
+
+        this.seaLevel = seaLevel;
+        appData.getHeightCurveData().updateFlooding(seaLevel);
+        appData.getHeightCurveRenderer().setSeaLevel(seaLevel);
+        pathfindingObject.updatePath();
     }
 
     public void handleRecenter(BoundingBox mbr, double meanLat) {

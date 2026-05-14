@@ -31,7 +31,7 @@ public class HeightCurveData implements Serializable {
     /**
      * Flat list of all curves (may include {@link #root}).
      */
-    public final List<HeightCurve> curves;
+    public List<HeightCurve> curves;
 
     public HeightCurveData(double minLat, double minLon, double maxLat, double maxLon, HeightCurve root, List<HeightCurve> curves) {
         this.minLat = minLat;

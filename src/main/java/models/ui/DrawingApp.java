@@ -12,18 +12,31 @@ import java.awt.image.DataBufferInt;
 import java.nio.IntBuffer;
 
 public abstract class DrawingApp extends Application {
-    private static final int WIDTH = 1280, HEIGHT = 720;
-    private final PixelBuffer<IntBuffer> pixelBuffer = new PixelBuffer<>(
-            WIDTH, HEIGHT,
-            IntBuffer.allocate(WIDTH * HEIGHT),
-            PixelFormat.getIntArgbPreInstance()
-    );
-    private final BufferedImage bufferedImage = new BufferedImage(
-            WIDTH,
-            HEIGHT,
-            BufferedImage.TYPE_INT_ARGB
-    );
+    private int WIDTH = 1280, HEIGHT = 720;
+
+    private PixelBuffer<IntBuffer> pixelBuffer;
+    private BufferedImage bufferedImage;
     protected final ImageView imageView = new ImageView();
+
+    public DrawingApp() {
+        createBuffers(WIDTH, HEIGHT);
+    }
+
+    private void createBuffers(int w, int h) {
+        this.bufferedImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        this.pixelBuffer = new PixelBuffer<>(
+                w, h,
+                IntBuffer.allocate(w * h),
+                PixelFormat.getIntArgbPreInstance()
+        );
+    }
+
+    public void resize(int newWidth, int newHeight) {
+        if (newWidth <= 0 || newHeight <= 0) return;
+        WIDTH = newWidth;
+        HEIGHT = newHeight;
+        createBuffers(newWidth, newHeight);
+    }
 
     /**
      * Returns a Graphics2D instance used to draw unto the screen.
@@ -37,11 +50,11 @@ public abstract class DrawingApp extends Application {
         return g2d;
     }
 
-    public static int getWIDTH() {
+    public int getWIDTH() {
         return WIDTH;
     }
 
-    public static int getHEIGHT() {
+    public int getHEIGHT() {
         return HEIGHT;
     }
 

@@ -3,6 +3,7 @@ package models.osm;
 import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
+import models.heightcurve.HeightCurve;
 import models.parser.HeightCurveData;
 import models.pathfinding.Edge;
 
@@ -10,12 +11,11 @@ import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class Node extends OsmElement implements Comparable<Node>, Serializable {
     private final Coordinate coord;
     private transient List<Edge> adjacencyList;
-    private boolean flooded = false;
+    private HeightCurve containingHeightCurve;
 
     public Node(long id, double lat, double lon) { // add hc
         super(id, ElementType.node, null, new BoundingBox(lat, lon, lat, lon));
@@ -23,12 +23,8 @@ public class Node extends OsmElement implements Comparable<Node>, Serializable {
         this.adjacencyList = new ArrayList<>();
     }
 
-    public void resolveFlooding(HeightCurveData heightCurveData) {
-        this.flooded = heightCurveData.isCoordinateSubmerged(this.coord);
-    }
-
-    public boolean isFlooded() {
-        return flooded;
+    public boolean isSubmerged() {
+        return containingHeightCurve != null && containingHeightCurve.isSubmerged();
     }
 
     public List<Edge> getAdjacencyList() {
@@ -71,5 +67,13 @@ public class Node extends OsmElement implements Comparable<Node>, Serializable {
     @Override
     public String toString() {
         return getLat() + " " + getLon();
+    }
+
+    public void setContainingHeightCurve(HeightCurve heightCurve) {
+        this.containingHeightCurve = heightCurve;
+    }
+
+    public HeightCurve getContainingHeightCurve() {
+        return containingHeightCurve;
     }
 }

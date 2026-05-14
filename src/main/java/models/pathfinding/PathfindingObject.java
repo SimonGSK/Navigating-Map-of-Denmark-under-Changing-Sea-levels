@@ -5,13 +5,17 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import models.osm.Node;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class PathfindingObject {
     private static PathfindingObject INSTANCE;
     private final ObjectProperty<Node> startNode = new SimpleObjectProperty<>(null);
     private final ObjectProperty<Node> endNode = new SimpleObjectProperty<>(null);
-    private ObjectProperty<List<Node>> path = new SimpleObjectProperty<>(null);
+    private final ObjectProperty<List<Node>> path = new SimpleObjectProperty<>(null);
+    private final ObjectProperty<Set<Node>> visited = new SimpleObjectProperty<>(null);
+    private final Pathfinder pathfinder = new Pathfinder();
 
     private PathfindingObject() {};
 
@@ -65,7 +69,17 @@ public class PathfindingObject {
         path.set(null);
     }
 
+    public void updatePath() {
+        if(!isReady()){
+            return;
+        }
+        Pathfinder.Path result = pathfinder.getShortestPathTo(getStartNode(),getEndNode());
+        setPath(result.path());
+        setVisited(result.visitedNodes());
+    }
+
     public void setPath(List<Node> path) {
+        System.out.println(Arrays.toString(path.toArray()));
         this.path.set(path);
     }
 
@@ -75,6 +89,18 @@ public class PathfindingObject {
 
     public ObjectProperty<List<Node>> getPathProperty() {
         return path;
+    }
+
+    public Set<Node> getVisited() {
+        return visited.get();
+    }
+
+    public void setVisited(Set<Node> visited) {
+        this.visited.set(visited);
+    }
+
+    public ObjectProperty<Set<Node>> getVisitedProperty() {
+        return visited;
     }
 
     @Override
