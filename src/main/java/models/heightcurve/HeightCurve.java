@@ -21,7 +21,7 @@ public class HeightCurve extends Element implements Serializable {
     private double seaLevel = 0;
 
     public HeightCurve(long id, double height, List<Coordinate> coords, List<HeightCurve> children) {
-        super(id, ElementType.heightCurve, computeMbr(coords));
+        super(id, ElementType.heightCurve, new BoundingBox(0,0,0,0));
         this.height = height;
         this.coords = coords != null ? coords : new ArrayList<>();
         this.children = children != null ? children : new ArrayList<>();
@@ -35,6 +35,10 @@ public class HeightCurve extends Element implements Serializable {
 
     static private BoundingBox computeMbr(List<Coordinate> coords) {
         return BoundingBox.computeMbr(coords);
+    }
+
+    public void updateMbr() {
+        this.setMbr(computeMbr(coords));
     }
 
     public double getHeight() {

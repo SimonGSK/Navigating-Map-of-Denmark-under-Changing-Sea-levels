@@ -11,6 +11,7 @@ import models.RTree.SearchResults;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.geometry.ExtSuperAffine;
+import models.heightcurve.HeightCurve;
 import models.osm.Node;
 import models.pathfinding.Pathfinder;
 import models.pathfinding.PathfindingObject;
@@ -19,6 +20,7 @@ import models.rendering.GraphicsRenderer;
 import java.awt.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.util.List;
 
 public class AppController extends DrawingApp {
     private final ExtSuperAffine superAffine = new ExtSuperAffine();
@@ -156,6 +158,12 @@ public class AppController extends DrawingApp {
             appData.getWayRenderer().draws(gc);
         }
         if (appData.getHeightCurveRenderer() != null) {
+            List<HeightCurve> list = appData.getHeightCurveData().search(viewport);
+
+            appData.getHeightCurveRenderer().set(
+                    list
+            );
+            System.out.println("heightCurve search results:\nsize = " + list.size());
             appData.getHeightCurveRenderer().draws(gc);
         };
 

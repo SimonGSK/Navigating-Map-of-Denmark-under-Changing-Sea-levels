@@ -4,7 +4,6 @@ import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
 import models.parser.AbstractRenderer;
 import models.parser.HeightCurveData;
-import models.ui.AppController;
 import models.ui.AppSettings;
 
 import java.awt.*;
@@ -35,11 +34,8 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
     }
 
     private void drawHeightCurveLines(Graphics2D gc) {
-        List<HeightCurve> curves = new ArrayList<>(data.curves);
-        curves.remove(data.sea);
-
-        for (HeightCurve curve: curves) {
-            Path2D path = curve.getShape();
+        for (HeightCurve e : elements) {
+            Path2D path = e.getShape();
             gc.setColor(Color.darkGray);
             gc.draw(path);
         }
@@ -53,7 +49,7 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
     //Ser bedre ud
     public void drawHeightCurveMap(Graphics2D gc) {
         List<HeightCurve> sorted = new ArrayList<>(data.curves);
-        sorted.remove(data.sea);
+        sorted.remove(data.root);
         sorted.sort((a, b) -> Double.compare(b.getArea(), a.getArea()));
 
         for (HeightCurve curve: sorted) {
@@ -83,13 +79,13 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
         Composite originalComposite = gc.getComposite(); //Saves the original composite
 
         //Farver området mellem havet og yderste height curve
-        Path2D coastArea = data.sea.getShape();
+        Path2D coastArea = data.root.getShape();
         gc.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // 60% uigennemsigtig (værdier mellem 0.0 og 1.0)
         gc.setColor(Color.decode("#a9d3de"));
         gc.fill(coastArea);
 
         List<HeightCurve> sorted = new ArrayList<>(data.curves);
-        sorted.remove(data.sea);
+        sorted.remove(data.root);
         sorted.sort((a, b) -> Double.compare(b.getArea(), a.getArea()));
 
         //Farver alle oversvømmede height curves

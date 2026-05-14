@@ -2,6 +2,7 @@ package models.ui;
 
 import models.RTree.Tree;
 import models.geometry.BoundingBox;
+import models.heightcurve.HeightCurve;
 import models.osm.Node;
 import models.osm.Way;
 import models.parser.*;

@@ -51,6 +51,7 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
                     currentCurve.getCoords().add(new Coordinate(lat, lon));
 
                 } else if (line.contains("</hc>") && currentCurve != null){
+                    currentCurve.updateMbr();
                     allCurves.add(currentCurve);
                     currentCurve = null;
                 }
