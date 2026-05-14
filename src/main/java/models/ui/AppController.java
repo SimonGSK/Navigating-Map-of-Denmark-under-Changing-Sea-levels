@@ -14,6 +14,7 @@ import models.RTree.SearchResults;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.geometry.ExtSuperAffine;
+import models.heightcurve.HeightCurve;
 import models.osm.Node;
 import models.pathfinding.Pathfinder;
 import models.pathfinding.PathfindingObject;
@@ -23,9 +24,11 @@ import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.util.List;
 
 public class AppController extends DrawingApp {
     private final ExtSuperAffine superAffine = new ExtSuperAffine();
+    private final AppSettings appSettings = AppSettings.getInstance();
     private final AppData appData = new AppData();
     private final EventHandler eventHandler = new EventHandler();
     private final UserInterface userInterface = new UserInterface(this);
@@ -170,25 +173,19 @@ public class AppController extends DrawingApp {
         // Apply world transform for drawing map geometry.
         gc.setTransform(superAffine);
 
-        if (userInterface.getMapState() == UserInterface.MapState.elevation) {
-            if (appData.getHeightCurveRenderer() != null) {
-                // TODO: There used to be a .drawHeightCurveMap(), which seems to have been changed to .drawHeightCurveLines() – is that because we've removed the elevation map?
-                appData.getHeightCurveRenderer().drawHeightCurveMap(gc);
-                return;
-            }
+        if (appData.getHeightCurveRenderer() == null || appSettings.getMapState() == AppSettings.MapState.osm) {
+            appData.getRelationRenderer().draws(gc);
+            appData.getWayRenderer().draws(gc);
         }
-
-        appData.getRelationRenderer().draws(gc);
-        appData.getWayRenderer().draws(gc);
         if (appData.getHeightCurveRenderer() != null) {
-            appData.getHeightCurveRenderer().drawSubmergedCurves(gc);
-        }
-        if (userInterface.isShowHeightCurves()) {
-            if (appData.getHeightCurveRenderer() != null) {
-                // TODO: Remove this if it's the same as elevation map
-                appData.getHeightCurveRenderer().draws(gc);
-            }
-        }
+            List<HeightCurve> list = appData.getHeightCurveData().search(viewport);
+
+            appData.getHeightCurveRenderer().set(
+                    list
+            );
+            System.out.println("heightCurve search results:\nsize = " + list.size());
+            appData.getHeightCurveRenderer().draws(gc);
+        };
 
         if (userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
             gc.setColor(Color.decode("#FF1DCE"));
