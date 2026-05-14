@@ -35,7 +35,7 @@ public class Pathfinder {
         gScore.put(start, 0.0);
         double hScore = isDijkstra ?
                 0.0 :
-                UtilityTools.euclideanDistance(start.getCoordinate(),target.getCoordinate());
+                UtilityTools.haversineDistance(start.getCoordinate(),target.getCoordinate());
         queue.add(new QueueEntry(start, hScore));
 
         /*
@@ -87,7 +87,7 @@ public class Pathfinder {
 
                     double fScore = isDijkstra ?
                             g :
-                            g + UtilityTools.euclideanDistance(neighbour.getCoordinate(),target.getCoordinate());
+                            g + UtilityTools.haversineDistance(neighbour.getCoordinate(), target.getCoordinate());
                     queue.add(new QueueEntry(neighbour, fScore)); // lazy: old entry stays will be skipped
                 }
             }
