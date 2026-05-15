@@ -101,7 +101,11 @@ public class AppController extends DrawingApp {
         userInterface.getLayout().prefHeightProperty().bind(scene.heightProperty());
 
         eventHandler.initKeyboardEventComponent(scene, this::handleKeyPress);
-        eventHandler.initMapMouseEventComponent(this::handleMousePress,this::handleMouseClick,this::handleMouseDrag,this::handleMouseMove,this::handleScroll);
+        eventHandler.initMapMouseEventComponent(this::handleMousePress,
+                                                this::handleMouseClick,
+                                                this::handleMouseDrag,
+                                                this::handleMouseMove,
+                                                this::handleScroll);
 
         stage.setScene(scene);
         stage.show();
@@ -358,6 +362,7 @@ public class AppController extends DrawingApp {
             }
             case S -> {
                 pathfindingObject.clear();
+                if (userInterface.isPathfindingDebug()) userInterface.setPathfindingDebug(false);
                 userInterface.setUserMode(UserInterface.UserMode.select);
             }
             case V -> {
