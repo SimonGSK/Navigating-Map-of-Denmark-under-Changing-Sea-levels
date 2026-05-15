@@ -82,4 +82,9 @@ public class Relation extends OsmElement implements Iterable<Member>, Serializab
         }
         return nodes;
     }
+
+    @Override
+    public double getArea() {
+        return getMbr().area();
+    }
 }

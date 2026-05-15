@@ -13,14 +13,27 @@ import java.util.List;
 
 public record SearchResults(List<Node> nodeList, List<Way> wayList, List<Relation> relationList) implements Serializable {
     public SearchResults() {
-        this(new ArrayList<>(),new ArrayList<>(),new ArrayList<>());
+        this(new ArrayList<>(0),new ArrayList<>(0),new ArrayList<>(0));
+    }
+
+    public void clear() {
+        nodeList.clear();
+        wayList.clear();
+        relationList.clear();
     }
 
     public void add(ElementType type, Element element) {
-        switch (type) {
-            case ElementType.node -> nodeList.add((Node) element);
-            case ElementType.way -> wayList.add((Way) element);
-            case ElementType.relation -> relationList.add((Relation) element);
+        switch (element) {
+            case Node node -> {
+                nodeList.add(node);
+            }
+            case Way way -> {
+                wayList.add(way);
+            }
+            case Relation relation -> {
+                relationList.add(relation);
+            }
+            default -> {}
         }
     }
 

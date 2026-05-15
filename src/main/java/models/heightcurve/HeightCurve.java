@@ -122,4 +122,9 @@ public class HeightCurve extends Element implements Serializable {
     public void draws(Graphics2D gc) {
 
     }
+
+    @Override
+    public double getArea() {
+        return getMbr().area();
+    }
 }

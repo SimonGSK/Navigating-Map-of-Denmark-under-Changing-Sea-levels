@@ -18,6 +18,7 @@ public class Tree implements Serializable {
     private final int max = 30; // Must be
     private BoundingBox mbr;
     private final TreeData treeData;
+    private transient SearchResults searchResults;
 
     public Tree(BoundingBox mbr, Map<Long,Node> nodeMap, Map<Long, Way> wayMap, Map<Long, Relation> relationMap) {
         if (mbr == null || nodeMap == null || wayMap == null || relationMap == null) {
@@ -40,7 +41,11 @@ public class Tree implements Serializable {
     }
 
     public SearchResults search(BoundingBox searchArea) {
-        SearchResults searchResults = new SearchResults();
+        if (searchResults == null) {
+            searchResults = new SearchResults();
+        }
+
+        searchResults.clear();
         if (root != null) {
             searchRecursive(root, searchArea, searchResults);
         }
