@@ -64,7 +64,7 @@ public class HeightCurveData implements Serializable {
                 searchRecursive(hc,searchArea,searchResults);
             }
         }
-        searchResults.sort(Comparator.comparingDouble(HeightCurve::getArea));
+        //searchResults.sort(Comparator.comparingDouble(HeightCurve::getArea));
         return searchResults;
     }
 
