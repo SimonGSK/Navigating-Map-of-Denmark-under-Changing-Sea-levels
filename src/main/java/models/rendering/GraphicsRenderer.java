@@ -63,13 +63,13 @@ public class GraphicsRenderer implements Drawable {
             gc.setStroke(new BasicStroke(0.0003f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
             gc.draw(buildPath(pathfindingObject.getPath()));
         }
-        if(appController.getUserInterface().isBoundingBoxDebug()) {
+        if(appController.getAppSettings().isBoundingBoxDebug()) {
             List<BoundingBox> allBoundingBoxes = appController.getAppData().getTree().getMBR();
             for (BoundingBox bbox : allBoundingBoxes) {
                 drawBoundingBoxDebug(gc, bbox, Color.RED);
             }
         }
-        if(appController.getUserInterface().isPathfindingDebug()) {
+        if(appController.getAppSettings().isPathfindingDebug()) {
             Set<Node> visited = appController.getPathfindingObject().getVisited();
             if (visited != null) {
                 gc.setColor(Color.MAGENTA);
