@@ -22,58 +22,6 @@ public class UserInterface {
     private final BorderPane appLayout = new BorderPane();
     private boolean showHeightCurves = false;
     private final AppSettings appSettings = AppSettings.getInstance();
-    private MapState mapState = MapState.osm;
-    private final ObjectProperty<UserMode> userMode = new SimpleObjectProperty<>(UserMode.menu);
-    private final ObjectProperty<Boolean> isViewportDebug = new SimpleObjectProperty<>(false);
-    private final ObjectProperty<Boolean> isBoundingBoxDebug = new SimpleObjectProperty<>(false);
-    private final ObjectProperty<Boolean> isPathfindingDebug = new SimpleObjectProperty<>(false);
-
-    public boolean isPathfindingDebug() {
-        return isPathfindingDebug.get();
-    }
-
-    public void setPathfindingDebug(boolean isPathfindingDebug) {
-        this.isPathfindingDebug.set(isPathfindingDebug);
-    }
-
-    public boolean isViewportDebug() {
-        return isViewportDebug.get();
-    }
-
-    public void setViewportDebug(boolean isViewportDebug) {
-        this.isViewportDebug.set(isViewportDebug);
-    }
-
-    public boolean isBoundingBoxDebug() {
-        return isBoundingBoxDebug.get();
-    }
-
-    public void setBoundingBoxDebug(boolean isBoundingBoxDebug) {
-        this.isBoundingBoxDebug.set(isBoundingBoxDebug);
-    }
-
-    public enum MapState {
-        osm,
-        elevation,
-    }
-
-    public enum UserMode {
-        menu,
-        explore,
-        select
-    }
-
-    public MapState getMapState() {
-        return mapState;
-    }
-
-    public void setUserMode(UserMode userMode) {
-        this.userMode.set(userMode);
-    }
-
-    public UserMode getUserMode() {
-        return this.userMode.get();
-    }
 
     public UserInterface(AppController appController) {
         this.appController = appController;
@@ -164,23 +112,22 @@ public class UserInterface {
                                         HashMap<String,LabelledSlider> sliderList) { }
 
     private Label labelUserModeIndicator() {
-        Function<UserMode, String> labelText = (UserMode userMode) -> switch (userMode) {
+        Function<AppSettings.UserMode, String> labelText = (userMode) -> switch (userMode) {
             case menu -> "Menu";
             case select -> "Selection Mode";
             case explore -> "Exploration Mode";
         };
 
-        Label label = new Label(labelText.apply(userMode.get()));
+        Label label = new Label(labelText.apply(appSettings.getUserMode()));
 
-        userMode.addListener((obs,oldVal,newVal) -> {
-            label.setText(labelText.apply(userMode.get()));
+        appSettings.userModeProperty().addListener((obs,oldVal,newVal) -> {
+            label.setText(labelText.apply(appSettings.getUserMode()));
         });
 
         return label;
     };
 
     private Label labelViewportIndicator() {
-
         Function<Boolean, String> labelText = (Boolean isViewportDebug) -> {
             if (isViewportDebug) {
                 return "Viewport Debug ON [V]";
@@ -188,7 +135,7 @@ public class UserInterface {
             return "Viewport Debug OFF [V]";
         };
 
-        return getLabel(labelText, isViewportDebug);
+        return getLabel(labelText, appSettings.isViewportDebugProperty());
     };
 
     private Label labelBoundingBoxIndicator() {
@@ -200,7 +147,7 @@ public class UserInterface {
             return "BoundingBox Debug OFF [B]";
         };
 
-        return getLabel(labelText, isBoundingBoxDebug);
+        return getLabel(labelText, appSettings.isBoundingBoxDebugProperty());
     };
 
     private Label labelPathfindingIndicator() {
@@ -212,7 +159,7 @@ public class UserInterface {
             return "Pathfinding Debug OFF [P]";
         };
 
-        return getLabel(labelText, isPathfindingDebug);
+        return getLabel(labelText, appSettings.isPathfindingDebugProperty());
     };
 
     private Label getLabel(Function<Boolean, String> labelText, ObjectProperty<Boolean> isDebug) {

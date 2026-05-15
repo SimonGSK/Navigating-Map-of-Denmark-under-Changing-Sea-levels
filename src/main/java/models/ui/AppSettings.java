@@ -8,6 +8,33 @@ public class AppSettings {
     private final ObjectProperty<UserMode> userMode = new SimpleObjectProperty<>(UserMode.menu);
     private final ObjectProperty<MapState> mapState = new SimpleObjectProperty<>(MapState.osm);
     private final ObjectProperty<Boolean> isHeightCurvesVisible = new SimpleObjectProperty<>(true);
+    private final ObjectProperty<Boolean> isViewportDebug = new SimpleObjectProperty<>(false);
+    private final ObjectProperty<Boolean> isBoundingBoxDebug = new SimpleObjectProperty<>(false);
+    private final ObjectProperty<Boolean> isPathfindingDebug = new SimpleObjectProperty<>(false);
+
+    public boolean isPathfindingDebug() {
+        return isPathfindingDebug.get();
+    }
+
+    public void setPathfindingDebug(boolean isPathfindingDebug) {
+        this.isPathfindingDebug.set(isPathfindingDebug);
+    }
+
+    public boolean isViewportDebug() {
+        return isViewportDebug.get();
+    }
+
+    public void setViewportDebug(boolean isViewportDebug) {
+        this.isViewportDebug.set(isViewportDebug);
+    }
+
+    public boolean isBoundingBoxDebug() {
+        return isBoundingBoxDebug.get();
+    }
+
+    public void setBoundingBoxDebug(boolean isBoundingBoxDebug) {
+        this.isBoundingBoxDebug.set(isBoundingBoxDebug);
+    }
 
     private AppSettings() {};
 
@@ -27,7 +54,7 @@ public class AppSettings {
     public enum UserMode {
         menu,
         explore,
-        select
+        select;
     }
 
     // Getters & setters
@@ -66,5 +93,17 @@ public class AppSettings {
 
     public ObjectProperty<Boolean> isHeightCurvesVisibleProperty() {
         return isHeightCurvesVisible;
+    }
+
+    public ObjectProperty<Boolean> isViewportDebugProperty() {
+        return isViewportDebug;
+    }
+
+    public ObjectProperty<Boolean> isBoundingBoxDebugProperty() {
+        return isBoundingBoxDebug;
+    }
+
+    public ObjectProperty<Boolean> isPathfindingDebugProperty() {
+        return isPathfindingDebug;
     }
 }
