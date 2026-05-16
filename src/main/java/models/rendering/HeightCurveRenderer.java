@@ -53,25 +53,35 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
         sorted.remove(data.root);
         sorted.sort((a, b) -> Double.compare(b.getArea(), a.getArea()));
 
-        for (HeightCurve curve: sorted) {
-            Path2D path = new Path2D.Double();
-            boolean first = true;
+        for (HeightCurve curve : sorted) {
+            /*
+            Build the path once and cache it on the curve.
+            Previously this rebuilt the path from raw coordinates every frame.
+            This is wasteful since the shape never changes, only the color does (sea level).
+             */
+            Path2D path = curve.getShape();
+            if (path == null) {
+                path = new Path2D.Double();
+                boolean first = true;
 
-            for (Coordinate coord : curve.getCoords()) {
-                double x = coord.getLon() * cosMeanLat;
-                double y = -coord.getLat();
+                for (Coordinate coord : curve.getCoords()) {
+                    double x = coord.getLon() * cosMeanLat;
+                    double y = -coord.getLat();
 
-                if (first) {
-                    path.moveTo(x, y);
-                    first = false;
-                } else path.lineTo(x, y);
+                    if (first) {
+                        path.moveTo(x, y);
+                        first = false;
+                    } else path.lineTo(x, y);
+                }
+                path.closePath();
+                curve.setShape(path);
             }
-            path.closePath();
-            curve.setSeaLevel(seaLevel);
-            gc.setColor(curve.getColor());
-            gc.fill(path);
+                curve.setSeaLevel(seaLevel);
+                gc.setColor(curve.getColor());
+                gc.fill(path);
+            }
         }
-    }
+
 
     //Bruges til at farve oversvømmede height curves på OSM-kortet
     public void drawSubmergedCurves(Graphics2D gc) {
