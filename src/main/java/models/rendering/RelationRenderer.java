@@ -23,7 +23,7 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
     @Override
     public void draws(Graphics2D gc) {
         for (Relation relation : elements) {
-            if (!shouldDraw(relation, true)) continue; //Funktion til at afgøre om noget skal tegnes
+            if (!shouldDraw(relation)) continue; //Funktion til at afgøre om noget skal tegnes
 
             //Tilføjet for at undgå at lukkede paths, som f.eks. hiking routes, bliver til huller i multipolygons
             String relationType = relation.getTag("type");
