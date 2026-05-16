@@ -2,6 +2,7 @@ package models.ui;
 
 import models.RTree.Tree;
 import models.geometry.BoundingBox;
+import models.heightcurve.HeightCurve;
 import models.osm.Node;
 import models.osm.Way;
 import models.parser.*;
@@ -107,7 +108,7 @@ public class AppData {
             OsmData osmData = parseOsm(osmFilePath);
 
             meanLat = (osmData.bounds().maxLat() + osmData.bounds().minLat()) / 2.0;
-            HeightCurveData heightCurveData = parseHeightCurves(heightCurveFilePath);
+            HeightCurveData heightCurveData = parseHeightCurves(heightCurveFilePath, osmData);
             init(osmData, heightCurveData);
             state = AppDataState.complete;
             try {
@@ -134,8 +135,8 @@ public class AppData {
         return p.getData();
     }
 
-    private HeightCurveData parseHeightCurves(String heightCurveFilePath) throws IOException {
-        HeightCurveParser p = new HeightCurveParser(heightCurveFilePath, meanLat);
+    private HeightCurveData parseHeightCurves(String heightCurveFilePath, OsmData osmData) throws IOException {
+        HeightCurveParser p = new HeightCurveParser(heightCurveFilePath, meanLat, osmData);
         return p.getData();
     }
 
@@ -180,7 +181,7 @@ public class AppData {
         heightCurveRenderer = new HeightCurveRenderer(heightCurveData, meanLat);
     }
     private void addCoastlineAsContour(OsmData osmData, HeightCurveData hcData) {
-        if (hcData == null || hcData.sea == null) return;
+        if (hcData == null || hcData.root == null) return;
 
         Set<Long> existingIds = new HashSet<>();
         for (HeightCurve c : hcData.curves) existingIds.add(c.getId());
@@ -201,11 +202,16 @@ public class AppData {
         }
         if (toAdd.isEmpty()) return;
 
+        ShapeBuilder shapeBuilder = new ShapeBuilder(Math.cos(Math.toRadians(meanLat)));
+        for (HeightCurve c : toAdd) {
+            c.setShape(shapeBuilder.buildHeightCurve(c));
+        }
+
         List<HeightCurve> merged = new ArrayList<>(hcData.curves);
         merged.addAll(toAdd);
         hcData.curves = merged;
 
-        for (HeightCurve c : toAdd) hcData.sea.addChild(c);
+        for (HeightCurve c : toAdd) hcData.root.addChild(c);
 
     }
 

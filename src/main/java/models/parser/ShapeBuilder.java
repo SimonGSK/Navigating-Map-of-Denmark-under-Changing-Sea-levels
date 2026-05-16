@@ -173,8 +173,7 @@ public class ShapeBuilder {
     }
 
     public Path2D buildHeightCurve(HeightCurve heightCurve){
-        Path2D path = getRegionPath(heightCurve);
-        return path;
+        return getRegionPath(heightCurve);
     }
 
     //Creates a heightCurve path

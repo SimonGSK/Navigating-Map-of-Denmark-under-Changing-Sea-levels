@@ -1,7 +1,11 @@
 package models.parser;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+
+import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
 
@@ -22,34 +26,56 @@ public class HeightCurveData implements Serializable {
      * Implicit "sea" root of the containment tree. Its {@code children} are the
      * outermost coastlines.
      */
-    public final HeightCurve sea;
+    public final HeightCurve root;
 
     /**
-     * Flat list of all curves (may include {@link #sea}).
+     * Flat list of all curves (may include {@link #root}).
      */
     public List<HeightCurve> curves;
 
-    public HeightCurveData(double minLat, double minLon, double maxLat, double maxLon, HeightCurve sea, List<HeightCurve> curves) {
+    public HeightCurveData(double minLat, double minLon, double maxLat, double maxLon, HeightCurve root, List<HeightCurve> curves) {
         this.minLat = minLat;
         this.minLon = minLon;
         this.maxLat = maxLat;
         this.maxLon = maxLon;
-        this.sea = sea;
+        this.root = root;
         this.curves = List.copyOf(curves);
-        buildTree(sea, curves);
+        buildTree(root, curves);
     }
 
     //Sorterer alle HeightCurves fra størst til mindst så vi får dem i rækkefølge - parents er større end deres children
     //Derefter kaldes findParent() på alle HeightCurves for at finde deres parents
-    private void buildTree(HeightCurve sea, List<HeightCurve> curves) {
+    private void buildTree(HeightCurve root, List<HeightCurve> curves) {
         List<HeightCurve> sorted = curves.stream()
                 .filter(c -> c.getId() != -1)
                 .sorted((a, b) -> Double.compare(boundingArea(b), boundingArea(a)))
                 .toList();
 
         for (HeightCurve hc : sorted) {
-            HeightCurve parent = findParent(hc, sorted, sea);
+            HeightCurve parent = findParent(hc, sorted, root);
             parent.addChild(hc);
+        }
+    }
+
+    public List<HeightCurve> search(BoundingBox searchArea) {
+        List<HeightCurve> searchResults = new ArrayList<>();
+        if (root != null) {
+            for (HeightCurve hc : root.getChildren()) {
+                searchRecursive(hc,searchArea,searchResults);
+            }
+        }
+        //searchResults.sort(Comparator.comparingDouble(HeightCurve::getArea));
+        return searchResults;
+    }
+
+    public void searchRecursive(HeightCurve heightCurve, BoundingBox searchArea, List<HeightCurve> searchResults) {
+        if (!searchArea.isOverlappingOther(heightCurve.getMbr())) {
+            return;
+        }
+
+        searchResults.add(heightCurve);
+        for (HeightCurve hc : heightCurve.getChildren()) {
+            searchRecursive(hc,searchArea,searchResults);
         }
     }
 
@@ -74,7 +100,12 @@ public class HeightCurveData implements Serializable {
     }
 
     private boolean contains(HeightCurve outer, HeightCurve inner) {
-        if (inner.getCoords().isEmpty()) return false;
+        if (inner.getCoords().isEmpty() || outer.getCoords().isEmpty()) return false;
+
+        if (!inner.getMbr().isInside(outer.getMbr())) {
+            return false;
+        }
+
         // Tjek om første koordinat i inner ligger inde i outer
         Coordinate testPoint = inner.getCoords().get(0);
         return pointInPolygon(testPoint, outer.getCoords());
@@ -116,10 +147,10 @@ public class HeightCurveData implements Serializable {
     }
 
     public void updateFlooding(double seaLevel) {
-        resetAll(sea); //Nulstiller alt for at genberegne oversvømmelserne
+        resetAll(root); //Nulstiller alt for at genberegne oversvømmelserne
 
         // Start from sea's children - sea itself is always the implicit "above water" parent
-        for (HeightCurve child : sea.getChildren()) {
+        for (HeightCurve child : root.getChildren()) {
             child.updateSubmersion(seaLevel, true);
         }
     }
@@ -148,7 +179,7 @@ public class HeightCurveData implements Serializable {
      */
     public boolean isCoordinateSubmerged(Coordinate coordinate) {
         // Check each top-level height curve (children of sea)
-        for (HeightCurve curve : sea.getChildren()) {
+        for (HeightCurve curve : root.getChildren()) {
             if (isCoordinateInSubmergedCurve(coordinate, curve)) {
                 return true;
             }

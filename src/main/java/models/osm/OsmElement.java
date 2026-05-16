@@ -171,7 +171,6 @@ public abstract class OsmElement extends Element {
         if (tags.containsKey("landcover") || tags.containsKey("grassland")) return Color.decode("#C5D9A9"); //Darker green
 
         //FALLBACK COLOR
-        System.out.println(tags);
         return Color.decode("#F2F0E9"); //Very light brown
     }
 }

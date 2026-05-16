@@ -14,6 +14,7 @@ import models.RTree.SearchResults;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.geometry.ExtSuperAffine;
+import models.heightcurve.HeightCurve;
 import models.osm.Node;
 import models.pathfinding.Pathfinder;
 import models.pathfinding.PathfindingObject;
@@ -23,9 +24,11 @@ import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
+import java.util.List;
 
 public class AppController extends DrawingApp {
     private final ExtSuperAffine superAffine = new ExtSuperAffine();
+    private final AppSettings appSettings = AppSettings.getInstance();
     private final AppData appData = new AppData();
     private final EventHandler eventHandler = new EventHandler();
     private final UserInterface userInterface = new UserInterface(this);
@@ -41,6 +44,10 @@ public class AppController extends DrawingApp {
 
     private double prevMouseX = 0;
     private double prevMouseY = 0;
+
+    public AppSettings getAppSettings() {
+        return appSettings;
+    }
 
     private enum AppControllerState {
         ready,
@@ -98,7 +105,11 @@ public class AppController extends DrawingApp {
         userInterface.getLayout().prefHeightProperty().bind(scene.heightProperty());
 
         eventHandler.initKeyboardEventComponent(scene, this::handleKeyPress);
-        eventHandler.initMapMouseEventComponent(this::handleMousePress,this::handleMouseClick,this::handleMouseDrag,this::handleMouseMove,this::handleScroll);
+        eventHandler.initMapMouseEventComponent(this::handleMousePress,
+                                                this::handleMouseClick,
+                                                this::handleMouseDrag,
+                                                this::handleMouseMove,
+                                                this::handleScroll);
 
         stage.setScene(scene);
         stage.show();
@@ -113,7 +124,7 @@ public class AppController extends DrawingApp {
         });
 
         handleRecenter(appData.getBounds(), appData.getMeanLat());
-        userInterface.setUserMode(UserInterface.UserMode.explore);
+        appSettings.setUserMode(AppSettings.UserMode.explore);
 
         // Initial draw and render
         handleDraw();
@@ -127,10 +138,10 @@ public class AppController extends DrawingApp {
         int w = getWIDTH();
         int h = getHEIGHT();
 
-        Point2D topLeft = superAffine.inverseTransform(userInterface.isViewportDebug() ? w * 0.2 : 0,
-                                                       userInterface.isViewportDebug() ? h * 0.2 : 0);
-        Point2D bottomRight = superAffine.inverseTransform(userInterface.isViewportDebug() ? w * 0.8 : w,
-                                                           userInterface.isViewportDebug() ? h * 0.8 : h);
+        Point2D topLeft = superAffine.inverseTransform(appSettings.isViewportDebug() ? w * 0.2 : 0,
+                                                       appSettings.isViewportDebug() ? h * 0.2 : 0);
+        Point2D bottomRight = superAffine.inverseTransform(appSettings.isViewportDebug() ? w * 0.8 : w,
+                                                           appSettings.isViewportDebug() ? h * 0.8 : h);
         double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
 
         double minLon = topLeft.getX() / cosMeanLat;
@@ -170,27 +181,21 @@ public class AppController extends DrawingApp {
         // Apply world transform for drawing map geometry.
         gc.setTransform(superAffine);
 
-        if (userInterface.getMapState() == UserInterface.MapState.elevation) {
-            if (appData.getHeightCurveRenderer() != null) {
-                // TODO: There used to be a .drawHeightCurveMap(), which seems to have been changed to .drawHeightCurveLines() – is that because we've removed the elevation map?
-                appData.getHeightCurveRenderer().drawHeightCurveMap(gc);
-                return;
-            }
+        if (appData.getHeightCurveRenderer() == null || appSettings.getMapState() == AppSettings.MapState.osm) {
+            appData.getRelationRenderer().draws(gc);
+            appData.getWayRenderer().draws(gc);
         }
-
-        appData.getRelationRenderer().draws(gc);
-        appData.getWayRenderer().draws(gc);
         if (appData.getHeightCurveRenderer() != null) {
-            appData.getHeightCurveRenderer().drawSubmergedCurves(gc);
-        }
-        if (userInterface.isShowHeightCurves()) {
-            if (appData.getHeightCurveRenderer() != null) {
-                // TODO: Remove this if it's the same as elevation map
-                appData.getHeightCurveRenderer().draws(gc);
-            }
-        }
+            List<HeightCurve> list = appData.getHeightCurveData().search(viewport);
 
-        if (userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
+            appData.getHeightCurveRenderer().set(
+                    list
+            );
+            System.out.println("heightCurve search results:\nsize = " + list.size());
+            appData.getHeightCurveRenderer().draws(gc);
+        };
+
+        if (appSettings.getUserMode() == (AppSettings.UserMode.select)) { /**/
             gc.setColor(Color.decode("#FF1DCE"));
             gc.setStroke(new BasicStroke(0.0001f));
             gc.draw(pathToNearestNode);
@@ -199,7 +204,7 @@ public class AppController extends DrawingApp {
         if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
             System.out.println("DRAWING GRAPHICS!");
             graphicsRenderer.draws(gc);
-        } else if (userInterface.isBoundingBoxDebug()){
+        } else if (appSettings.isBoundingBoxDebug()){
             graphicsRenderer.draws(gc);
         }
 
@@ -214,6 +219,21 @@ public class AppController extends DrawingApp {
             Ellipse2D.Double endCircle = getNodeCircle(pathfindingObject.getEndNode());
             gc.setColor(Color.RED);
             gc.fill(endCircle);
+        }
+
+        //Viewport debug square to show the boundaries of the viewport
+        if (appSettings.isViewportDebug()) {
+            gc.setTransform(new java.awt.geom.AffineTransform());
+            int w = getWIDTH();
+            int h = getHEIGHT();
+            int rectX      = (int)(w * 0.2);
+            int rectY      = (int)(h * 0.2);
+            int rectWidth  = (int)(w * 0.6);
+            int rectHeight = (int)(h * 0.6);
+
+            gc.setColor(Color.RED);
+            gc.setStroke(new BasicStroke(2f));
+            gc.drawRect(rectX, rectY, rectWidth, rectHeight);
         }
     }
 
@@ -249,7 +269,7 @@ public class AppController extends DrawingApp {
 
     private void handleMouseClick(MouseEvent event) {
         if (event.isStillSincePress()) {
-            if (userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
+            if (appSettings.getUserMode() == AppSettings.UserMode.select) {
                 if (pathfindingObject == null) {
                     pathfindingObject = PathfindingObject.getInstance();
                 }
@@ -280,7 +300,7 @@ public class AppController extends DrawingApp {
                 }
 
                 if (pathfindingObject.isReady()) {
-                    userInterface.setUserMode(UserInterface.UserMode.explore);
+                    appSettings.setUserMode(AppSettings.UserMode.explore); /**/
                     pathfindingObject.updatePath();
                     handleDraw();
                 }
@@ -294,7 +314,7 @@ public class AppController extends DrawingApp {
     }
 
     private void handleMouseMove(MouseEvent event) {
-        if (!userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
+        if (!(appSettings.getUserMode() == AppSettings.UserMode.select)) {
             return;
         }
 
@@ -342,21 +362,22 @@ public class AppController extends DrawingApp {
         System.out.println(event.getCode());
         switch (event.getCode()) {
             case ESCAPE -> {
-                userInterface.setUserMode(UserInterface.UserMode.explore);
+                appSettings.setUserMode(AppSettings.UserMode.explore);
             }
             case S -> {
                 pathfindingObject.clear();
-                userInterface.setUserMode(UserInterface.UserMode.select);
+                if (appSettings.isPathfindingDebug()) appSettings.setPathfindingDebug(false);
+                appSettings.setUserMode(AppSettings.UserMode.select);
             }
             case V -> {
-                userInterface.setViewportDebug(!userInterface.isViewportDebug());
+                appSettings.setViewportDebug(!appSettings.isViewportDebug());
             }
             case B -> {
-                userInterface.setBoundingBoxDebug(!userInterface.isBoundingBoxDebug());
+                appSettings.setBoundingBoxDebug(!appSettings.isBoundingBoxDebug());
             }
             case P -> {
                 if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
-                    userInterface.setPathfindingDebug(!userInterface.isPathfindingDebug());
+                    appSettings.setPathfindingDebug(!appSettings.isPathfindingDebug());
                 }
             }
         }
@@ -381,6 +402,7 @@ public class AppController extends DrawingApp {
         appData.getHeightCurveData().updateFlooding(seaLevel);
         appData.getHeightCurveRenderer().setSeaLevel(seaLevel);
         pathfindingObject.updatePath();
+        handleDraw();
     }
 
     public void handleRecenter(BoundingBox mbr, double meanLat) {
