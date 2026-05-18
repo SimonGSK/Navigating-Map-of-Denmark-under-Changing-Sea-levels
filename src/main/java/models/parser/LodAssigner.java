@@ -76,13 +76,13 @@ public class LodAssigner {
         String highway = tags.get("highway");
         if (highway != null) {
             return switch (highway) {
-                case "motorway", "motorway_link" -> 6.0;
-                case "trunk", "trunk_link" -> 7.0;
+                case "motorway", "motorway_link" -> 7.0;
+                case "trunk", "trunk_link" -> 8.0;
                 case "primary", "primary_link" -> 9.0;
-                case "secondary", "secondary_link" -> 11.0;
-                case "tertiary", "tertiary_link" -> 12.0;
-                case "residential", "unclassified", "living_street" -> 13.0;
-                case "service", "track" -> 14.0;
+                case "secondary", "secondary_link" -> 10.0;
+                case "tertiary", "tertiary_link" -> 10.5;
+                case "residential", "unclassified", "living_street" -> 13.5;
+                case "service", "track" -> 15.0;
                 case "path", "footway", "cycleway", "steps", "bridleway" -> 14.5;
                 default -> 13.0;
             };

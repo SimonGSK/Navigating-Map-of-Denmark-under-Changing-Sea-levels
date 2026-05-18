@@ -1,7 +1,6 @@
 package models.ui;
 
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -10,7 +9,6 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.*;
 
 import javafx.scene.control.*;
-import models.pathfinding.PathfindingObject;
 
 import java.util.HashMap;
 import java.util.function.Function;
@@ -89,6 +87,23 @@ public class UserInterface {
                 appController.imageView,
                 appController.getEventHandler().getMapMouseEventComponent()
         );
+
+        // TOP LEFT HINTS *******
+        Label selectModeHint = applyHintLabelStyle(new Label("Press [Esc] to reset"));
+        selectModeHint.visibleProperty().bind(appSettings.userModeProperty().isEqualTo(AppSettings.UserMode.select));
+        selectModeHint.managedProperty().bind(selectModeHint.visibleProperty());
+        StackPane.setAlignment(selectModeHint, Pos.TOP_LEFT);
+        StackPane.setMargin(selectModeHint, new Insets(12, 0, 0, 12));
+        mapPane.getChildren().add(selectModeHint);
+
+        Label exploreModeHint = applyHintLabelStyle(new Label("Press [S] to enter selection mode"));
+        exploreModeHint.visibleProperty().bind(appSettings.userModeProperty().isEqualTo(AppSettings.UserMode.explore));
+        exploreModeHint.managedProperty().bind(exploreModeHint.visibleProperty());
+        StackPane.setAlignment(exploreModeHint, Pos.TOP_LEFT);
+        StackPane.setMargin(exploreModeHint, new Insets(12, 0, 0, 12));
+        mapPane.getChildren().add(exploreModeHint);
+        // TOP LEFT HINTS *******
+
         mapPane.setMinSize(0, 0);
 
         appController.imageView.fitWidthProperty().bind(mapPane.widthProperty());
@@ -101,6 +116,17 @@ public class UserInterface {
         controlPanel.setStyle("--fx-background-color: white");
 
         isInitialized = true;
+    }
+
+    private Label applyHintLabelStyle(Label label) {
+        label.setStyle("""
+        -fx-background-color: rgba(0,0,0,0.55);
+        -fx-text-fill: white;
+        -fx-padding: 6 10 6 10;
+        -fx-background-radius: 6;
+        -fx-font-size: 13px;
+    """);
+        return label;
     }
 
     public BorderPane getLayout() {
