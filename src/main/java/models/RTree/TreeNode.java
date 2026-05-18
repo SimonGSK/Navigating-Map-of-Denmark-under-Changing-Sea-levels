@@ -12,8 +12,29 @@ public class TreeNode implements SpatialElement, Serializable {
     private double area;
     public List<TreeEntry> entries = new ArrayList<>();
     private boolean isLeaf = false;
+    private double subtreeMinZoom = Double.NaN;
 
     public TreeNode() {
+    }
+
+    public boolean updateSubtreeMinZoom(double minZoomLevel) {
+        if (Double.isNaN(subtreeMinZoom) || minZoomLevel < subtreeMinZoom) {
+            subtreeMinZoom = minZoomLevel;
+            return true;
+        }
+        return false;
+    }
+
+    public void resetSubtreeMinZoom() {
+        subtreeMinZoom = Double.NaN;
+    }
+
+    public double getSubtreeMinZoom() {
+        return subtreeMinZoom;
+    }
+
+    public boolean isVisibleOnZoom(double currentZoomLevel) {
+        return currentZoomLevel >= subtreeMinZoom;
     }
 
     public TreeNode(boolean isLeaf) {

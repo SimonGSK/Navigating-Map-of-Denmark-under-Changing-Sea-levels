@@ -159,11 +159,13 @@ public class AppController extends DrawingApp {
     private void draw() {
         BoundingBox viewport = getViewportBox();
 
+        double zoom = getZoomLevel();
+        appData.getTree().setZoomLevel(zoom);
+
         SearchResults searchResults = appData.getTree().search(viewport);
         appData.getWayRenderer().set(searchResults.wayList());
         appData.getRelationRenderer().set(searchResults.relationList());
 
-        double zoom = getZoomLevel();
         appData.getWayRenderer().setCurrentZoomLevel(zoom);
         appData.getRelationRenderer().setCurrentZoomLevel(zoom);
 
@@ -187,7 +189,6 @@ public class AppController extends DrawingApp {
             appData.getHeightCurveRenderer().set(
                     list
             );
-            System.out.println("heightCurve search results:\nsize = " + list.size());
             appData.getHeightCurveRenderer().draws(gc);
         };
 

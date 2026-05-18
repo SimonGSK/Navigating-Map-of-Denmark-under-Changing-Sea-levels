@@ -49,12 +49,12 @@ public abstract class Element implements SpatialElement, Drawable, Serializable 
         this.minZoomLevel = minZoomLevel;
     }
 
-    private boolean isVisible(double currentZoomLevel) {
+    public boolean isVisibleOnZoom(double currentZoomLevel) {
         return currentZoomLevel >= minZoomLevel;
     }
 
     public boolean isVisible(double zoomLevel, double minGeoArea, boolean isClosed) {
-        if (!isVisible(zoomLevel) || getColor() == null) {
+        if (!isVisibleOnZoom(zoomLevel) || getColor() == null) {
             return false;
         }
         return !isClosed || !(getArea() < minGeoArea);

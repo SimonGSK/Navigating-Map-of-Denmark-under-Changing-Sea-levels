@@ -44,7 +44,6 @@ public record SearchResults(ArrayList<Node> nodeList, ArrayList<Way> wayList, Ar
     }
 
     public void sort() {
-        System.out.println("**** WayList Size: " + wayList.size() + " *****");
         relationList.sort(Comparator.comparingDouble(r -> -r.getMbr().area()));
 
         if (wayList.size() > 1000) {
