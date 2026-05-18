@@ -87,7 +87,21 @@ public class Tree implements Serializable {
             }
         }
 
+        // If the leaf had no highway ways, walk up the path until we find some
         if (nodes.isEmpty()) {
+            for (int i = path.size() - 2; i >= 0 && nodes.isEmpty(); i--) {
+                TreeNode ancestor = path.get(i);
+                SearchResults ancestorResults = search(ancestor.getMbr());
+                for (Way w : ancestorResults.wayList()) {
+                    if (w.getTag("highway") != null) {
+                        nodes.addAll(w.getNodes());
+                    }
+                }
+            }
+        }
+
+        if (nodes.isEmpty()) {
+            System.out.println("***** No highway ways found in search area *****");
             return null;
         }
 
@@ -107,10 +121,6 @@ public class Tree implements Serializable {
             if (w.getTag("highway") != null) {
                 nodes.addAll(w.getNodes());
             }
-        }
-
-        if (nodes.isEmpty()) {
-            return null;
         }
 
         nearestNodeDist result = _findNearestNodeDist(cursor, new ArrayList<>(nodes));
