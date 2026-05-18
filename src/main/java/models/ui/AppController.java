@@ -223,7 +223,7 @@ public class AppController extends DrawingApp {
             appData.getHeightCurveRenderer().draws(gc);
         };
 
-        if (appSettings.getUserMode() == (AppSettings.UserMode.select)) {
+        if (appSettings.getUserMode() == (AppSettings.UserMode.select) && !pathToNearestNode.getBounds2D().isEmpty()) {
             double zoomScale = superAffine.getScaleX();
             float strokeWidth = (float)(2.0 / zoomScale); // 2px on screen at all zoom levels
             gc.setColor(Color.decode("#FF1DCE"));
@@ -309,12 +309,14 @@ public class AppController extends DrawingApp {
 
                 Node node = appData.getTree().getNearestNode(cursor);
 
-                if (node == null) {
+                if (pathfindingObject.getStartNode() == null) {
+                    pathfindingObject.setStartNode(node);
+                    handleDraw();
                     return;
                 }
 
-                if (pathfindingObject.getStartNode() == null) {
-                    pathfindingObject.setStartNode(node);
+                if (node == null) {
+                    pathToNearestNode.reset();
                     handleDraw();
                     return;
                 }
@@ -328,7 +330,7 @@ public class AppController extends DrawingApp {
                 }
 
                 if (pathfindingObject.isReady()) {
-                    appSettings.setUserMode(AppSettings.UserMode.explore); /**/
+                    appSettings.setUserMode(AppSettings.UserMode.explore);
                     pathfindingObject.updatePath();
                     handleDraw();
                 }
