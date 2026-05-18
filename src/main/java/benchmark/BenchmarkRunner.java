@@ -11,12 +11,12 @@ import java.net.URLClassLoader;
 
 public class BenchmarkRunner {
     public static void main(String[] args) throws Exception {
-        String label = "baseline";
+        String label = "optimal-max-value_tree";
 
         new File("results").mkdirs();
 
         Options opt = new OptionsBuilder()
-            .include("benchmark\\.Tree.*")
+            .include("benchmark\\.TreeMax.*")
             .result("results/" + label + ".csv")
             .resultFormat(ResultFormatType.CSV)
             .build();
