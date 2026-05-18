@@ -7,25 +7,49 @@ import models.osm.Relation;
 import models.osm.Way;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-public record SearchResults(List<Node> nodeList, List<Way> wayList, List<Relation> relationList) implements Serializable {
+public record SearchResults(ArrayList<Node> nodeList, ArrayList<Way> wayList, ArrayList<Relation> relationList) implements Serializable {
     public SearchResults() {
-        this(new ArrayList<>(),new ArrayList<>(),new ArrayList<>());
+        this(new ArrayList<>(0),new ArrayList<>(0),new ArrayList<>(0));
+    }
+
+    public void clear() {
+        nodeList.trimToSize();
+        wayList.trimToSize();
+        relationList.trimToSize();
+
+        nodeList.clear();
+        wayList.clear();
+        relationList.clear();
     }
 
     public void add(ElementType type, Element element) {
-        switch (type) {
-            case ElementType.node -> nodeList.add((Node) element);
-            case ElementType.way -> wayList.add((Way) element);
-            case ElementType.relation -> relationList.add((Relation) element);
+        switch (element) {
+            case Node node -> {
+                nodeList.add(node);
+            }
+            case Way way -> {
+                wayList.add(way);
+            }
+            case Relation relation -> {
+                relationList.add(relation);
+            }
+            default -> {}
         }
     }
 
     public void sort() {
         relationList.sort(Comparator.comparingDouble(r -> -r.getMbr().area()));
-        wayList.sort(Comparator.comparingDouble(w -> -w.getMbr().area()));
+
+        if (wayList.size() > 1000) {
+            Arrays.parallelSort(wayList.toArray(new Way[0]), Comparator.comparingDouble(w -> -w.getArea()));
+        } else {
+            wayList.sort(Comparator.comparingDouble(w -> -w.getArea()));
+        }
     }
 }

@@ -7,7 +7,7 @@ public class AppSettings {
     private static AppSettings INSTANCE;
     private final ObjectProperty<UserMode> userMode = new SimpleObjectProperty<>(UserMode.menu);
     private final ObjectProperty<MapState> mapState = new SimpleObjectProperty<>(MapState.osm);
-    private final ObjectProperty<Boolean> isHeightCurvesVisible = new SimpleObjectProperty<>(true);
+    private final ObjectProperty<Boolean> isHeightCurvesVisible = new SimpleObjectProperty<>(false);
     private final ObjectProperty<Boolean> isViewportDebug = new SimpleObjectProperty<>(false);
     private final ObjectProperty<Boolean> isBoundingBoxDebug = new SimpleObjectProperty<>(false);
     private final ObjectProperty<Boolean> isPathfindingDebug = new SimpleObjectProperty<>(false);

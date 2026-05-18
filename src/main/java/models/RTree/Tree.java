@@ -18,6 +18,12 @@ public class Tree implements Serializable {
     private final int max = 30; // Must be
     private BoundingBox mbr;
     private final TreeData treeData;
+    private transient SearchResults searchResults;
+    private double zoomLevel;
+
+    public void setZoomLevel(double zoomLevel) {
+        this.zoomLevel = zoomLevel;
+    }
 
     public Tree(BoundingBox mbr, Map<Long,Node> nodeMap, Map<Long, Way> wayMap, Map<Long, Relation> relationMap) {
         if (mbr == null || nodeMap == null || wayMap == null || relationMap == null) {
@@ -40,7 +46,11 @@ public class Tree implements Serializable {
     }
 
     public SearchResults search(BoundingBox searchArea) {
-        SearchResults searchResults = new SearchResults();
+        if (searchResults == null) {
+            searchResults = new SearchResults();
+        }
+
+        searchResults.clear();
         if (root != null) {
             searchRecursive(root, searchArea, searchResults);
         }
@@ -53,10 +63,17 @@ public class Tree implements Serializable {
             if (entry.overlaps(searchArea)) {
                 switch (entry) {
                     case LeafEntry leaf -> {
-                        // TODO: Implement LOD-logic here
+                        if (!leaf.element().isVisibleOnZoom(zoomLevel)) {
+                            continue;
+                        }
                         searchResults.add(leaf.element().getType(), leaf.element());
                     }
-                    case NodeEntry nonLeaf -> searchRecursive(nonLeaf.child(), searchArea, searchResults);
+                    case NodeEntry nonLeaf -> {
+                        if (!nonLeaf.child().isVisibleOnZoom(zoomLevel)) {
+                            continue;
+                        }
+                        searchRecursive(nonLeaf.child(), searchArea, searchResults);
+                    }
                 }
             }
         }
@@ -87,7 +104,21 @@ public class Tree implements Serializable {
             }
         }
 
+        // If the leaf had no highway ways, walk up the path until we find some
         if (nodes.isEmpty()) {
+            for (int i = path.size() - 2; i >= 0 && nodes.isEmpty(); i--) {
+                TreeNode ancestor = path.get(i);
+                SearchResults ancestorResults = search(ancestor.getMbr());
+                for (Way w : ancestorResults.wayList()) {
+                    if (w.getTag("highway") != null) {
+                        nodes.addAll(w.getNodes());
+                    }
+                }
+            }
+        }
+
+        if (nodes.isEmpty()) {
+            System.out.println("***** No highway ways found in search area *****");
             return null;
         }
 
@@ -107,10 +138,6 @@ public class Tree implements Serializable {
             if (w.getTag("highway") != null) {
                 nodes.addAll(w.getNodes());
             }
-        }
-
-        if (nodes.isEmpty()) {
-            return null;
         }
 
         nearestNodeDist result = _findNearestNodeDist(cursor, new ArrayList<>(nodes));
@@ -147,6 +174,9 @@ public class Tree implements Serializable {
         List<TreeNode> path = new ArrayList<>();
         TreeNode leaf = chooseLeaf(root, element.getMbr(), path);
         leaf.entries.add(new LeafEntry(element));
+
+        updateSubtreeMinZoom(element.getMinZoomLevel(), path);
+
         updateTreeNodeMbr(leaf);
 
         TreeNode splitResult = null;
@@ -157,6 +187,34 @@ public class Tree implements Serializable {
         adjustTree(path, leaf, splitResult);
 
         this.mbr = (root != null) ? root.getMbr() : null;
+    }
+
+    private void updateSubtreeMinZoom(double minZoomLevel, List<TreeNode> path) {
+        boolean hasUpdated = path.getLast().updateSubtreeMinZoom(minZoomLevel);
+
+        if (!hasUpdated) {
+            return;
+        }
+
+        for (int i = path.size() - 2; i >= 0; i--) {
+            TreeNode prev = path.get(i + 1);
+            TreeNode curr = path.get(i);
+            hasUpdated = curr.updateSubtreeMinZoom(prev.getSubtreeMinZoom());
+
+            if (!hasUpdated) {
+                return;
+            }
+        }
+    }
+
+    private void updateSubtreeMinZoom(TreeNode node) {
+        node.resetSubtreeMinZoom();
+        for (TreeEntry entry : node.entries) {
+            switch (entry) {
+                case NodeEntry nodeEntry -> node.updateSubtreeMinZoom(nodeEntry.child().getSubtreeMinZoom());
+                case LeafEntry leafEntry -> node.updateSubtreeMinZoom(leafEntry.element().getMinZoomLevel());
+            }
+        }
     }
 
     private TreeNode chooseLeaf(TreeNode node, BoundingBox mbr, List<TreeNode> path) {
@@ -217,6 +275,10 @@ public class Tree implements Serializable {
             TreeNode newRoot = new TreeNode(false);
             newRoot.entries.add(new NodeEntry(root.getMbr(), root));
             newRoot.entries.add(new NodeEntry(sibling.getMbr(), sibling));
+
+            newRoot.updateSubtreeMinZoom(root.getSubtreeMinZoom());
+            newRoot.updateSubtreeMinZoom(sibling.getSubtreeMinZoom());
+
             root = newRoot;
             updateTreeNodeMbr(root);
         }
@@ -283,6 +345,9 @@ public class Tree implements Serializable {
         TreeNode newNode = new TreeNode(node.isLeaf());
         newNode.entries.addAll(right);
         updateTreeNodeMbr(newNode);
+
+        updateSubtreeMinZoom(node);
+        updateSubtreeMinZoom(newNode);
 
         return newNode;
     }

@@ -17,7 +17,7 @@ public class Relation extends OsmElement implements Iterable<Member>, Serializab
     private List<AdaptivePath> ringShapes;
 
     public Relation(long id, HashMap<String, String> tags, List<Member> members) {
-        super(id, relation, tags, computeMbr(members));
+        super(id, ElementType.relation, tags, computeMbr(members));
         this.members = members;
     }
 
@@ -93,5 +93,10 @@ public class Relation extends OsmElement implements Iterable<Member>, Serializab
 
     public List<AdaptivePath> getRingShapes(){
         return ringShapes;
+    }
+
+    @Override
+    public double getArea() {
+        return getMbr().area();
     }
 }
