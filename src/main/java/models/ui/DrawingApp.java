@@ -16,6 +16,12 @@ public abstract class DrawingApp extends Application {
 
     private PixelBuffer<IntBuffer> pixelBuffer;
     private BufferedImage bufferedImage;
+
+    // Reused every frame, created once in createBuffers() and updated in place.
+    // Previously a new WritableImage was allocated on every render() call, which
+    // caused unnecessary garbage collection pressure.
+    private WritableImage writableImage;
+
     protected final ImageView imageView = new ImageView();
 
     public DrawingApp() {
@@ -29,6 +35,9 @@ public abstract class DrawingApp extends Application {
                 IntBuffer.allocate(w * h),
                 PixelFormat.getIntArgbPreInstance()
         );
+        // Create the WritableImage once, render() will update it in place
+        this.writableImage = new WritableImage(this.pixelBuffer);
+        this.imageView.setImage(this.writableImage);
     }
 
     public void resize(int newWidth, int newHeight) {
@@ -59,14 +68,18 @@ public abstract class DrawingApp extends Application {
     }
 
     /**
-     * Updates the screen with whatever was drawn using the Graphics Context.
+     * Copies the drawn pixels into the JavaFX display buffer.
+     *
+     * Instead of creating a new WritableImage every frame (which the previous version did),
+     * we reuse the same one and call updateBuffer() to tell JavaFX the pixels have changed.
+     * This avoids allocating a large object on every single render call.
      */
     public final void render() {
         // This takes the BufferedImage, and gets the pixels representation
         int[] pixels = ((DataBufferInt) this.bufferedImage.getRaster().getDataBuffer()).getData();
         // This copies our pixels into the PixelBuffer
         System.arraycopy(pixels, 0, this.pixelBuffer.getBuffer().array(), 0, pixels.length);
-        // This updates our graphical component with the buffer
-        this.imageView.setImage(new WritableImage(this.pixelBuffer));
+        // Signal JavaFX that the pixel buffer has new content, no new object allocated
+        this.pixelBuffer.updateBuffer(b -> null);
     }
 }
