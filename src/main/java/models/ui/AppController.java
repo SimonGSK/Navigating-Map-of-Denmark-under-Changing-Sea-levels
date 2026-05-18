@@ -45,6 +45,10 @@ public class AppController extends DrawingApp {
     private double prevMouseX = 0;
     private double prevMouseY = 0;
 
+    public AppSettings getAppSettings() {
+        return appSettings;
+    }
+
     private enum AppControllerState {
         ready,
         active,
@@ -120,7 +124,7 @@ public class AppController extends DrawingApp {
         });
 
         handleRecenter(appData.getBounds(), appData.getMeanLat());
-        userInterface.setUserMode(UserInterface.UserMode.explore);
+        appSettings.setUserMode(AppSettings.UserMode.explore);
 
         // Initial draw and render
         handleDraw();
@@ -134,10 +138,10 @@ public class AppController extends DrawingApp {
         int w = getWIDTH();
         int h = getHEIGHT();
 
-        Point2D topLeft = superAffine.inverseTransform(userInterface.isViewportDebug() ? w * 0.2 : 0,
-                                                       userInterface.isViewportDebug() ? h * 0.2 : 0);
-        Point2D bottomRight = superAffine.inverseTransform(userInterface.isViewportDebug() ? w * 0.8 : w,
-                                                           userInterface.isViewportDebug() ? h * 0.8 : h);
+        Point2D topLeft = superAffine.inverseTransform(appSettings.isViewportDebug() ? w * 0.2 : 0,
+                                                       appSettings.isViewportDebug() ? h * 0.2 : 0);
+        Point2D bottomRight = superAffine.inverseTransform(appSettings.isViewportDebug() ? w * 0.8 : w,
+                                                           appSettings.isViewportDebug() ? h * 0.8 : h);
         double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
 
         double minLon = topLeft.getX() / cosMeanLat;
@@ -192,18 +196,14 @@ public class AppController extends DrawingApp {
             appData.getHeightCurveRenderer().draws(gc);
         };
 
-        if (userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
+        if (appSettings.getUserMode() == (AppSettings.UserMode.select)) {
+            double zoomScale = superAffine.getScaleX();
+            float strokeWidth = (float)(2.0 / zoomScale); // 2px on screen at all zoom levels
             gc.setColor(Color.decode("#FF1DCE"));
-            gc.setStroke(new BasicStroke(0.0001f));
+            gc.setStroke(new BasicStroke(strokeWidth));
             gc.draw(pathToNearestNode);
         }
-
-        if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
-            System.out.println("DRAWING GRAPHICS!");
-            graphicsRenderer.draws(gc);
-        } else if (userInterface.isBoundingBoxDebug()){
-            graphicsRenderer.draws(gc);
-        }
+        graphicsRenderer.draws(gc);
 
         // Draw filled circles at start and end nodes
         if (pathfindingObject.getStartNode() != null) {
@@ -219,7 +219,7 @@ public class AppController extends DrawingApp {
         }
 
         //Viewport debug square to show the boundaries of the viewport
-        if (userInterface.isViewportDebug()) {
+        if (appSettings.isViewportDebug()) {
             gc.setTransform(new java.awt.geom.AffineTransform());
             int w = getWIDTH();
             int h = getHEIGHT();
@@ -240,7 +240,10 @@ public class AppController extends DrawingApp {
         double startWorldX = node.getLon() * cosMeanLat;
         double startWorldY = -node.getLat();
 
-        float radius = 0.0005f;
+        double zoomScale = superAffine.getScaleX();
+        double radiusPixels = 8.0;
+        double radius = radiusPixels / zoomScale;
+
         return new Ellipse2D.Double(
                 startWorldX - radius,
                 startWorldY - radius,
@@ -266,7 +269,7 @@ public class AppController extends DrawingApp {
 
     private void handleMouseClick(MouseEvent event) {
         if (event.isStillSincePress()) {
-            if (userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
+            if (appSettings.getUserMode() == AppSettings.UserMode.select) {
                 if (pathfindingObject == null) {
                     pathfindingObject = PathfindingObject.getInstance();
                 }
@@ -297,7 +300,7 @@ public class AppController extends DrawingApp {
                 }
 
                 if (pathfindingObject.isReady()) {
-                    userInterface.setUserMode(UserInterface.UserMode.explore);
+                    appSettings.setUserMode(AppSettings.UserMode.explore); /**/
                     pathfindingObject.updatePath();
                     handleDraw();
                 }
@@ -311,7 +314,7 @@ public class AppController extends DrawingApp {
     }
 
     private void handleMouseMove(MouseEvent event) {
-        if (!userInterface.getUserMode().equals(UserInterface.UserMode.select)) {
+        if (!(appSettings.getUserMode() == AppSettings.UserMode.select)) {
             return;
         }
 
@@ -359,22 +362,22 @@ public class AppController extends DrawingApp {
         System.out.println(event.getCode());
         switch (event.getCode()) {
             case ESCAPE -> {
-                userInterface.setUserMode(UserInterface.UserMode.explore);
+                appSettings.setUserMode(AppSettings.UserMode.explore);
             }
             case S -> {
                 pathfindingObject.clear();
-                if (userInterface.isPathfindingDebug()) userInterface.setPathfindingDebug(false);
-                userInterface.setUserMode(UserInterface.UserMode.select);
+                if (appSettings.isPathfindingDebug()) appSettings.setPathfindingDebug(false);
+                appSettings.setUserMode(AppSettings.UserMode.select);
             }
             case V -> {
-                userInterface.setViewportDebug(!userInterface.isViewportDebug());
+                appSettings.setViewportDebug(!appSettings.isViewportDebug());
             }
             case B -> {
-                userInterface.setBoundingBoxDebug(!userInterface.isBoundingBoxDebug());
+                appSettings.setBoundingBoxDebug(!appSettings.isBoundingBoxDebug());
             }
             case P -> {
                 if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
-                    userInterface.setPathfindingDebug(!userInterface.isPathfindingDebug());
+                    appSettings.setPathfindingDebug(!appSettings.isPathfindingDebug());
                 }
             }
         }
