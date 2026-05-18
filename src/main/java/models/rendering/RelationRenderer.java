@@ -1,5 +1,6 @@
 package models.rendering;
 
+import models.geometry.AdaptivePath;
 import models.parser.AbstractRenderer;
 import models.osm.Member;
 import models.osm.Node;
@@ -32,12 +33,18 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
                 continue;
             }
 
-            if (relation.getShape() == null) continue;
+            List<AdaptivePath> rings = relation.getRingShapes();
+            if (rings == null || rings.isEmpty()) continue;
 
-            Path2D path = relation.getShape();
+            // Update each ring for the current zoom, then combine into one even-odd path
+            Path2D combined = new Path2D.Double(Path2D.WIND_EVEN_ODD);
+            for (AdaptivePath ring : rings) {
+                ring.updateForZoom(currentZoomLevel);
+                combined.append(ring, false);  // false = don't connect subpaths
+            }
 
             gc.setColor(relation.getColor());
-            gc.fill(path);
+            gc.fill(combined);
         }
     }
 }

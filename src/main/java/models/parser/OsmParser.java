@@ -87,6 +87,7 @@ public class OsmParser extends AbstractParser<OsmData> {
         }
         for (Relation relation : relationMap.values()){
             relation.setShape(shapeBuilder.buildRelation(relation));
+            relation.setRingShapes(shapeBuilder.buildRelationAdaptive(relation));
             relation.setMinZoomLevel(LodAssigner.compute(relation.getTags(), relation.getMbr().area(), cosMeanLat));
         }
     }

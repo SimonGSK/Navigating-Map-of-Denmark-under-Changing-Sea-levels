@@ -1,6 +1,7 @@
 package models.osm;
 
 import enums.ElementType;
+import models.geometry.AdaptivePath;
 import models.geometry.BoundingBox;
 
 import java.awt.*;
@@ -8,9 +9,12 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
+import static enums.ElementType.relation;
+
 
 public class Relation extends OsmElement implements Iterable<Member>, Serializable {
     private List<Member> members;
+    private List<AdaptivePath> ringShapes;
 
     public Relation(long id, HashMap<String, String> tags, List<Member> members) {
         super(id, ElementType.relation, tags, computeMbr(members));
@@ -81,6 +85,14 @@ public class Relation extends OsmElement implements Iterable<Member>, Serializab
             }
         }
         return nodes;
+    }
+
+    public void setRingShapes(List<AdaptivePath> rings){
+        ringShapes = rings;
+    }
+
+    public List<AdaptivePath> getRingShapes(){
+        return ringShapes;
     }
 
     @Override

@@ -41,10 +41,10 @@ import java.util.*;
 
 public class AdaptivePath extends Path2D.Double {
     // A point must deviate more than this (in pixels) to be worth keeping.
-    private static final double HALF_PIXEL = 0.5;
+    private static final double PIXEL_STEP = 4;
 
     // Only rebuild the path when zoom changes by at least this much
-    private static final double ZOOM_STEP = 0.5;
+    private static final double ZOOM_STEP = 1;
 
     private final double[] rawX;
     private final double[] rawY;
@@ -87,7 +87,7 @@ public class AdaptivePath extends Path2D.Double {
 
         if (pointCount < 3) return;
 
-        double epsilon = HALF_PIXEL/Math.pow(2.0, quantised);
+        double epsilon = PIXEL_STEP/Math.pow(2.0, quantised);
         boolean[] keep = new boolean[pointCount];
         keep[0] = true;
         keep[pointCount-1] = true;

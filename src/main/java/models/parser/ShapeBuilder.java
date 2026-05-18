@@ -1,5 +1,6 @@
 package models.parser;
 
+import models.geometry.AdaptivePath;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
 import models.osm.Member;
@@ -166,6 +167,35 @@ public class ShapeBuilder {
             rings.add(new ArrayList<>(ring));
         }
         return rings;
+    }
+
+    public List<AdaptivePath> buildRelationAdaptive(Relation relation) {
+        List<AdaptivePath> result = new ArrayList<>();
+
+        List<Way> outerWays = new ArrayList<>();
+        List<Way> innerWays = new ArrayList<>();
+        for (Member member : relation.getMembers()) {
+            if (!(member.getElement() instanceof Way way)) continue;
+            if ("inner".equals(member.getRole())) innerWays.add(way);
+            else outerWays.add(way);  // outer, "", or null
+        }
+
+        for (List<Node> ring : stitchWaysToRings(outerWays)) {
+            result.add(ringToAdaptivePath(ring));
+        }
+        for (List<Node> ring : stitchWaysToRings(innerWays)) {
+            result.add(ringToAdaptivePath(ring));  // inner rings become holes via EVEN_ODD
+        }
+        return result;
+    }
+
+    private AdaptivePath ringToAdaptivePath(List<Node> ring) {
+        List<double[]> points = new ArrayList<>(ring.size());
+        for (Node n : ring) {
+            if (n == null) continue;
+            points.add(new double[]{ n.getLon() * cosMeanLat, -n.getLat() });
+        }
+        return new AdaptivePath(points, true);
     }
 
     private boolean isConnected(Node a, Node b) {
