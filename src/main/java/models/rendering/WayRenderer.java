@@ -10,9 +10,42 @@ import java.util.List;
 
 public class WayRenderer extends AbstractRenderer<Way> {
 
-    public WayRenderer(double meanLat) {
-        super(meanLat);
-    }
+        /* Cached strokes: Rebuilt only when zoom changes to a new 0.5 step.
+          Creating a new BasicStroke for every road on every frame is wasteful
+          since the width only changes with zoom, not per element.
+         */
+        private BasicStroke cachedRoadStroke = null;
+        private BasicStroke cachedFillStroke = new BasicStroke(0);
+        private double cachedStrokeZoom = Double.NaN;
+
+        private static final double ZOOM_STEP = 0.5;
+
+        public WayRenderer( double meanLat){
+            super(meanLat);
+        }
+
+        // Returns a road stroke for the current zoom, reusing the cached one if zoom hasn't changed
+        private BasicStroke getRoadStroke() {
+            /* Round zoom to the nearest 0.5 step (e.g. 11.3 → 11.5, 12.1 → 12.0)
+             so we don't rebuild the stroke on every tiny scroll movement
+             */
+            double quantised = Math.round(currentZoomLevel/ZOOM_STEP) * ZOOM_STEP;
+            if (quantised != cachedStrokeZoom || cachedRoadStroke == null) {
+                cachedStrokeZoom = quantised;
+
+                /* Roads should always appear 1.5 pixels wide on screen regardless of zoom.
+                 But the renderer works in geographic degrees, not pixels, so we need to
+                 convert: at zoom z, one degree = 2^z pixels, meaning one pixel = 1/2^z degrees.
+                 Multiplying by 1.5 gives us the road width in degrees that equals 1.5 pixels.
+                 At zoom 11 (island view): 1.5 / 2048 ≈ 0.00073° = 1.5px on screen
+                 At zoom 15 (street view): 1.5 / 32768 ≈ 0.000046° = still 1.5px on screen
+                 */
+                float strokeWidth = (float)(1.5/Math.pow(2, quantised));
+                cachedRoadStroke = new BasicStroke(strokeWidth);
+            }
+            return cachedRoadStroke;
+        }
+
 
     @Override
     public void draws(Graphics2D gc) {
@@ -31,11 +64,10 @@ public class WayRenderer extends AbstractRenderer<Way> {
             gc.setColor(way.getColor());
 
             if (!isClosed) {
-                float strokeWidth = (float)(1.5/Math.pow(2, currentZoomLevel));
-                gc.setStroke(new BasicStroke(strokeWidth));
+                gc.setStroke(getRoadStroke());
                 gc.draw(path);
             } else {
-                gc.setStroke(new BasicStroke(0));
+                gc.setStroke(cachedFillStroke);
                 gc.fill(path);
             }
         }

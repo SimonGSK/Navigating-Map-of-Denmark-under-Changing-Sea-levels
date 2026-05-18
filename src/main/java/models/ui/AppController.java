@@ -1,5 +1,6 @@
 package models.ui;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
@@ -37,6 +38,16 @@ public class AppController extends DrawingApp {
 
     private PathfindingObject pathfindingObject = PathfindingObject.getInstance();
     private final Path2D pathToNearestNode = new Path2D.Double();
+
+    /* When something changes (pan, zoom, etc.) this gets set to true to signal a redraw is needed.
+    The AnimationTimer below checks this ~60 times per second and only redraws when it's true.
+    This way, even if the mouse fires 200 events per second, we only draw 60 times at most.
+
+    volatile ensures that when one thread sets this to true, the AnimationTimer thread
+    sees the update immediately rather than reading a stale cached value.
+     */
+    private volatile boolean isDirty = false;
+    private AnimationTimer animationTimer;
 
     private final GraphicsRenderer graphicsRenderer = new GraphicsRenderer(this);
 
@@ -128,6 +139,22 @@ public class AppController extends DrawingApp {
 
         // Initial draw and render
         handleDraw();
+
+        /*
+        Start the render loop using AnimationTimer, checks isDirty 60 times per second and redraws when set.
+        This means input events no longer trigger synchronous redraws, they just set the isDirty flag.
+         */
+        animationTimer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                if (isDirty) {
+                    isDirty = false;
+                    draw();
+                    render();
+                }
+            }
+        };
+        animationTimer.start();
     }
 
     public ExtSuperAffine getSuperAffine() {
@@ -388,8 +415,8 @@ public class AppController extends DrawingApp {
     }
 
     public void handleDraw() {
-        draw();
-        render();
+        isDirty = true;
+
     }
 
     public double getSeaLevel() {
