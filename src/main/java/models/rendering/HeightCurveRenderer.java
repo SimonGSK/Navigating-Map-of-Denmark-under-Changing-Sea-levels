@@ -34,10 +34,28 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
     }
 
     private void drawHeightCurveLines(Graphics2D gc) {
+        float strokeWidth = (float)(1.0 / Math.pow(2, currentZoomLevel));
+        gc.setStroke(new BasicStroke(strokeWidth));
+        gc.setColor(Color.darkGray);
+
         for (HeightCurve e : elements) {
-            Path2D path = e.getShape();
-            if (path == null) continue;
-            gc.setColor(Color.darkGray);
+            List<Coordinate> coords = e.getCoords();
+            if (coords == null || coords.isEmpty()) continue;
+
+            Path2D path = new Path2D.Double();
+            boolean first = true;
+            for (Coordinate coord : coords) {
+                double x = coord.getLon() * cosMeanLat;
+                double y = -coord.getLat();
+                if (first) {
+                    path.moveTo(x, y);
+                    first = false;
+                } else {
+                    path.lineTo(x, y);
+                }
+            }
+            path.closePath();
+
             gc.draw(path);
         }
     }

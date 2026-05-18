@@ -199,6 +199,9 @@ public class AppController extends DrawingApp {
 
         appData.getWayRenderer().setCurrentZoomLevel(zoom);
         appData.getRelationRenderer().setCurrentZoomLevel(zoom);
+        if (appData.getHeightCurveRenderer() != null) {
+            appData.getHeightCurveRenderer().setCurrentZoomLevel(zoom);
+        }
 
         Graphics2D gc = getNewGraphicsContext();
 
