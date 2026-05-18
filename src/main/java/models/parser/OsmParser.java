@@ -83,9 +83,11 @@ public class OsmParser extends AbstractParser<OsmData> {
 
         for (Way way : wayMap.values()){
             way.setShape(shapeBuilder.buildWay(way));
+            way.setMinZoomLevel(LodAssigner.compute(way.getTags(), way.getArea(), cosMeanLat));
         }
         for (Relation relation : relationMap.values()){
             relation.setShape(shapeBuilder.buildRelation(relation));
+            relation.setMinZoomLevel(LodAssigner.compute(relation.getTags(), relation.getMbr().area(), cosMeanLat));
         }
     }
 
@@ -134,11 +136,9 @@ public class OsmParser extends AbstractParser<OsmData> {
             Relation existing = relationMap.get(relationID);
             existing.setMembers(members);
             existing.setTags(tags);
-            existing.setMinZoomLevel(calculateZoomLevel(tags));
             return relationMap.get(relationID);
         }
         Relation relation = new Relation(relationID, tags, members);
-        relation.setMinZoomLevel(calculateZoomLevel(tags));
         return relation;
     }
 
@@ -181,7 +181,6 @@ public class OsmParser extends AbstractParser<OsmData> {
         }
 
         Way way = new Way(wayID, tags, nodes);
-        way.setMinZoomLevel(calculateZoomLevel(tags));
         return way;
     }
 
