@@ -1,5 +1,6 @@
 package models.rendering;
 
+import models.geometry.AdaptivePath;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
 import models.parser.AbstractRenderer;
@@ -33,29 +34,43 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
         drawSubmergedCurves(gc);
     }
 
+    private int getHeightInterval() {
+        if (currentZoomLevel < 9)  return 25;
+        if (currentZoomLevel < 10) return 20;
+        if (currentZoomLevel < 11) return 15;
+        if (currentZoomLevel < 12) return 10;
+        return 5;
+    }
+
     private void drawHeightCurveLines(Graphics2D gc) {
         float strokeWidth = (float)(1.0 / Math.pow(2, currentZoomLevel));
         gc.setStroke(new BasicStroke(strokeWidth));
         gc.setColor(Color.darkGray);
 
+        int interval = getHeightInterval();
+
         for (HeightCurve e : elements) {
-            List<Coordinate> coords = e.getCoords();
-            if (coords == null || coords.isEmpty()) continue;
+            if (Math.round(e.getHeight()) % interval != 0) continue;
 
-            Path2D path = new Path2D.Double();
-            boolean first = true;
-            for (Coordinate coord : coords) {
-                double x = coord.getLon() * cosMeanLat;
-                double y = -coord.getLat();
-                if (first) {
-                    path.moveTo(x, y);
-                    first = false;
-                } else {
-                    path.lineTo(x, y);
+            AdaptivePath path = e.getAdaptivePath();
+            if (path == null) {
+                List<Coordinate> coords = e.getCoords();
+                if (coords == null || coords.isEmpty()) continue;
+
+                /**
+                 * Build the AdaptivePath from projected coordinates on first draw and cache it.
+                 * Subsequent frames reuse the cached path; updateForZoom() only rebuilds
+                 * the path geometry when zoom crosses a full step, returning immediately otherwise.
+                 */
+                List<double[]> points = new ArrayList<>();
+                for (Coordinate coord : coords) {
+                    points.add(new double[]{ coord.getLon() * cosMeanLat, -coord.getLat() });
                 }
+                path = new AdaptivePath(points, true);
+                e.setAdaptivePath(path);
             }
-            path.closePath();
 
+            path.updateForZoom(currentZoomLevel);
             gc.draw(path);
         }
     }

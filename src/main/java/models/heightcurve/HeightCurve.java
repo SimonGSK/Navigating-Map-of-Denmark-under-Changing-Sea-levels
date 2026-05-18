@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import enums.ElementType;
+import models.geometry.AdaptivePath;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.osm.Element;
@@ -18,6 +19,7 @@ public class HeightCurve extends Element implements Serializable {
     public boolean submerged;
     private transient HeightCurve parent;
     protected Path2D shape = null;
+    private transient AdaptivePath adaptivePath = null;
     private double seaLevel = 0;
 
     public HeightCurve(long id, double height, List<Coordinate> coords, List<HeightCurve> children) {
@@ -117,6 +119,9 @@ public class HeightCurve extends Element implements Serializable {
     public Path2D getShape(){
         return shape;
     }
+
+    public AdaptivePath getAdaptivePath() { return adaptivePath; }
+    public void setAdaptivePath(AdaptivePath path) { this.adaptivePath = path; }
 
     @Override
     public void draws(Graphics2D gc) {
