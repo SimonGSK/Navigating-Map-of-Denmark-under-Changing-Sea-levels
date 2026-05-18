@@ -195,18 +195,14 @@ public class AppController extends DrawingApp {
             appData.getHeightCurveRenderer().draws(gc);
         };
 
-        if (appSettings.getUserMode() == (AppSettings.UserMode.select)) { /**/
+        if (appSettings.getUserMode() == (AppSettings.UserMode.select)) {
+            double zoomScale = superAffine.getScaleX();
+            float strokeWidth = (float)(2.0 / zoomScale); // 2px on screen at all zoom levels
             gc.setColor(Color.decode("#FF1DCE"));
-            gc.setStroke(new BasicStroke(0.0001f));
+            gc.setStroke(new BasicStroke(strokeWidth));
             gc.draw(pathToNearestNode);
         }
-
-        if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
-            System.out.println("DRAWING GRAPHICS!");
-            graphicsRenderer.draws(gc);
-        } else if (appSettings.isBoundingBoxDebug()){
-            graphicsRenderer.draws(gc);
-        }
+        graphicsRenderer.draws(gc);
 
         // Draw filled circles at start and end nodes
         if (pathfindingObject.getStartNode() != null) {
@@ -243,7 +239,10 @@ public class AppController extends DrawingApp {
         double startWorldX = node.getLon() * cosMeanLat;
         double startWorldY = -node.getLat();
 
-        float radius = 0.0005f;
+        double zoomScale = superAffine.getScaleX();
+        double radiusPixels = 8.0;
+        double radius = radiusPixels / zoomScale;
+
         return new Ellipse2D.Double(
                 startWorldX - radius,
                 startWorldY - radius,

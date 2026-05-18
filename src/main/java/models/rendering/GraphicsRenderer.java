@@ -59,8 +59,10 @@ public class GraphicsRenderer implements Drawable {
     public void draws(Graphics2D gc) {
         // Draw pathfinding route
         if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
+            double zoomScale = appController.getSuperAffine().getScaleX();
+            float strokeWidth = (float)(3.0 / zoomScale); // 3px on screen at all zoom levels
             gc.setColor(Color.decode("#FF1DCE"));
-            gc.setStroke(new BasicStroke(0.0003f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            gc.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
             gc.draw(buildPath(pathfindingObject.getPath()));
         }
         if(appController.getAppSettings().isBoundingBoxDebug()) {
@@ -72,11 +74,14 @@ public class GraphicsRenderer implements Drawable {
         if(appController.getAppSettings().isPathfindingDebug()) {
             Set<Node> visited = appController.getPathfindingObject().getVisited();
             if (visited != null) {
-                gc.setColor(Color.MAGENTA);
+                double zoomScale = appController.getSuperAffine().getScaleX();
+                double pixelSize = Math.max(2.0, zoomScale * 0.00005); // grows with zoom, never below 2px
+                double radius = pixelSize / zoomScale;
+                gc.setColor(Color.ORANGE);
                 for (Node node : visited) {
                     double worldX = node.getLon() * cosMeanLat;
                     double worldY = -node.getCoordinate().getLat();
-                    Ellipse2D.Double circle = new Ellipse2D.Double(worldX - 0.00015f, worldY - 0.00015f, 0.0003f, 0.0003f);
+                    Ellipse2D.Double circle = new Ellipse2D.Double(worldX - radius, worldY - radius, radius * 2, radius * 2);
                     gc.fill(circle);
                 }
             }
