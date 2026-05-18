@@ -288,6 +288,7 @@ public class AppController extends DrawingApp {
 
                 if (pathfindingObject.getStartNode() == null) {
                     pathfindingObject.setStartNode(node);
+                    handleDraw();
                     return;
                 }
 
