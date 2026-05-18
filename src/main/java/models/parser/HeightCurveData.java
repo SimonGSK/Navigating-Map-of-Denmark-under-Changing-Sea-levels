@@ -53,7 +53,10 @@ public class HeightCurveData implements Serializable {
 
         for (HeightCurve hc : sorted) {
             HeightCurve parent = findParent(hc, sorted, root);
-            parent.addChild(hc);
+
+            if (parent != null){
+                parent.addChild(hc);
+            }
         }
     }
 
