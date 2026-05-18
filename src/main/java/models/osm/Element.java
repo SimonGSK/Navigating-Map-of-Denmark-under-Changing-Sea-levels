@@ -13,7 +13,6 @@ import java.util.Set;
 
 public abstract class Element implements SpatialElement, Drawable, Serializable {
     private BoundingBox mbr;
-    private double area;
     final private long id;
     final private ElementType type;
     private double minZoomLevel = 0;
@@ -23,14 +22,6 @@ public abstract class Element implements SpatialElement, Drawable, Serializable 
         this.id = id;
         this.type = type;
         this.mbr = mbr;
-        this.area = mbr.area();
-    }
-
-    public Element(long id, ElementType type, BoundingBox mbr, double area) {
-        this.id = id;
-        this.type = type;
-        this.mbr = mbr;
-        this.area = area;
     }
 
     @Override
@@ -40,15 +31,6 @@ public abstract class Element implements SpatialElement, Drawable, Serializable 
 
     public void setMbr(BoundingBox mbr) {
         this.mbr = mbr;
-    }
-
-    @Override
-    public double getArea() {
-        return area;
-    }
-
-    protected void setArea(double area) {
-        this.area = area;
     }
 
     public ElementType getType() {
@@ -65,6 +47,10 @@ public abstract class Element implements SpatialElement, Drawable, Serializable 
 
     public void setMinZoomLevel(double minZoomLevel) {
         this.minZoomLevel = minZoomLevel;
+    }
+
+    public boolean isVisibleOnZoom(double currentZoomLevel) {
+        return currentZoomLevel >= minZoomLevel;
     }
 
     public boolean isVisible(double zoomLevel) {

@@ -15,11 +15,6 @@ public abstract class OsmElement extends Element {
         this.tags = tags;
     }
 
-    public OsmElement(long id, ElementType type, HashMap<String, String> tags, BoundingBox mbr, double area) {
-        super(id, type, mbr, area);
-        this.tags = tags;
-    }
-
     public HashMap<String, String> getTags() {
         if (tags == null) {
             return null;

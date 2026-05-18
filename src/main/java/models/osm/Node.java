@@ -76,4 +76,9 @@ public class Node extends OsmElement implements Comparable<Node>, Serializable {
     public HeightCurve getContainingHeightCurve() {
         return containingHeightCurve;
     }
+
+    @Override
+    public double getArea() {
+        return 0;
+    }
 }

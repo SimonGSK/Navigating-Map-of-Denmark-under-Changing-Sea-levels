@@ -10,10 +10,12 @@ import java.util.List;
 
 public class Way extends OsmElement implements Iterable<Node>, Serializable {
     private final List<Node> nodes;
+    private final double area;
 
     public Way(long id, HashMap<String, String> tags, List<Node> nodes) {
-        super(id, ElementType.way, tags, computeMbr(nodes), getAreaShoelace(nodes));
+        super(id, ElementType.way, tags, computeMbr(nodes));
         this.nodes = nodes;
+        this.area = getAreaShoelace(nodes);
     }
 
     static private BoundingBox computeMbr(List<Node> nodes) {
@@ -58,5 +60,10 @@ public class Way extends OsmElement implements Iterable<Node>, Serializable {
             return Collections.emptyIterator();
         }
         return nodes.iterator();
+    }
+
+    @Override
+    public double getArea() {
+        return area;
     }
 }
