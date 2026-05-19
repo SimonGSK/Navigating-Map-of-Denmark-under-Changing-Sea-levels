@@ -26,8 +26,8 @@ public class OsmParser extends AbstractParser<OsmData> {
 
     private BoundingBox mbr;
 
-    public OsmParser(String absoluteFilePath) throws IOException {
-        parse(absoluteFilePath);
+    public OsmParser(String relativeFilePath) throws IOException {
+        parse(relativeFilePath);
     }
 
     public void parse(String filePath) throws IOException {
