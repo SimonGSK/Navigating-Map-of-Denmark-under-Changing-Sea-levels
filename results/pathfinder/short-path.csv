@@ -1,0 +1,3 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99,9%)","Unit","Param: isDijkstra"
+"benchmark.pathfinderbenchmark.PathfinderBenchmark.shortPath","avgt",1,20,"12077,248830","155,570226","ns/op",true
+"benchmark.pathfinderbenchmark.PathfinderBenchmark.shortPath","avgt",1,20,"3822,478540","130,926035","ns/op",false

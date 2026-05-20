@@ -1,0 +1,3 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99,9%)","Unit"
+"benchmark.pathfinderbenchmark.PathfinderBenchmark.aStar","avgt",1,20,"14,168400","1,210289","ms/op"
+"benchmark.pathfinderbenchmark.PathfinderBenchmark.dijkstra","avgt",1,20,"43,001071","1,793084","ms/op"

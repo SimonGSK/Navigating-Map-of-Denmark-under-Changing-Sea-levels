@@ -1,4 +1,4 @@
-package benchmark.TreeBenchmark;
+package benchmark;
 
 import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
