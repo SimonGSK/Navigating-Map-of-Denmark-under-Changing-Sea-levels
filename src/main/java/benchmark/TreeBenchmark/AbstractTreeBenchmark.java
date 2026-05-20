@@ -1,4 +1,4 @@
-package benchmark;
+package benchmark.TreeBenchmark;
 
 import models.RTree.SearchResults;
 import models.parser.MapData;
@@ -19,7 +19,7 @@ public abstract class AbstractTreeBenchmark {
         if (mapData == null) {
             synchronized (TreeBuildBenchmark.class) {
                 if (mapData == null) {
-                    mapData = BenchmarkUtils.loadMapData();
+                    mapData = TreeBenchmarkUtils.loadMapData();
                 }
             }
         }

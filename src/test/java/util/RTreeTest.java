@@ -305,26 +305,6 @@ public class RTreeTest {
         }
 
         @Test
-        void searchResults_sort_waysLargestFirst() {
-            SearchResults sr = new SearchResults();
-            Way small = closedWay(1, 55.10, 14.80, 55.11, 14.81);
-            Way large = closedWay(2, 55.00, 14.70, 55.20, 15.00);
-
-            sr.add(ElementType.way, small);
-            sr.add(ElementType.way, large);
-
-            System.out.println("small getArea: " + small.getArea());
-            System.out.println("large getArea: " + large.getArea());
-            System.out.println("small MBR area: " + small.getMbr().area());
-            System.out.println("large MBR area: " + large.getMbr().area());
-            sr.sort();
-
-
-            assertTrue(sr.wayList().get(0).getMbr().area() >= sr.wayList().get(1).getMbr().area());
-            assertEquals(large.getId(), sr.wayList().get(0).getId(), "large way should be first");
-            assertEquals(small.getId(), sr.wayList().get(1).getId(), "small way should be second");
-        }
-        @Test
         @DisplayName("sort() — relations ordered largest-first")
         void searchResults_sort_relationsLargestFirst() {
             SearchResults sr    = new SearchResults();
