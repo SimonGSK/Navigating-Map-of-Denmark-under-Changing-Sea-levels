@@ -4,7 +4,6 @@ import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
-import models.parser.HeightCurveData;
 import models.pathfinding.Edge;
 
 import java.awt.*;

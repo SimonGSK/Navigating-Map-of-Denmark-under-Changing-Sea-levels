@@ -43,8 +43,8 @@ public class HeightCurveData implements Serializable {
         buildTree(root, curves);
     }
 
-    //Sorterer alle HeightCurves fra størst til mindst så vi får dem i rækkefølge - parents er større end deres children
-    //Derefter kaldes findParent() på alle HeightCurves for at finde deres parents
+    // Sorts all HeightCurves from largest to smallest so we get them in order, parents are larger than their children
+   // Then findParent() is called on all HeightCurves to find their parents
     private void buildTree(HeightCurve root, List<HeightCurve> curves) {
         List<HeightCurve> sorted = curves.stream()
                 .filter(c -> c.getId() != -1)
@@ -67,7 +67,6 @@ public class HeightCurveData implements Serializable {
                 searchRecursive(hc,searchArea,searchResults);
             }
         }
-        //searchResults.sort(Comparator.comparingDouble(HeightCurve::getArea));
         return searchResults;
     }
 
@@ -82,9 +81,9 @@ public class HeightCurveData implements Serializable {
         }
     }
 
-    //Finder, den mindste HeightCurve der er større end den selv, altså dens Parent
-    //Kalder Contains() for at tjekke om en større HeightCurve indeholder den hc vi ønsker at finde parent på
-    //Returnerer havet hvis der ikke er andre HeightCurves som parent
+    // Finds the smallest HeightCurve that is larger than itself, i.e. its Parent
+    // Calls Contains() to check whether a larger HeightCurve contains the hc we want to find the parent of
+   // Returns the sea if there are no other HeightCurves as parent
     private HeightCurve findParent(HeightCurve hc, List<HeightCurve> sorted, HeightCurve sea) {
         // TODO: Requires cleanup. bestArea is unused varibale. bestParent is initialized as sea, but variable is never reassigned. Could just return sea
 
@@ -109,7 +108,7 @@ public class HeightCurveData implements Serializable {
             return false;
         }
 
-        // Tjek om første koordinat i inner ligger inde i outer
+        // Check if the first coordinate in inner lies inside outer
         Coordinate testPoint = inner.getCoords().get(0);
         return pointInPolygon(testPoint, outer.getCoords());
     }
@@ -150,7 +149,7 @@ public class HeightCurveData implements Serializable {
     }
 
     public void updateFlooding(double seaLevel) {
-        resetAll(root); //Nulstiller alt for at genberegne oversvømmelserne
+        resetAll(root); // Resets everything in order to recalculate the floods
 
         // Start from sea's children - sea itself is always the implicit "above water" parent
         for (HeightCurve child : root.getChildren()) {

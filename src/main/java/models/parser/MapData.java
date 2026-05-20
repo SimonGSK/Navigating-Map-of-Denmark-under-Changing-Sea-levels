@@ -37,10 +37,10 @@ public class MapData implements Serializable {
         this(wayMap,relationMap,nodeMap,mbr,null,null);
     }
 
-    // Opdeler OSM-data i to grupper: multipolygon-relations og standalone ways.
-    // Ways der indgår i en relation fjernes fra way-listen for at undgå at de samme områder tegnes to gange.
-    // Begge lister sorteres fra størst til mindst areal, så store baggrundsarealer tegnes først og ikke dækker over mindre detaljer.
-    // Used when loading from binary
+    // Splits OSM data into two groups: multipolygon relations and standalone ways.
+   // Ways that are part of a relation are removed from the way list to avoid the same areas being drawn twice.
+   // Both lists are sorted from largest to smallest area, so large background areas are drawn first and don't cover smaller details.
+   // Used when loading from binary
     public MapData(Map<Long, Way> wayMap, Map<Long, Relation> relationMap, Map<Long,Node> nodeMap, BoundingBox mbr, HeightCurveData hcData, Tree tree) {
         this.nodeMap = nodeMap;
         this.mbr = mbr;
@@ -64,12 +64,12 @@ public class MapData implements Serializable {
             }
         }
 
-        // Sorterer relations fra størst til mindst
+        // Sorts relations from biggest to smallest
         multiPolygons = polys.stream()
                 .sorted(Comparator.comparingDouble(r -> -r.getArea()))
                 .toList();
 
-        // Sorterer ways fra størst til mindst
+        // Sorts ways from biggest to smallest
         standaloneWays = wayMap.values().stream()
                 .filter(w -> !waysInRelations.contains(w.getId()))
                 .sorted(Comparator.comparingDouble(w -> -w.getArea()))
