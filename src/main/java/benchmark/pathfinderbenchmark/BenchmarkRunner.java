@@ -1,4 +1,4 @@
-package benchmark;
+package benchmark.pathfinderbenchmark;
 
 import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
@@ -11,15 +11,15 @@ import java.net.URLClassLoader;
 
 public class BenchmarkRunner {
     public static void main(String[] args) throws Exception {
-        String label = "test";
+        String label = "PathfinderBenchmark";
 
         new File("results").mkdirs();
 
         Options opt = new OptionsBuilder()
-            .include("benchmark\\.TreeMax.*")
-            .result("results/" + label + ".csv")
-            .resultFormat(ResultFormatType.CSV)
-            .build();
+                .include("benchmark\\.PathfinderBenchmark.*")
+                .result("results/" + label + ".csv")
+                .resultFormat(ResultFormatType.CSV)
+                .build();
 
         new Runner(opt).run();
     }
