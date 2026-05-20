@@ -57,10 +57,6 @@ class HeightCurveParserTest {
     // Mean latitude used in all tests (55° ≈ Copenhagen)
     private static final double MEAN_LAT = 55.0;
 
-    // -----------------------------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------------------------
-
     /** Writes content to a uniquely named temp file and returns its absolute path. */
     private String writeTempFile(String content) throws IOException {
         File file = File.createTempFile("heightcurves", ".hc", tempDir.toFile());
@@ -80,18 +76,10 @@ class HeightCurveParserTest {
                 + "</root>\n";
     }
 
-    // -----------------------------------------------------------------------
-    // Setup
-    // -----------------------------------------------------------------------
-
     @BeforeEach
     void setUp() {
         osmData = new OsmData(new BoundingBox(0.0, 0.0, 0.0, 0.0), nodeMap, new HashMap<Long, Way>(), new HashMap<Long, Relation>());
     }
-
-    // -----------------------------------------------------------------------
-    // 1. Basic parsing — curve count and attributes
-    // -----------------------------------------------------------------------
 
     @Test
     void parseSingleCurve_createsOneHeightCurve() throws IOException {
@@ -120,10 +108,6 @@ class HeightCurveParserTest {
         HeightCurveParser parser = new HeightCurveParser(writeTempFile(xml), MEAN_LAT, osmData);
         assertEquals(3, parser.getData().curves.size());
     }
-
-    // -----------------------------------------------------------------------
-    // 2. Coordinate parsing — parameterised over representative input sets
-    // -----------------------------------------------------------------------
 
     record CoordCase(long id, double height, double lat1, double lon1, double lat2, double lon2) {}
 
@@ -169,10 +153,6 @@ class HeightCurveParserTest {
         assertEquals(tc.height(), curve.getHeight(), 1e-9);
     }
 
-    // -----------------------------------------------------------------------
-    // 3. Sea / root curve (id == -1)
-    // -----------------------------------------------------------------------
-
     @Test
     void rootCurveIdentified_whenIdIsMinusOne() throws IOException {
         String xml = "<root>\n"
@@ -200,10 +180,6 @@ class HeightCurveParserTest {
 
         assertNull(parser.getData().root, "No root curve should be found");
     }
-
-    // -----------------------------------------------------------------------
-    // 4. Bounding box — parameterised over different spatial configurations
-    // -----------------------------------------------------------------------
 
     record BboxCase(String label,
                     double minLat, double minLon, double maxLat, double maxLon,
@@ -260,10 +236,6 @@ class HeightCurveParserTest {
         assertEquals(tc.maxLon(), data.maxLon, 1e-9, "maxLon");
     }
 
-    // -----------------------------------------------------------------------
-    // 5. Node linking via OsmData
-    // -----------------------------------------------------------------------
-
     @Test
     void nodeRef_linksNodeToContainingHeightCurve() throws IOException {
         TrackingNode trackingNode = new TrackingNode(999L, 0.0, 0.0);
@@ -316,10 +288,6 @@ class HeightCurveParserTest {
         assertNotNull(node2.assignedCurve, "Node 2 should have been linked");
     }
 
-    // -----------------------------------------------------------------------
-    // 6. Shape building
-    // -----------------------------------------------------------------------
-
     @Test
     void everyNonRootCurve_hasShapeSet() throws IOException {
         String xml = "<root>\n"
@@ -340,10 +308,6 @@ class HeightCurveParserTest {
                     "Shape must be set for curve id=" + curve.getId());
         }
     }
-
-    // -----------------------------------------------------------------------
-    // 7. Edge cases
-    // -----------------------------------------------------------------------
 
     @Test
     void emptyFile_producesNoCurvesAndDoesNotThrow() throws IOException {
