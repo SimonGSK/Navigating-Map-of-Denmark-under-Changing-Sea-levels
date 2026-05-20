@@ -413,6 +413,11 @@ public class AppController extends DrawingApp {
                 appSettings.setBoundingBoxDebug(!appSettings.isBoundingBoxDebug());
             }
             case P -> {
+                if (event.isShiftDown()) {
+                    System.out.println(getViewportBox().toString());
+                    return;
+                }
+
                 if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
                     appSettings.setPathfindingDebug(!appSettings.isPathfindingDebug());
                 }
