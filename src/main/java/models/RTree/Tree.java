@@ -13,9 +13,9 @@ import java.io.Serializable;
 import java.util.*;
 
 public class Tree implements Serializable {
+    static private final int min = 1; // Must be >= 1
+    static private int max = 30; // Must be
     private TreeNode root;
-    private final int min = 1; // Must be >= 1
-    private final int max = 30; // Must be
     private BoundingBox mbr;
     private final TreeData treeData;
     private transient SearchResults searchResults;
@@ -25,13 +25,22 @@ public class Tree implements Serializable {
         this.zoomLevel = zoomLevel;
     }
 
-    public Tree(BoundingBox mbr, Map<Long,Node> nodeMap, Map<Long, Way> wayMap, Map<Long, Relation> relationMap) {
+    public Tree(int max, BoundingBox mbr, Map<Long,Node> nodeMap, Map<Long, Way> wayMap, Map<Long, Relation> relationMap) {
+        if (max < (min * 2)) {
+            throw new RuntimeException("max must be greater than min * 2");
+        }
+        Tree.max = max;
+
         if (mbr == null || nodeMap == null || wayMap == null || relationMap == null) {
             throw new RuntimeException("nodeWay, wayMap, and relationMap must not be null");
         }
         this.mbr = mbr;
         this.treeData = new TreeData(nodeMap, wayMap, relationMap);
         this.treeData.forEach(this::insert);
+    }
+
+    public Tree(BoundingBox mbr, Map<Long,Node> nodeMap, Map<Long, Way> wayMap, Map<Long, Relation> relationMap) {
+        this(Tree.max, mbr,nodeMap,wayMap,relationMap);
     }
 
     public void updateTreeNodeMbr(TreeNode node) {

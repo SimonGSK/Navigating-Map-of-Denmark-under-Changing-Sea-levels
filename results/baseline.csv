@@ -1,0 +1,11 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit","Param: zoom"
+"benchmark.TreeBenchmark.TreeSearchBenchmark.searchFullIsland","avgt",1,5,50.350298,2.687165,"ms/op",11.0
+"benchmark.TreeBenchmark.TreeSearchBenchmark.searchFullIsland","avgt",1,5,48.838803,2.947896,"ms/op",13.0
+"benchmark.TreeBenchmark.TreeSearchBenchmark.searchFullIsland","avgt",1,5,57.406525,0.914865,"ms/op",16.0
+"benchmark.TreeBenchmark.TreeSearchBenchmark.searchHalfIsland","avgt",1,5,32.231543,1.787044,"ms/op",11.0
+"benchmark.TreeBenchmark.TreeSearchBenchmark.searchHalfIsland","avgt",1,5,35.466519,7.274809,"ms/op",13.0
+"benchmark.TreeBenchmark.TreeSearchBenchmark.searchHalfIsland","avgt",1,5,37.445805,0.966690,"ms/op",16.0
+"benchmark.TreeBenchmark.TreeSearchBenchmark.searchTown","avgt",1,5,3.081993,0.614721,"ms/op",11.0
+"benchmark.TreeBenchmark.TreeSearchBenchmark.searchTown","avgt",1,5,3.105212,0.539931,"ms/op",13.0
+"benchmark.TreeBenchmark.TreeSearchBenchmark.searchTown","avgt",1,5,4.407687,1.815886,"ms/op",16.0
+"benchmark.TreeBenchmark.TreeBuildBenchmark.BuildTree","ss",1,5,5019.069433,208.254833,"ms/op",

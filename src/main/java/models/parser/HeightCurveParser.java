@@ -15,10 +15,10 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
     private final double cosMeanLat;
     private final OsmData osmData;
 
-    public HeightCurveParser(String absoluteFilePath, double meanLat, OsmData osmData) throws IOException {
+    public HeightCurveParser(String relativeFilePath, double meanLat, OsmData osmData) throws IOException {
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
         this.osmData = osmData;
-        parse(absoluteFilePath);
+        parse(relativeFilePath);
     }
 
     public void parse(String filePath) {
@@ -26,44 +26,42 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
         List<HeightCurve> allCurves = new ArrayList<>();
 
         try {
-            InputStream inputStream;
             File file = new File(filePath);
-            if (file.isAbsolute()) {
-                inputStream = new FileInputStream(file);
-            } else {
-               inputStream = HeightCurveParser.class.getResourceAsStream("/data/" +  filePath);
-            }
-            if (inputStream == null) {
+            InputStream rawStream = file.isAbsolute()
+                    ? new FileInputStream(file)
+                    : HeightCurveParser.class.getResourceAsStream("/data/" + filePath);
+
+            if (rawStream == null) {
                 throw new FileNotFoundException("Resource not found: /data/" + filePath);
             }
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+            try (InputStream inputStream = rawStream; BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))){
+                String line;
+                HeightCurve currentCurve = null;
 
-            String line;
-            HeightCurve currentCurve = null;
+                while ((line = bufferedReader.readLine()) != null) {
+                    line = line.trim();
 
-            while ((line = bufferedReader.readLine()) != null) {
-                line = line.trim();
+                    if (line.contains("<hc")) {
+                        long id = getAttributeLong(line, "id");
+                        double height = getAttributeDouble(line, "height");
+                        currentCurve = new HeightCurve(id, height, new ArrayList<>());
 
-                if (line.contains("<hc")) {
-                    long id = getAttributeLong(line, "id");
-                    double height = getAttributeDouble(line, "height");
-                    currentCurve = new HeightCurve(id, height, new ArrayList<>());
+                    } else if (line.contains("<coords") && currentCurve != null) {
+                        double lat = getAttributeDouble(line, "lat");
+                        double lon = getAttributeDouble(line, "lon");
+                        currentCurve.getCoords().add(new Coordinate(lat, lon));
 
-                } else if (line.contains("<coords") && currentCurve != null) {
-                    double lat = getAttributeDouble(line, "lat");
-                    double lon = getAttributeDouble(line, "lon");
-                    currentCurve.getCoords().add(new Coordinate(lat, lon));
+                    } else if (line.contains("<nd") && currentCurve != null){
+                        long nodeID = getAttributeLong(line, "ref");
+                        if (osmData.nodeMap().containsKey(nodeID)){
+                            osmData.nodeMap().get(nodeID).setContainingHeightCurve(currentCurve);
+                        }
 
-                } else if (line.contains("<nd") && currentCurve != null){
-                    long nodeID = getAttributeLong(line, "ref");
-                    if (osmData.nodeMap().containsKey(nodeID)){
-                        osmData.nodeMap().get(nodeID).setContainingHeightCurve(currentCurve);
+                    } else if (line.contains("</hc>") && currentCurve != null){
+                        currentCurve.updateMbr();
+                        allCurves.add(currentCurve);
+                        currentCurve = null;
                     }
-
-                } else if (line.contains("</hc>") && currentCurve != null){
-                    currentCurve.updateMbr();
-                    allCurves.add(currentCurve);
-                    currentCurve = null;
                 }
             }
 

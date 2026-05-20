@@ -265,12 +265,21 @@ public class RTreeTest {
     class SearchResultsTests {
 
         @Test
-        @DisplayName("Default constructor — all lists empty")
-        void searchResults_defaultConstructor_allEmpty() {
+        @DisplayName("isEmpty() – SearchResults starts with empty ArrayLists")
+        void searchResults_defaultconstructor_allListsEmpty() {
             SearchResults sr = new SearchResults();
-            assertTrue(sr.nodeList().isEmpty());
-            assertTrue(sr.wayList().isEmpty());
-            assertTrue(sr.relationList().isEmpty());
+            assertTrue(sr.nodeList().isEmpty(), "nodeList is not empty");
+            assertTrue(sr.wayList().isEmpty(), "wayList is not empty");
+            assertTrue(sr.relationList().isEmpty(), "relationList is not empty");
+        }
+
+        @Test
+        @DisplayName("not null – SearchResults starts with empty ArrayLists")
+        void searchResults_defaultconstructor_listsNotNull() {
+            SearchResults sr = new SearchResults();
+            assertNotNull(sr.nodeList(), "nodeList is null");
+            assertNotNull(sr.wayList(), "wayList is null");
+            assertNotNull(sr.relationList(), "relationList is null");
         }
 
         @Test
@@ -309,6 +318,28 @@ public class RTreeTest {
             assertEquals(large, sr.relationList().get(0));
             assertEquals(small, sr.relationList().get(1));
         }
+
+        @Test
+        @DisplayName("clear() – all elements are removed")
+        void searchResults_clear() {
+            SearchResults sr = new SearchResults();
+
+            int n = 3000;
+            for (int i = 0; i < n; i++) {
+                sr.add(ElementType.node, new Node((long) (Math.random() * 1000), 0,0));
+            }
+            assertTrue(sr.nodeList().size() == n, "nodeList().size() didn't match number of nodes inserted");
+            assertFalse(sr.nodeList().isEmpty(), "nodeList is empty");
+
+            sr.clear();
+            assertTrue(sr.nodeList().isEmpty(), "nodeList is not empty");
+            assertTrue(sr.nodeList().size() == n, "nodeList().size() didn't match number of nodes inserted, after clearing ArrayList");
+        }
+
+        /*@Test
+        @DisplayName("ArrayList sizes main SearchResults is cleared")*/
+
+
     }
 
 
