@@ -1,10 +1,10 @@
-package benchmark;
+package benchmark.TreeBenchmark;
 
 import models.parser.*;
 
 import java.io.IOException;
 
-public class BenchmarkUtils {
+public class TreeBenchmarkUtils {
     public static MapData loadMapData() throws IOException, ClassNotFoundException {
         System.out.println("Starting setup...");
         String binPath = "src/main/Resources/data/benchmarking/benchmark_bornholm.bin";
