@@ -3,6 +3,7 @@ package models.rendering;
 import models.parser.AbstractRenderer;
 import models.osm.Node;
 import models.osm.Way;
+import models.ui.AppController;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
@@ -20,7 +21,10 @@ public class WayRenderer extends AbstractRenderer<Way> {
 
         private static final double ZOOM_STEP = 0.5;
 
-        public WayRenderer( double meanLat){
+    private static final float MIN_ROAD_WIDTH_PX = 2.0f; // minimum screen pixels
+    private static final float MAX_ROAD_WIDTH_PX = 10.0f; // maximum screen pixels
+
+    public WayRenderer( double meanLat){
             super(meanLat);
         }
 
@@ -40,12 +44,13 @@ public class WayRenderer extends AbstractRenderer<Way> {
                  At zoom 11 (island view): 1.5 / 2048 ≈ 0.00073° = 1.5px on screen
                  At zoom 15 (street view): 1.5 / 32768 ≈ 0.000046° = still 1.5px on screen
                  */
-                float strokeWidth = (float)(1.5/Math.pow(2, quantised));
+                float strokeWidth = (float) (1.5f / Math.pow(2, quantised));
+                float minWidth    = (float) (MIN_ROAD_WIDTH_PX / Math.pow(2, quantised));
+                float maxWidth    = (float) (MAX_ROAD_WIDTH_PX / Math.pow(2, quantised));
                 cachedRoadStroke = new BasicStroke(strokeWidth);
             }
             return cachedRoadStroke;
         }
-
 
     @Override
     public void draws(Graphics2D gc) {

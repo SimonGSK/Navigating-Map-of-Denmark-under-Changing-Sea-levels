@@ -333,7 +333,7 @@ public class AppController extends DrawingApp {
                 }
 
                 if (pathfindingObject.isReady()) {
-                    appSettings.setUserMode(AppSettings.UserMode.explore);
+                    //appSettings.setUserMode(AppSettings.UserMode.explore);
                     pathfindingObject.updatePath();
                     handleDraw();
                 }
@@ -395,6 +395,10 @@ public class AppController extends DrawingApp {
         System.out.println(event.getCode());
         switch (event.getCode()) {
             case ESCAPE -> {
+                pathfindingObject.clear();
+                if (appSettings.isPathfindingDebug()) appSettings.setPathfindingDebug(false);
+                if (appSettings.isViewportDebug()) appSettings.setViewportDebug(false);
+                if (appSettings.isBoundingBoxDebug()) appSettings.setBoundingBoxDebug(false);
                 appSettings.setUserMode(AppSettings.UserMode.explore);
             }
             case S -> {
