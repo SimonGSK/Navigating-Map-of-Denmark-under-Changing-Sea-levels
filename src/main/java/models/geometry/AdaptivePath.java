@@ -41,7 +41,7 @@ import java.util.*;
 
 public class AdaptivePath extends Path2D.Double {
     // A point must deviate more than this (in pixels) to be worth keeping.
-    private static final double PIXEL_STEP = 2;
+    private double PIXEL_STEP = 4;
 
     // Only rebuild the path when zoom changes by at least this much
     private static final double ZOOM_STEP = 1;
@@ -52,6 +52,10 @@ public class AdaptivePath extends Path2D.Double {
     private final boolean closed;
 
     private double lastBuiltZoom = java.lang.Double.NaN;
+
+    public void resetZoomCache() {
+        lastBuiltZoom = java.lang.Double.NaN;
+    }
 
     /**
      * Creates the path from a list of {x, y} coordinate pairs.
@@ -71,6 +75,10 @@ public class AdaptivePath extends Path2D.Double {
             rawY[i] = points.get(i)[1];
         }
         rebuildFull();
+    }
+    public AdaptivePath(List<double[]> points, boolean closed, double pixelStep) {
+        this(points, closed);
+        this.PIXEL_STEP = pixelStep;
     }
 
     /**
