@@ -386,11 +386,19 @@ public class BoundingBoxTest {
         @Test
         @DisplayName("Center of a box anchored at origin is the geometric midpoint")
         void getCenter_zeroOriginBox_correctMidpoint() {
-            // minLat=0, minLon=0 — the current formula coincidentally produces the correct result here
             BoundingBox b = box(0.0, 0.0, 10.0, 20.0);
             Coordinate center = b.getCenter();
             assertEquals(5.0,  center.getLat(), 1e-9, "Center lat must be midpoint");
             assertEquals(10.0, center.getLon(), 1e-9, "Center lon must be midpoint");
+        }
+
+        @Test
+        @DisplayName("Center of a non-zero-origin box is the geometric midpoint")
+        void getCenter_nonZeroOriginBox_correctMidpoint() {
+            BoundingBox b = box(2.0, 10.0, 8.0, 20.0);
+            Coordinate center = b.getCenter();
+            assertEquals(5.0,  center.getLat(), 1e-9, "Center lat must be (2+8)/2 = 5");
+            assertEquals(15.0, center.getLon(), 1e-9, "Center lon must be (10+20)/2 = 15");
         }
     }
 }

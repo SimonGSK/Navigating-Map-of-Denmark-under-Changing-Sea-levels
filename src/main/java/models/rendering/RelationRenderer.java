@@ -1,16 +1,10 @@
 package models.rendering;
 
 import models.geometry.AdaptivePath;
-import models.parser.AbstractRenderer;
-import models.osm.Member;
-import models.osm.Node;
 import models.osm.Relation;
-import models.osm.Way;
-import models.utils.UtilityTools;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
-import java.util.*;
 import java.util.List;
 
 

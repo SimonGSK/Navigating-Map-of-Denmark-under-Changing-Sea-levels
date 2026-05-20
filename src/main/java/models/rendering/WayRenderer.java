@@ -1,9 +1,7 @@
 package models.rendering;
 
-import models.parser.AbstractRenderer;
 import models.osm.Node;
 import models.osm.Way;
-import models.ui.AppController;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
