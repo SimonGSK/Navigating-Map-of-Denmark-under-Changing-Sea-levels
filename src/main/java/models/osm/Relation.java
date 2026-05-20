@@ -63,11 +63,6 @@ public class Relation extends OsmElement implements Iterable<Member>, Serializab
     }
 
     @Override
-    public void draws(Graphics2D gc) {
-        // TODO: This should be cleaned up. If the method doesn't do anything, we should look at how we can restructure the purpose of Drawable.
-    }
-
-    @Override
     public Iterator<Member> iterator() {
         if (members == null) {
             return Collections.emptyIterator();

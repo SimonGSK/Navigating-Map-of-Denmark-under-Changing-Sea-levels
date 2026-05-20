@@ -1,6 +1,5 @@
 package models.osm;
 
-import Interfaces.Drawable;
 import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.geometry.SpatialElement;
@@ -11,7 +10,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Set;
 
-public abstract class Element implements SpatialElement, Drawable, Serializable {
+public abstract class Element implements SpatialElement, Serializable {
     private BoundingBox mbr;
     final private long id;
     final private ElementType type;
