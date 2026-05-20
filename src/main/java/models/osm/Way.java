@@ -50,11 +50,6 @@ public class Way extends OsmElement implements Iterable<Node>, Serializable {
     }
 
     @Override
-    public void draws(Graphics2D gc) {
-
-    }
-
-    @Override
     public Iterator<Node> iterator() {
         if (nodes == null) {
             return Collections.emptyIterator();

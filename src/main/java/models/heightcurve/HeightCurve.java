@@ -124,11 +124,6 @@ public class HeightCurve extends Element implements Serializable {
     public void setAdaptivePath(AdaptivePath path) { this.adaptivePath = path; }
 
     @Override
-    public void draws(Graphics2D gc) {
-
-    }
-
-    @Override
     public double getArea() {
         return getMbr().area();
     }

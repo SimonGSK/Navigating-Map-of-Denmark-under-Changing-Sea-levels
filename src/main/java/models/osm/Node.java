@@ -56,10 +56,6 @@ public class Node extends OsmElement implements Comparable<Node>, Serializable {
     }
 
     @Override
-    public void draws(Graphics2D gc) {
-
-    }
-    @Override
     public int compareTo(Node other) {
         return Long.compare(this.getId(), other.getId());
     }

@@ -1,6 +1,5 @@
 package models.rendering;
 
-import Interfaces.Drawable;
 import models.osm.Element;
 import models.ui.AppSettings;
 
@@ -8,7 +7,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractRenderer<T extends Element> implements Drawable {
+public abstract class AbstractRenderer<T extends Element> {
     protected final AppSettings appSettings = AppSettings.getInstance();
     protected final double cosMeanLat;
     protected List<T> elements = new ArrayList<>();
@@ -40,6 +39,15 @@ public abstract class AbstractRenderer<T extends Element> implements Drawable {
         return element.isVisible(currentZoomLevel);
     }
 
-    //Bruges til at tegne height curves
-    public abstract void draws(Graphics2D gc);
+    public void draws(Graphics2D gc) {
+        for (T element : elements) {
+            if (!shouldDraw(element)) continue;
+            drawElement(gc, element);
+        }
+    }
+
+    protected void drawElement(Graphics2D gc, T element) {
+        throw new UnsupportedOperationException(
+            getClass().getSimpleName() + " must override either draws() or drawElement()");
+    }
 }
