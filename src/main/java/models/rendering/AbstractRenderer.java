@@ -1,15 +1,12 @@
-package models.parser;
+package models.rendering;
 
 import Interfaces.Drawable;
 import models.osm.Element;
 import models.ui.AppSettings;
 
 import java.awt.*;
-import java.awt.geom.Path2D;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public abstract class AbstractRenderer<T extends Element> implements Drawable {
     protected final AppSettings appSettings = AppSettings.getInstance();

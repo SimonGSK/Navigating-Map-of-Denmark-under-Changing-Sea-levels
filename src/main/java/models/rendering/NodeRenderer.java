@@ -1,6 +1,5 @@
 package models.rendering;
 
-import models.parser.AbstractRenderer;
 import models.osm.Node;
 
 import java.awt.*;

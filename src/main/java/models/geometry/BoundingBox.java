@@ -37,7 +37,7 @@ public final class BoundingBox implements Serializable {
     }
 
     public Coordinate getCenter() {
-        return new Coordinate(minLat + maxLat / 2, minLon + maxLon / 2);
+        return new Coordinate((minLat + maxLat) / 2, (minLon + maxLon) / 2);
     }
 
     public boolean isInside(BoundingBox other) {

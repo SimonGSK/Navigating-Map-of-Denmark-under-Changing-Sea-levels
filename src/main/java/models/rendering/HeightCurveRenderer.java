@@ -3,7 +3,6 @@ package models.rendering;
 import models.geometry.AdaptivePath;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
-import models.parser.AbstractRenderer;
 import models.parser.HeightCurveData;
 import models.ui.AppSettings;
 
