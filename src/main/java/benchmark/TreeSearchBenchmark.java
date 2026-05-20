@@ -12,9 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
 @Fork(0)
-public class TreeSearchBenchmark {
-    private static volatile MapData mapData;
-
+public class TreeSearchBenchmark extends AbstractTreeBenchmark {
     private Tree tree;
     private BoundingBox fullIslandViewport;
     private BoundingBox townViewport;
@@ -25,25 +23,12 @@ public class TreeSearchBenchmark {
 
     @Setup(Level.Trial)
     public void setup() throws IOException, ClassNotFoundException {
-        if (mapData == null) {
-            synchronized (TreeSearchBenchmark.class) {
-                if (mapData == null) {
-                    mapData = BenchmarkUtils.loadMapData();
-                }
-            }
-        }
-        System.out.println("MapData is loaded. Building tree...");
+        super.setup();
         tree = new Tree(mapData.mbr,mapData.nodeMap,mapData.wayMap,mapData.relationMap);
 
         fullIslandViewport = new BoundingBox(54.97743222222222,14.377575699902936,55.316597916666666,15.506450597390476);
         townViewport = new BoundingBox(55.09362948592992,14.697506142545535,55.10374021295514,14.731158561174775);
         halfIslandViewport = new BoundingBox(55.035019812651626,14.652440745836996,55.18299668168897,15.144965124337855);
-    }
-
-    private void consume(SearchResults results, Blackhole bh) {
-        bh.consume(results.nodeList().size());
-        bh.consume(results.wayList().size());
-        bh.consume(results.relationList().size());
     }
 
     @Benchmark

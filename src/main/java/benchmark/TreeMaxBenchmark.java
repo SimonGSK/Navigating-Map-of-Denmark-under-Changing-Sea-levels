@@ -17,9 +17,7 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 3, time = 2)
 @Measurement(iterations = 5, time = 2)
-public class TreeMaxBenchmark {
-    private static volatile MapData mapData;
-
+public class TreeMaxBenchmark extends AbstractTreeBenchmark {
     private Tree tree;
     private BoundingBox fullIslandViewport;
 
@@ -31,23 +29,9 @@ public class TreeMaxBenchmark {
 
     @Setup(Level.Trial)
     public void setup() throws IOException, ClassNotFoundException {
-        if (mapData == null) {
-            synchronized (TreeMaxBenchmark.class) {
-                if (mapData == null) {
-                    mapData = BenchmarkUtils.loadMapData();
-                }
-            }
-        }
-        System.out.println("MapData is loaded. Building tree...");
+        super.setup();
         tree = new Tree(max,mapData.mbr,mapData.nodeMap,mapData.wayMap,mapData.relationMap);
-
         fullIslandViewport = new BoundingBox(54.97743222222222,14.377575699902936,55.316597916666666,15.506450597390476);
-    }
-
-    private void consume(SearchResults results, Blackhole bh) {
-        bh.consume(results.nodeList().size());
-        bh.consume(results.wayList().size());
-        bh.consume(results.relationList().size());
     }
 
     @Benchmark

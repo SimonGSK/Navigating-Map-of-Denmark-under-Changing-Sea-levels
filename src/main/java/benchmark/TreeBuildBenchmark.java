@@ -12,21 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
 @Fork(0)
-public class TreeBuildBenchmark {
-    private static volatile MapData mapData;
-
-    @Setup(Level.Trial)
-    public void setup() throws IOException, ClassNotFoundException {
-        if (mapData == null) {
-            synchronized (TreeBuildBenchmark.class) {
-                if (mapData == null) {
-                    mapData = BenchmarkUtils.loadMapData();
-                }
-            }
-        }
-        System.out.println("MapData is loaded....");
-    }
-
+public class TreeBuildBenchmark extends AbstractTreeBenchmark {
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
