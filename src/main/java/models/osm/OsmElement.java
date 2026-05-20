@@ -93,6 +93,7 @@ public abstract class OsmElement extends Element {
         if ("pipeline".equals(tags.get("man_made"))) return null;
         if (tags.containsKey("demolished:building")) return null;
         if (tags.containsKey("barrier")) return null;
+        if (tags.containsValue("nature_reserve")) return null;
 
         //WATER
         if (tags.containsKey("waterway") || "water".equals(tags.get("natural")) || "spring".equals(tags.get("natural"))) {

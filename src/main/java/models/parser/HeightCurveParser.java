@@ -97,6 +97,9 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
 
         System.out.println("Beginning to build heightCurves");
         for(HeightCurve heightCurve : allCurves){
+            if (heightCurve.getCoords().isEmpty()) {
+                continue;
+            }
             Path2D path = shapeBuilder.buildHeightCurve(heightCurve);
             System.out.println("Curve " + heightCurve.getId() + " shape = " + path);
             heightCurve.setShape(path);

@@ -1,5 +1,6 @@
 package models.rendering;
 
+import models.geometry.AdaptivePath;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
 import models.parser.AbstractRenderer;
@@ -33,11 +34,43 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
         drawSubmergedCurves(gc);
     }
 
+    private int getHeightInterval() {
+        if (currentZoomLevel < 9)  return 20;
+        if (currentZoomLevel < 10) return 15;
+        if (currentZoomLevel < 11) return 10;
+        if (currentZoomLevel < 12) return 5;
+        return 5;
+    }
+
     private void drawHeightCurveLines(Graphics2D gc) {
+        float strokeWidth = (float)(1.0 / Math.pow(2, currentZoomLevel));
+        gc.setStroke(new BasicStroke(strokeWidth));
+        gc.setColor(Color.darkGray);
+
+        int interval = getHeightInterval();
+
         for (HeightCurve e : elements) {
-            Path2D path = e.getShape();
-            if (path == null) continue;
-            gc.setColor(Color.darkGray);
+            if (Math.round(e.getHeight()) % interval != 0) continue;
+
+            AdaptivePath path = e.getAdaptivePath();
+            if (path == null) {
+                List<Coordinate> coords = e.getCoords();
+                if (coords == null || coords.isEmpty()) continue;
+
+                /**
+                 * Build the AdaptivePath from projected coordinates on first draw and cache it.
+                 * Subsequent frames reuse the cached path; updateForZoom() only rebuilds
+                 * the path geometry when zoom crosses a full step, returning immediately otherwise.
+                 */
+                List<double[]> points = new ArrayList<>();
+                for (Coordinate coord : coords) {
+                    points.add(new double[]{ coord.getLon() * cosMeanLat, -coord.getLat() });
+                }
+                path = new AdaptivePath(points, true);
+                e.setAdaptivePath(path);
+            }
+
+            path.updateForZoom(currentZoomLevel);
             gc.draw(path);
         }
     }
@@ -53,25 +86,15 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
         sorted.remove(data.root);
         sorted.sort((a, b) -> Double.compare(b.getArea(), a.getArea()));
 
-        for (HeightCurve curve: sorted) {
-            Path2D path = new Path2D.Double();
-            boolean first = true;
-
-            for (Coordinate coord : curve.getCoords()) {
-                double x = coord.getLon() * cosMeanLat;
-                double y = -coord.getLat();
-
-                if (first) {
-                    path.moveTo(x, y);
-                    first = false;
-                } else path.lineTo(x, y);
-            }
-            path.closePath();
+        for (HeightCurve curve : sorted) {
+            Path2D fill = buildAdaptiveFillPath(curve);
+            if (fill == null) continue;
             curve.setSeaLevel(seaLevel);
             gc.setColor(curve.getColor());
-            gc.fill(path);
+            gc.fill(fill);
         }
     }
+
 
     //Bruges til at farve oversvømmede height curves på OSM-kortet
     public void drawSubmergedCurves(Graphics2D gc) {
@@ -80,10 +103,12 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
         Composite originalComposite = gc.getComposite(); //Saves the original composite
 
         //Farver området mellem havet og yderste height curve
-        Path2D coastArea = data.root.getShape();
-        gc.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // 60% uigennemsigtig (værdier mellem 0.0 og 1.0)
-        gc.setColor(Color.decode("#a9d3de"));
-        gc.fill(coastArea);
+        Path2D coastFill = buildAdaptiveFillPath(data.root);
+        if (coastFill != null) {
+            gc.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // 60% uigennemsigtig (værdier mellem 0.0 og 1.0)
+            gc.setColor(Color.decode("#a9d3de"));
+            gc.fill(coastFill);
+        }
 
         List<HeightCurve> sorted = new ArrayList<>(data.curves);
         sorted.remove(data.root);
@@ -93,16 +118,56 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
         for (HeightCurve curve : sorted) {
             if (!curve.isSubmerged()) continue;
 
-            Path2D path = curve.getShape();
+            Path2D fill = buildAdaptiveFillPath(curve);
+            if (fill == null) continue;
             curve.setSeaLevel(seaLevel);
             gc.setColor(curve.getColor());
-            if (path == null){
-                throw new Error("Path is null");
-            }
-            gc.draw(path);
-            gc.fill(path);
+            gc.draw(fill);
+            gc.fill(fill);
         }
 
         gc.setComposite(originalComposite); //Sets original composite again
+    }
+
+    // Mirrors ShapeBuilder.getRegionPath() but with adaptive simplification per ring.
+    // Builds a WIND_EVEN_ODD path: outer boundary + direct children as holes,
+    // so non-submerged children show the background through correctly.
+    // Adaptive paths are cached on each HeightCurve, the EVEN_ODD composite is built
+    // fresh each frame but is cheap because the rings are already simplified.
+    private Path2D buildAdaptiveFillPath(HeightCurve curve) {
+        List<Coordinate> coords = curve.getCoords();
+        if (coords == null || coords.isEmpty()) return null;
+
+        AdaptivePath outer = curve.getAdaptivePath();
+        if (outer == null) {
+            List<double[]> points = new ArrayList<>();
+            for (Coordinate coord : coords) {
+                points.add(new double[]{ coord.getLon() * cosMeanLat, -coord.getLat() });
+            }
+            outer = new AdaptivePath(points, true);
+            curve.setAdaptivePath(outer);
+        }
+        outer.updateForZoom(currentZoomLevel);
+
+        Path2D composite = new Path2D.Double(Path2D.WIND_EVEN_ODD);
+        composite.append(outer, false);
+
+        for (HeightCurve child : curve.getChildren()) {
+            List<Coordinate> childCoords = child.getCoords();
+            if (childCoords == null || childCoords.isEmpty()) continue;
+            AdaptivePath childPath = child.getAdaptivePath();
+            if (childPath == null) {
+                List<double[]> points = new ArrayList<>();
+                for (Coordinate coord : childCoords) {
+                    points.add(new double[]{ coord.getLon() * cosMeanLat, -coord.getLat() });
+                }
+                childPath = new AdaptivePath(points, true);
+                child.setAdaptivePath(childPath);
+            }
+            childPath.updateForZoom(currentZoomLevel);
+            composite.append(childPath, false);
+        }
+
+        return composite;
     }
 }

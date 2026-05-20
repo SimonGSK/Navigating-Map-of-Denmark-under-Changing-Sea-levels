@@ -1,5 +1,6 @@
 package models.ui;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
@@ -37,6 +38,16 @@ public class AppController extends DrawingApp {
 
     private PathfindingObject pathfindingObject = PathfindingObject.getInstance();
     private final Path2D pathToNearestNode = new Path2D.Double();
+
+    /* When something changes (pan, zoom, etc.) this gets set to true to signal a redraw is needed.
+    The AnimationTimer below checks this ~60 times per second and only redraws when it's true.
+    This way, even if the mouse fires 200 events per second, we only draw 60 times at most.
+
+    volatile ensures that when one thread sets this to true, the AnimationTimer thread
+    sees the update immediately rather than reading a stale cached value.
+     */
+    private volatile boolean isDirty = false;
+    private AnimationTimer animationTimer;
 
     private final GraphicsRenderer graphicsRenderer = new GraphicsRenderer(this);
 
@@ -128,6 +139,22 @@ public class AppController extends DrawingApp {
 
         // Initial draw and render
         handleDraw();
+
+        /*
+        Start the render loop using AnimationTimer, checks isDirty 60 times per second and redraws when set.
+        This means input events no longer trigger synchronous redraws, they just set the isDirty flag.
+         */
+        animationTimer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                if (isDirty) {
+                    isDirty = false;
+                    draw();
+                    render();
+                }
+            }
+        };
+        animationTimer.start();
     }
 
     public ExtSuperAffine getSuperAffine() {
@@ -172,6 +199,9 @@ public class AppController extends DrawingApp {
 
         appData.getWayRenderer().setCurrentZoomLevel(zoom);
         appData.getRelationRenderer().setCurrentZoomLevel(zoom);
+        if (appData.getHeightCurveRenderer() != null) {
+            appData.getHeightCurveRenderer().setCurrentZoomLevel(zoom);
+        }
 
         Graphics2D gc = getNewGraphicsContext();
 
@@ -196,7 +226,7 @@ public class AppController extends DrawingApp {
             appData.getHeightCurveRenderer().draws(gc);
         };
 
-        if (appSettings.getUserMode() == (AppSettings.UserMode.select)) {
+        if (appSettings.getUserMode() == (AppSettings.UserMode.select) && !pathToNearestNode.getBounds2D().isEmpty()) {
             double zoomScale = superAffine.getScaleX();
             float strokeWidth = (float)(2.0 / zoomScale); // 2px on screen at all zoom levels
             gc.setColor(Color.decode("#FF1DCE"));
@@ -282,12 +312,14 @@ public class AppController extends DrawingApp {
 
                 Node node = appData.getTree().getNearestNode(cursor);
 
-                if (node == null) {
+                if (pathfindingObject.getStartNode() == null) {
+                    pathfindingObject.setStartNode(node);
+                    handleDraw();
                     return;
                 }
 
-                if (pathfindingObject.getStartNode() == null) {
-                    pathfindingObject.setStartNode(node);
+                if (node == null) {
+                    pathToNearestNode.reset();
                     handleDraw();
                     return;
                 }
@@ -301,7 +333,7 @@ public class AppController extends DrawingApp {
                 }
 
                 if (pathfindingObject.isReady()) {
-                    appSettings.setUserMode(AppSettings.UserMode.explore); /**/
+                    //appSettings.setUserMode(AppSettings.UserMode.explore);
                     pathfindingObject.updatePath();
                     handleDraw();
                 }
@@ -363,6 +395,10 @@ public class AppController extends DrawingApp {
         System.out.println(event.getCode());
         switch (event.getCode()) {
             case ESCAPE -> {
+                pathfindingObject.clear();
+                if (appSettings.isPathfindingDebug()) appSettings.setPathfindingDebug(false);
+                if (appSettings.isViewportDebug()) appSettings.setViewportDebug(false);
+                if (appSettings.isBoundingBoxDebug()) appSettings.setBoundingBoxDebug(false);
                 appSettings.setUserMode(AppSettings.UserMode.explore);
             }
             case S -> {
@@ -391,8 +427,8 @@ public class AppController extends DrawingApp {
     }
 
     public void handleDraw() {
-        draw();
-        render();
+        isDirty = true;
+
     }
 
     public double getSeaLevel() {
