@@ -26,6 +26,17 @@ public class MapData implements Serializable {
         this(wayMap, relationMap, new HashMap<>(), null, null, null);
     }
 
+    /**
+     * MapData constructor for benchmarking of Tree.java
+     * @param wayMap
+     * @param relationMap
+     * @param nodeMap
+     * @param mbr
+     */
+    public MapData(Map<Long, Way> wayMap, Map<Long, Relation> relationMap, Map<Long,Node> nodeMap, BoundingBox mbr) {
+        this(wayMap,relationMap,nodeMap,mbr,null,null);
+    }
+
     // Opdeler OSM-data i to grupper: multipolygon-relations og standalone ways.
     // Ways der indgår i en relation fjernes fra way-listen for at undgå at de samme områder tegnes to gange.
     // Begge lister sorteres fra størst til mindst areal, så store baggrundsarealer tegnes først og ikke dækker over mindre detaljer.

@@ -20,4 +20,19 @@ public class BinaryWriter {
             out.writeObject(tree);
         }
     }
+
+    /**
+     * Write binary data for TreeBuildBenchmark.java
+     * @param osmData
+     * @param outPath
+     * @throws IOException
+     */
+    public static void writeForBenchmark(OsmData osmData, String outPath) throws IOException {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(outPath))) {
+            out.writeObject(osmData.nodeMap());
+            out.writeObject(osmData.wayMap());
+            out.writeObject(osmData.relationMap());
+            out.writeObject(osmData.bounds());
+        }
+    }
 }
