@@ -1,13 +1,9 @@
-package benchmark;
+package benchmark.TreeBenchmark;
 
-import models.RTree.SearchResults;
 import models.RTree.Tree;
-import models.geometry.BoundingBox;
-import models.parser.*;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
