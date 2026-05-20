@@ -1,0 +1,46 @@
+// RESEARCH
+I started the project by researching a lot about how the Dijkstra algorithm works and how to implement it correctly in
+our project.
+
+// DIJKSTRA
+I made a Dijkstra algorithm that finds the shortest path between two nodes in a graph and created new classes for it
+to work in line with our project. I made a graph builder class for testing purposes and an Edge class.
+
+The graph builder class makes it possible to connect two Nodes – both one way and two way (Directed graph and
+undirected graph).
+The edge class is used to create the edges between the nodes. It takes a source node and target node and adds a weight
+to the edge. The weight is used to calculate the shortest path between two nodes. The Dijkstra algorithm uses a
+priority queue to keep track of the nodes that are being explored and their distances from the source node.
+
+// A*
+When we had a working Dijkstra algorithm, I added heuristics to the priority queue making it an A* algorithm. The
+heuristics are calculated as by prioritizing nodes that are closer to the target node. I have used haversine distance
+to more accurately calculate the distance between the nodes.
+
+When the A* algorithm was working, I added a boolean parameter to make it possible to turn on and off the heuristics.
+This way we can use both Dijkstra and A*. This is only used for testing purposes.
+
+// DEBUGGING HOTKEYS
+After the A* algorithm was working, I started working on a way to find the nearest node the to cursor on the map. It
+works by finding the Bounding Box that the cursor is in and then finding the nearest node to that bounding box. When
+the node is found it creates a search radius around the cursor. The radius is calculated by the distance between the
+cursor and the node and making a Bounding Box around the cursor. The Bounding Box is made by taking the cursor position
+and finding the minimum and maximum latitudes and longitudes around that position.
+It then finds the true nearest node to the cursor.
+If the search area doesn't include any nodes it expands the area until a node is found.
+
+I then started working on the UI of our application. I started by creating a hotkey to toggle on and off the
+viewport debugging mode. After that was working I made another hotkey to toggle on and off the bounding boxes. When
+both the viewport and bounding box debugging modes were finished, I started working on a way to toggle the visited
+nodes when a path was found. This was mainly created to confirm that the A* algorithm was working as intended.
+
+// VISUAL CHANGES
+I then made some visual changes to the UI like adding a circle where the start node and end node were located and a
+line between the two. I made it all scalable as to make them visible at all zoom levels.
+I then made some changes to the visibility of the roads to make them appear correctly with the zoom level as it didn't
+feel/look correct with the previous implementation. I did spent a lot of time trying to make the roads scale with the
+zoom level but I couldn't get it to work as I wanted.
+
+// BENCHMARKING
+After that was done I benchmarked the performance of the A* algorithm and the Dijkstra algorithm using the Mark8
+solution. I later found a way to make better microbenchmarking and spent a lot of time learning how to do that properly.
