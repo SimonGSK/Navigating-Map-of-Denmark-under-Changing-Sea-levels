@@ -422,6 +422,14 @@ public class AppController extends DrawingApp {
                     appSettings.setPathfindingDebug(!appSettings.isPathfindingDebug());
                 }
             }
+            case I -> {
+                if (event.isShiftDown()) {
+                    if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
+                        System.out.println("Start Node id: " + pathfindingObject.getStartNode().getId());
+                        System.out.println("End Node id: " + pathfindingObject.getEndNode().getId());
+                    }
+                }
+            }
         }
         handleDraw();
     }

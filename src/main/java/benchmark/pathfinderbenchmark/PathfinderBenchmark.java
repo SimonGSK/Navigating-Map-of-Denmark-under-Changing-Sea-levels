@@ -10,45 +10,59 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
 @Fork(1)
 @Warmup(iterations = 5, time = 2)
 @Measurement(iterations = 20, time = 2)
 @BenchmarkMode(Mode.AverageTime)
-@OutputTimeUnit(java.util.concurrent.TimeUnit.NANOSECONDS)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class PathfinderBenchmark {
 
+    @Param({"true", "false"})
+    boolean isDijkstra;
+
     private Pathfinder pathfinder;
-    private Node startNode;
-    private Node targetNode;
 
-    @Setup
-    public void setup() throws Exception {
-        OsmParser parser = new OsmParser("Bornholm.osm");
-        OsmData osmData = parser.getData();
-        HashMap<Long, Node> nodeMap = osmData.nodeMap();
+    private Node longStart,   longTarget;
+    private Node mediumStart, mediumTarget;
+    private Node shortStart,  shortTarget;
 
-        startNode  = nodeMap.get(1271128810L);
-        targetNode = nodeMap.get(1175056665L);
-        pathfinder = new Pathfinder();
+    @Setup(Level.Trial)
+    public void setup() throws IOException {
+        Map<String, Node[]> routes = PathfinderBenchmarkUtils.loadNodes();
+        longStart   = routes.get("long")[0];
+        longTarget  = routes.get("long")[1];
+        mediumStart = routes.get("medium")[0];
+        mediumTarget= routes.get("medium")[1];
+        shortStart  = routes.get("short")[0];
+        shortTarget = routes.get("short")[1];
+        pathfinder  = new Pathfinder();
     }
 
+    // ── Long ────────────────────────────────────────────────────────────────
     @Benchmark
-    public void dijkstra(Blackhole bh) {
-        Pathfinder.Result result = pathfinder._shortestPath(startNode, targetNode, true);
-        consume(result, bh);
+    public int longPath() {
+        Pathfinder.Result r = pathfinder._shortestPath(longStart, longTarget, isDijkstra);
+        return r.visitedNodes().size() + r.previousNodes().size() + r.distances().size();
     }
 
+    // ── Medium ──────────────────────────────────────────────────────────────
     @Benchmark
-    public void aStar(Blackhole bh) {
-        Pathfinder.Result result = pathfinder._shortestPath(startNode, targetNode, false);
-        consume(result, bh);
+    public int mediumPath() {
+        Pathfinder.Result r = pathfinder._shortestPath(mediumStart, mediumTarget, isDijkstra);
+        return r.visitedNodes().size() + r.previousNodes().size() + r.distances().size();
     }
 
-    private void consume(Pathfinder.Result result, Blackhole bh) {
-        bh.consume(result.distances().getOrDefault(targetNode, Double.POSITIVE_INFINITY));
+    // ── Short ───────────────────────────────────────────────────────────────
+    @Benchmark
+    public int shortPath() {
+        Pathfinder.Result r = pathfinder._shortestPath(shortStart, shortTarget, isDijkstra);
+        return r.visitedNodes().size() + r.previousNodes().size() + r.distances().size();
     }
 
     public static void main(String[] args) throws Exception {
