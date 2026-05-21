@@ -9,7 +9,7 @@ import java.io.File;
 
 public class TreeBenchmarkRunner {
     public static void main(String[] args) throws Exception {
-        String label = "tree-scaling_benchmark_test";
+        String label = "tree-area-scan_benchmark_no-sort";
         String resultPath = "results/Tree";
 
         new File(resultPath).mkdirs();

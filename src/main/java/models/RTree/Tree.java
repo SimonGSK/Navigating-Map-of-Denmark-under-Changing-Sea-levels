@@ -96,7 +96,7 @@ public class Tree implements Serializable {
         if (root != null) {
             searchRecursive(root, searchArea, searchResults);
         }
-        searchResults.sort();
+        //searchResults.sort();
         return searchResults;
     }
 
