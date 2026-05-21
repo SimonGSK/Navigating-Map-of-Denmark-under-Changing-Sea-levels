@@ -14,6 +14,7 @@ import java.util.List;
 public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO: Should extend AbstractRenderer and have HeightCurveData as the type
     private final HeightCurveData data;
     private double seaLevel;
+    private double pixelStep = 2;
 
     public HeightCurveRenderer(HeightCurveData data, double meanLat) {
         super(meanLat);
@@ -44,7 +45,7 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
     private void drawHeightCurveLines(Graphics2D gc) {
         float strokeWidth = (float)(1.0 / Math.pow(2, currentZoomLevel));
         gc.setStroke(new BasicStroke(strokeWidth));
-        gc.setColor(Color.darkGray);
+        gc.setColor(Color.gray);
 
         int interval = getHeightInterval();
 
@@ -65,7 +66,7 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
                 for (Coordinate coord : coords) {
                     points.add(new double[]{ coord.getLon() * cosMeanLat, -coord.getLat() });
                 }
-                path = new AdaptivePath(points, true);
+                path = new AdaptivePath(points, true, pixelStep);
                 e.setAdaptivePath(path);
             }
 
@@ -143,7 +144,7 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
             for (Coordinate coord : coords) {
                 points.add(new double[]{ coord.getLon() * cosMeanLat, -coord.getLat() });
             }
-            outer = new AdaptivePath(points, true);
+            outer = new AdaptivePath(points, true, pixelStep);
             curve.setAdaptivePath(outer);
         }
         outer.updateForZoom(currentZoomLevel);
@@ -160,7 +161,7 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
                 for (Coordinate coord : childCoords) {
                     points.add(new double[]{ coord.getLon() * cosMeanLat, -coord.getLat() });
                 }
-                childPath = new AdaptivePath(points, true);
+                childPath = new AdaptivePath(points, true, pixelStep);
                 child.setAdaptivePath(childPath);
             }
             childPath.updateForZoom(currentZoomLevel);

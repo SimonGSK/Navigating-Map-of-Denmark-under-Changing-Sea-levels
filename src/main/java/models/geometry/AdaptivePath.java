@@ -76,6 +76,7 @@ public class AdaptivePath extends Path2D.Double {
         }
         rebuildFull();
     }
+
     public AdaptivePath(List<double[]> points, boolean closed, double pixelStep) {
         this(points, closed);
         this.PIXEL_STEP = pixelStep;

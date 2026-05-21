@@ -1,4 +1,4 @@
-package benchmark;
+package benchmark.AdaptivePathBenchmark;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +20,7 @@ public class BenchmarkDataGenerator {
     }
 
     public static void generate(String shape, int n) throws Exception {
-        Path file = Paths.get("results/adaptivePathResults/" + shape + "-" + n + ".csv");
+        Path file = Paths.get("results/adaptivePathData/" + shape + "-" + n + ".csv");
         List<String> lines = new ArrayList<>();
         Random rng = new Random(42); // fixed seed for reproducibility
 

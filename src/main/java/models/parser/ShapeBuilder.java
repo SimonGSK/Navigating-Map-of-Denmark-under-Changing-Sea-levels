@@ -32,6 +32,19 @@ public class ShapeBuilder {
         return new models.geometry.AdaptivePath(points, isClosed);
     }
 
+    public static Path2D _buildWayForBenchmark(Way way, double pixelStep, double meanLat){
+        double cosMeanLat = Math.cos(Math.toRadians(meanLat));
+        List<Node> nodes = way.getNodes();
+        boolean isClosed = nodes.getFirst().getId() == nodes.getLast().getId();
+
+        List<double[]> points = new java.util.ArrayList<>(nodes.size());
+        for (Node node: nodes) {
+            if (node == null) continue;
+            points.add(new double[] { node.getLon() * cosMeanLat, -node.getCoordinate().getLat() });
+        }
+        return new models.geometry.AdaptivePath(points, isClosed, pixelStep);
+    }
+
     public Path2D buildRelation(Relation relation){
         var tags = relation.getTags();
         if (relation.getTags() == null || relation.getTags().isEmpty()) return null;
