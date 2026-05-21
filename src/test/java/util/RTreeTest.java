@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -353,12 +354,40 @@ public class RTreeTest {
 
             sr.clear();
             assertTrue(sr.nodeList().isEmpty(), "nodeList is not empty");
-            assertTrue(sr.nodeList().size() == n, "nodeList().size() didn't match number of nodes inserted, after clearing ArrayList");
         }
 
-        /*@Test
-        @DisplayName("ArrayList sizes main SearchResults is cleared")*/
+        @Test
+        @DisplayName("clear() – backing-array capacity equals pre-clear size")
+        void searchResults_clear_preservesCapacity() throws Exception {
+            SearchResults sr = new SearchResults();
 
+            int n = 3000;
+            for (int i = 0; i < n; i++) {
+                sr.add(ElementType.node, new Node((long) (Math.random() * 1000), 0, 0));
+            }
+
+            sr.clear();
+
+            // elements are gone
+            assertEquals(0, sr.nodeList().size(),
+                "nodeList size should be 0 after clear()");
+
+            // backing array was trimmed to n before clear(), so capacity must still be n
+            assertEquals(n, getCapacity(sr.nodeList()),
+                "nodeList backing-array capacity should equal the pre-clear element count");
+
+            // lists that were never populated should stay at capacity 0
+            assertEquals(0, getCapacity(sr.wayList()),
+                "wayList backing-array capacity should be 0 (never populated)");
+            assertEquals(0, getCapacity(sr.relationList()),
+                "relationList backing-array capacity should be 0 (never populated)");
+        }
+
+        private static int getCapacity(ArrayList<?> list) throws Exception {
+            Field f = ArrayList.class.getDeclaredField("elementData");
+            f.setAccessible(true);
+            return ((Object[]) f.get(list)).length;
+        }
 
     }
 

@@ -1,12 +1,8 @@
 package models.RTree;
 
-import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
-import models.osm.Element;
-import models.osm.Node;
-import models.osm.Relation;
-import models.osm.Way;
+import models.osm.*;
 import models.utils.UtilityTools;
 
 import java.io.Serializable;
@@ -14,17 +10,32 @@ import java.util.*;
 
 public class Tree implements Serializable {
     static private final int min = 1; // Must be >= 1
-    static private int max = 30; // Must be
+    static private int max = 30;
     private TreeNode root;
     private BoundingBox mbr;
     private final TreeData treeData;
     private transient SearchResults searchResults;
     private double zoomLevel;
 
+    /**
+     * Updates the current zoomLevel of the application, which influences how many elements are filtered out during search queries.
+     * Lower values means more element are filtered out, and higher values means that less elements are filtered out.
+     * @param zoomLevel
+     */
     public void setZoomLevel(double zoomLevel) {
         this.zoomLevel = zoomLevel;
     }
 
+    /**
+     * A spatial indexing R-Tree implementation used for efficiently querying OSM data in a 2-dimensional space
+     * @see BoundingBox
+     * @see Element
+     * @param max The maximum number of elements allowed in each node of the R-Tree
+     * @param mbr The minimum-bounding-rectanlges
+     * @param nodeMap Nodes from OSM data, indexed in a map according to ids
+     * @param wayMap Ways from OSM data, indexed in a map according to ids
+     * @param relationMap Relations from OSM data, indexed in a map according to ids
+     */
     public Tree(int max, BoundingBox mbr, Map<Long,Node> nodeMap, Map<Long, Way> wayMap, Map<Long, Relation> relationMap) {
         if (max < (min * 2)) {
             throw new RuntimeException("max must be greater than min * 2");
@@ -39,10 +50,22 @@ public class Tree implements Serializable {
         this.treeData.forEach(this::insert);
     }
 
+    /**
+     * A spatial indexing R-Tree implementation used for efficiently querying OSM data in a 2-dimensional space.
+     * Each tree-node can contain up to 30 elements.
+     * @param mbr The minimum-bounding-rectanlges
+     * @param nodeMap Nodes from OSM data, indexed in a map according to ids
+     * @param wayMap Ways from OSM data, indexed in a map according to ids
+     * @param relationMap Relations from OSM data, indexed in a map according to ids
+     */
     public Tree(BoundingBox mbr, Map<Long,Node> nodeMap, Map<Long, Way> wayMap, Map<Long, Relation> relationMap) {
         this(Tree.max, mbr,nodeMap,wayMap,relationMap);
     }
 
+    /**
+     * Helper function to update the minimum-bounding-rectangle (MBR) of a tree-node after its containing entries have been changed
+     * @param node The tree-node whose MBR you want to update
+     */
     public void updateTreeNodeMbr(TreeNode node) {
         if (node == null || node.entries == null || node.entries.isEmpty()) {
             return;
@@ -50,10 +73,20 @@ public class Tree implements Serializable {
         node.setMbr(computeMBR(node.entries));
     }
 
+    /**
+     * A helper function for testing purposes.
+     * @return Minimum-bounding-rectangle of the entire Tree
+     */
     public BoundingBox getMbr() {
         return mbr;
     }
 
+    /**
+     * Performs a 2-dimenstional range search query based on minimum and maximum values of latitude and longitude.
+     * In other words, a spatial search query that finds all elements in the Tree that are located within a BoundingBox.
+     * @param searchArea The BoundingBox
+     * @return An instance of @code{SearchResults} containing all nodes, ways, and relations, whose MBRs overlaps with the search query BoundingBox
+     */
     public SearchResults search(BoundingBox searchArea) {
         if (searchResults == null) {
             searchResults = new SearchResults();
@@ -67,6 +100,13 @@ public class Tree implements Serializable {
         return searchResults;
     }
 
+    /**
+     * Recursively finds all entries from a TreeNode whose minimum-bounding-rectangles overlap with the searchArea and adds them to searchResults.
+     * Helper function; invoked by Tree.search()
+     * @param node The TreeNode whose entries to examine for the search query
+     * @param searchArea The BoundingBox used for the search query
+     * @param searchResults The instance of SearchResults which will be returned in Tree.search()
+     */
     private void searchRecursive(TreeNode node, BoundingBox searchArea, SearchResults searchResults) {
         for (TreeEntry entry : node.entries) {
             if (entry.overlaps(searchArea)) {
@@ -88,7 +128,11 @@ public class Tree implements Serializable {
         }
     }
 
-    public List<BoundingBox> getMBR() {
+    /**
+     * Used by GraphicsRenderer.java to renderer BoundingBoxes for each TreeNode in the Tree.
+     * @return A list of the minimum-bounding-rectangles for each TreeNode in the Tree.
+     */
+    public List<BoundingBox> getMBRList() {
         List<BoundingBox> mbrList = new ArrayList<>();
         if (root != null) {
             root._getMBR(mbrList);
@@ -96,6 +140,20 @@ public class Tree implements Serializable {
         return mbrList;
     }
 
+    /**
+     * Finds the node nearest to the relative coordinate of the user's cursor.
+     * Only considers nodes that are part of a Way element with the tag "highway".
+     *
+     * Uses Tree.ChooseLeaf() to first find the optimal TreeNode for insertion of a new element into the Tree.
+     * This returns a leaf TreeNode. All entries in the leaf are processed to filter all nodes that are part of a "highway" Way-element.
+     * If no nodes are found, we run a standard search query of the parent of the leaf to broaden our search, and again filter all nodes.
+     * If no nodes are found, there are no candidates for nearest-neighbor search – returns null – else, the distance from cursor to node is calculated and used as radius to compute the outer square for a new search query.
+     * Again, all nodes are filtered to only consider nodes from "highway" Way-elements, and the node with the shortest distance to cursor is returned.
+     *
+     * @see models.ui.AppController.getCursorCoordinate()
+     * @param cursor The coordinate of the cursor (cursor's relative position in longitude and latitude)
+     * @return The node with the shortest distance to cursor, that's part of a Way-element with the "highway"-tag
+     */
     public Node getNearestNode(Coordinate cursor) {
         if (root == null) {
             return null;
@@ -153,13 +211,20 @@ public class Tree implements Serializable {
         return result.node();
     }
 
-    private nearestNodeDist _findNearestNodeDist(Coordinate cursor, List<Node> nodes) {
+    /**
+     * Helper function for Tree.getNearestNode(). Used to find the Node with the shortest euclidean distance to a given coordinate, from a list of Nodes.
+     * @see nearestNodeDist
+     * @param coordinate The Coordinate to find the nearest node to
+     * @param nodes The list of nodes to examine
+     * @return A nearestNodeDist record containing the node closest to the coordinate and it's distance to coordinate.
+     */
+    private nearestNodeDist _findNearestNodeDist(Coordinate coordinate, List<Node> nodes) {
         Node nearestNode = null;
         double nearestDist = Double.MAX_VALUE;
 
         for (Node n : nodes) {
-            Coordinate center = n.getCoordinate();
-            double dist = UtilityTools.euclideanDistance(cursor,center);
+            Coordinate nodeCoord = n.getCoordinate();
+            double dist = UtilityTools.euclideanDistance(coordinate,nodeCoord);
 
             if (dist < nearestDist) {
                 nearestNode = n;
@@ -169,10 +234,26 @@ public class Tree implements Serializable {
         return new nearestNodeDist(nearestNode, nearestDist);
     }
 
+    /**
+     * A record containing a node and a distance. Used by _findNearestNodeDist() and getNearestNeighbor()
+     * @param node a Node
+     * @param dist its distance to from target
+     */
     record nearestNodeDist(Node node, double dist) { }
 
-
-    public void insert(Element element) {
+    /**
+     * Inserts an element in the R-Tree for spatial querying.
+     * Indexes the element into the TreeNode minimum-bounding-rectangle that needs the least enlargement to fit the inserted element.
+     * After insertion, the methods calls updateSubtreeMinZoom() for efficient filtering of the subtree on Tree.search(), then updates the minimum-bounding-rectangle of the TreeNode to accomodate the inserted element.
+     * If the TreeNode overflows (has more entries than allowed by the max-value of the Tree), the TreeNode is split into to new TreeNodes.
+     *
+     * @see updateSubtreeMinZoom
+     * @see chooseLeaf
+     * @see updateTreeNodeMbr
+     * @see splitNode
+     * @param element The OSM-element to be inserted into the R-Tree.
+     */
+    public void insert(OsmElement element) {
         if (element == null || element.getMbr() == null) return;
         BoundingBox mbr = element.getMbr();
         if (Double.isNaN(mbr.minLat()) || Double.isNaN(mbr.minLon()) || Double.isNaN(mbr.maxLat()) || Double.isNaN(mbr.maxLon())) return;
@@ -198,6 +279,12 @@ public class Tree implements Serializable {
         this.mbr = (root != null) ? root.getMbr() : null;
     }
 
+    /**
+     * Helper function called by Tree.insert(), to update the value of subtreeMinZoom of all TreeNodes in a subtree, based on the smallest zoomValue of its ancestors.
+     * TreeNode the value of the entry with the smallest zoom level in the subtree, so an entire subtree can be disregarded if it contains no elements that are visible in relation to the current zoom level.
+     * @param minZoomLevel
+     * @param path
+     */
     private void updateSubtreeMinZoom(double minZoomLevel, List<TreeNode> path) {
         boolean hasUpdated = path.getLast().updateSubtreeMinZoom(minZoomLevel);
 

@@ -1,5 +1,7 @@
 package models.geometry;
 
+import models.utils.UtilityTools;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
@@ -64,6 +66,15 @@ public final class BoundingBox implements Serializable {
             area = Math.max(0, (maxLat - minLat) * (maxLon - minLon));
         }
         return area;
+    }
+
+    public double getGeometricArea() {
+        Coordinate lowerLeft = new Coordinate(minLat,minLon);
+        Coordinate upperLeft = new Coordinate(maxLat,minLon);
+        Coordinate lowerRight = new Coordinate(minLat,maxLon);
+        Coordinate upperRight = new Coordinate(maxLat,maxLon);
+
+        return UtilityTools.haversineDistance(lowerLeft,lowerRight) * UtilityTools.haversineDistance(lowerLeft, upperLeft);
     }
 
     public BoundingBox copy() {

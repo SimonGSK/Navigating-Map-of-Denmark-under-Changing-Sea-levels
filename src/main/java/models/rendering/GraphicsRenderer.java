@@ -2,7 +2,6 @@ package models.rendering;
 
 import Interfaces.Drawable;
 import models.geometry.BoundingBox;
-import models.geometry.Coordinate;
 import models.osm.Node;
 import models.pathfinding.PathfindingObject;
 import models.ui.AppController;
@@ -10,7 +9,6 @@ import models.ui.AppController;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -66,7 +64,7 @@ public class GraphicsRenderer implements Drawable {
             gc.draw(buildPath(pathfindingObject.getPath()));
         }
         if(appController.getAppSettings().isBoundingBoxDebug()) {
-            List<BoundingBox> allBoundingBoxes = appController.getAppData().getTree().getMBR();
+            List<BoundingBox> allBoundingBoxes = appController.getAppData().getTree().getMBRList();
             for (BoundingBox bbox : allBoundingBoxes) {
                 drawBoundingBoxDebug(gc, bbox, Color.RED);
             }

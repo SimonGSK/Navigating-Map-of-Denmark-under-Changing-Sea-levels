@@ -1,0 +1,10 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit","Param: fraction"
+"benchmark.TreeBenchmark.TreeScalingBenchmark.getNearestNode_townCenter","avgt",1,5,3.857861,0.063970,"ms/op",0.10
+"benchmark.TreeBenchmark.TreeScalingBenchmark.getNearestNode_townCenter","avgt",1,5,14.771359,0.698186,"ms/op",0.25
+"benchmark.TreeBenchmark.TreeScalingBenchmark.getNearestNode_townCenter","avgt",1,5,67.198847,3.329120,"ms/op",1.00
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchHalfIsland","avgt",1,5,1.550750,0.126137,"ms/op",0.10
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchHalfIsland","avgt",1,5,7.289058,0.041645,"ms/op",0.25
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchHalfIsland","avgt",1,5,35.966392,1.948566,"ms/op",1.00
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchSmall","avgt",1,5,0.001232,0.000020,"ms/op",0.10
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchSmall","avgt",1,5,0.001265,0.000036,"ms/op",0.25
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchSmall","avgt",1,5,0.004727,0.000048,"ms/op",1.00

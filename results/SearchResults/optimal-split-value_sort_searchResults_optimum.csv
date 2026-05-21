@@ -1,0 +1,23 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit","Param: size"
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortParallel","ss",1,160,1.160899,0.141014,"ms/op",5000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortParallel","ss",1,160,1.254027,0.128678,"ms/op",7500
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortParallel","ss",1,160,0.996168,0.186857,"ms/op",10000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortParallel","ss",1,160,1.102154,0.195529,"ms/op",12500
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortParallel","ss",1,160,1.114206,0.082524,"ms/op",15000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortParallel","ss",1,160,1.073069,0.056702,"ms/op",17500
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortParallel","ss",1,160,1.498151,0.158311,"ms/op",20000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortParallel","ss",1,160,1.777498,0.132486,"ms/op",22500
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortParallel","ss",1,160,1.884344,0.134506,"ms/op",25000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortParallel","ss",1,160,2.242228,0.215594,"ms/op",27500
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortParallel","ss",1,160,2.269675,0.218486,"ms/op",30000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortSequential","ss",1,160,0.655747,0.035463,"ms/op",5000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortSequential","ss",1,160,1.247832,0.088148,"ms/op",7500
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortSequential","ss",1,160,1.819614,0.202257,"ms/op",10000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortSequential","ss",1,160,2.379242,0.148751,"ms/op",12500
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortSequential","ss",1,160,2.604295,0.154793,"ms/op",15000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortSequential","ss",1,160,2.789750,0.124915,"ms/op",17500
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortSequential","ss",1,160,3.450241,0.171240,"ms/op",20000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortSequential","ss",1,160,4.451645,0.276201,"ms/op",22500
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortSequential","ss",1,160,4.676215,0.264832,"ms/op",25000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortSequential","ss",1,160,4.925533,0.248210,"ms/op",27500
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark_Optimum.sortSequential","ss",1,160,6.009245,0.298594,"ms/op",30000

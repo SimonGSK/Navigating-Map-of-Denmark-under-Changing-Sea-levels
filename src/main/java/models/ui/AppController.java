@@ -412,6 +412,11 @@ public class AppController extends DrawingApp {
             case B -> {
                 appSettings.setBoundingBoxDebug(!appSettings.isBoundingBoxDebug());
             }
+            case C -> {
+                if (event.isShiftDown()) {
+                    System.out.println(getCursorCoordinate(prevMouseX, prevMouseY).toString());
+                }
+            }
             case P -> {
                 if (event.isShiftDown()) {
                     System.out.println(getViewportBox().toString());

@@ -1,0 +1,7 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit","Param: viewport"
+"benchmark.TreeBenchmark.TreeVsLinearScanBenchmark.linearScanSearch","avgt",1,20,474.985256,23.249631,"ms/op",town
+"benchmark.TreeBenchmark.TreeVsLinearScanBenchmark.linearScanSearch","avgt",1,20,474.456897,13.938014,"ms/op",halfIsland
+"benchmark.TreeBenchmark.TreeVsLinearScanBenchmark.linearScanSearch","avgt",1,20,480.024709,20.397997,"ms/op",fullIsland
+"benchmark.TreeBenchmark.TreeVsLinearScanBenchmark.treeSearch","avgt",1,20,3.062625,0.074111,"ms/op",town
+"benchmark.TreeBenchmark.TreeVsLinearScanBenchmark.treeSearch","avgt",1,20,39.471933,0.296425,"ms/op",halfIsland
+"benchmark.TreeBenchmark.TreeVsLinearScanBenchmark.treeSearch","avgt",1,20,55.294172,0.241967,"ms/op",fullIsland

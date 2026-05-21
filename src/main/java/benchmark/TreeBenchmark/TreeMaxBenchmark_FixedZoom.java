@@ -19,15 +19,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * The goal of this benchmark is to find the most optimal max value for the Tree by measuring the performance of Tree.search() and Tree.getNearestNode()
  */
-public class TreeMaxBenchmark extends AbstractTreeBenchmark {
+public class TreeMaxBenchmark_FixedZoom extends AbstractTreeBenchmark {
     private static final Map<Integer, Tree> treeCache = new HashMap<>();
+    private static final double ZOOM = 11.0;
     private Tree tree;
 
-    @Param({"5","15","30","60","120", "160", "200", "240", "300", "360", "500"})
+    @Param({"30","60","90","120","150","180","210","240","270","300","330","360","390","420","450","480","510","540","570","600"})
     private int max;
-
-    @Param({"11.0", "13.0", "16.0"})
-    private double zoom;
 
     @Setup(Level.Trial)
     public void setup() throws IOException, ClassNotFoundException {
@@ -36,10 +34,10 @@ public class TreeMaxBenchmark extends AbstractTreeBenchmark {
     }
 
     @Benchmark
-    public void searchFullIsland(Blackhole bh) {
-        tree.setZoomLevel(zoom);
+    public void searchTownViewport(Blackhole bh) {
+        tree.setZoomLevel(ZOOM);
         consumeSearchResults(
-                tree.search(fullIslandViewport),
+                tree.search(townViewport),
                 bh
         );
     }
@@ -62,7 +60,7 @@ public class TreeMaxBenchmark extends AbstractTreeBenchmark {
 
     @Benchmark
     public void getNearestNode_townViewport(Blackhole bh) {
-        tree.setZoomLevel(zoom);
+        tree.setZoomLevel(ZOOM);
         bh.consume(
             tree.getNearestNode(townViewport.getCenter())
         );
