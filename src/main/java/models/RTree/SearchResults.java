@@ -8,10 +8,7 @@ import models.osm.Way;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public record SearchResults(ArrayList<Node> nodeList, ArrayList<Way> wayList, ArrayList<Relation> relationList) implements Serializable {
     public SearchResults() {
@@ -47,7 +44,10 @@ public record SearchResults(ArrayList<Node> nodeList, ArrayList<Way> wayList, Ar
         relationList.sort(Comparator.comparingDouble(r -> -r.getMbr().area()));
 
         if (wayList.size() > 1000) {
-            Arrays.parallelSort(wayList.toArray(new Way[0]), Comparator.comparingDouble(w -> -w.getArea()));
+            Way[] sorted = wayList.toArray(new Way[0]);
+            Arrays.parallelSort(sorted, Comparator.comparingDouble(w -> -w.getArea()));
+            wayList.clear();
+            Collections.addAll(wayList, sorted);
         } else {
             wayList.sort(Comparator.comparingDouble(w -> -w.getArea()));
         }
