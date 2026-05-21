@@ -46,7 +46,8 @@ public class AppController extends DrawingApp {
     private PathfindingObject pathfindingObject = PathfindingObject.getInstance();
     private final Path2D pathToNearestNode = new Path2D.Double();
 
-    /* When something changes (pan, zoom, etc.) this gets set to true to signal a redraw is needed.
+    /*
+    When something changes (pan, zoom, etc.) this gets set to true to signal a redraw is needed.
     The AnimationTimer below checks this ~60 times per second and only redraws when it's true.
     This way, even if the mouse fires 200 events per second, we only draw 60 times at most.
 
