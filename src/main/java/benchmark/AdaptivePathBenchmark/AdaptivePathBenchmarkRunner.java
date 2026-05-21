@@ -27,11 +27,12 @@ public class AdaptivePathBenchmarkRunner extends AbstractAdaptivePathBenchmark {
     private static BufferedImage BUFFERED = new BufferedImage(1280, 720, BufferedImage.TYPE_INT_ARGB);
     private static Graphics2D GC = BUFFERED.createGraphics();
     WayRenderer wayRenderer;
+    private double altZoom;
 
-    @Param({"11", "13", "15"})  // zoom levels where simplification actually differs
+    @Param({"13", "15", "17", "18"})  // zoom levels where simplification actually differs
     public double ZOOM_LEVEL;
 
-    @Param({"0", "2", "4", "8"})
+    @Param({"0", "1", "2", "4", "8", "6", "32"})
     public double PIXEL_STEP;
 
     private AdaptivePath path;
@@ -79,11 +80,15 @@ public class AdaptivePathBenchmarkRunner extends AbstractAdaptivePathBenchmark {
             }
         }
 
+        altZoom = ZOOM_LEVEL + 0.5;
         GC.clearRect(0, 0, 1280, 720);
     }
 
     @Benchmark
     public void renderBenchMark(){
+        wayRenderer.setCurrentZoomLevel(ZOOM_LEVEL);
+        wayRenderer.draws(GC);
+        wayRenderer.setCurrentZoomLevel(altZoom);
         wayRenderer.draws(GC);
     }
 
