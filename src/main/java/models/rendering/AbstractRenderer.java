@@ -7,6 +7,13 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Base class for all map renderers.
+ *
+ * Subclasses either override drawElement() to handle one element at a time,
+ * or override draws() directly for cases that need full control over the loop,
+ * such as sorting or batching elements before drawing.
+ */
 public abstract class AbstractRenderer<T extends Element> {
     protected final AppSettings appSettings = AppSettings.getInstance();
     protected final double cosMeanLat;

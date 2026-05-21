@@ -27,6 +27,13 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.List;
 
+/**
+ * Central controller for the map application.
+ *
+ * Owns the render loop, all input handling and the world transform. On each
+ * frame it queries the R-Tree for elements inside the viewport, hands them to
+ * the renderer and pushes the result to the screen via DrawingApp.
+ */
 public class AppController extends DrawingApp {
     private final ExtSuperAffine superAffine = new ExtSuperAffine();
     private final AppSettings appSettings = AppSettings.getInstance();
@@ -70,6 +77,12 @@ public class AppController extends DrawingApp {
         return userInterface;
     }
 
+    /**
+     * Entry point called by JavaFX when the application starts.
+     *
+     * Shows the startup dialog, loads or parses map data, builds the scene
+     * and wires up all input handlers. Starts the AnimationTimer render loop at the end
+     */
     @Override
     public void start(Stage stage) {
         StartupDialog dialog = new  StartupDialog(); // TODO: Migrate StartUp dialog into the userInterface
@@ -78,6 +91,8 @@ public class AppController extends DrawingApp {
             Platform.exit();
             return;
         }
+        // Try loading from binary first. If that fails or no binary exists,
+        // parse the OSM file.
         if (mapChoice.binPath() != null) {
             appData.loadFromBinary(mapChoice.binPath());
         }
@@ -108,7 +123,7 @@ public class AppController extends DrawingApp {
 
         if (controllerState == AppControllerState.error) {
             System.out.println("Error parsing OSM and HC files. Shutting down.");
-            return; // TODO: Implement better error handling so user can try again
+            return;
         }
 
         Scene scene = new Scene(userInterface.getLayout(), w, h);
@@ -125,6 +140,7 @@ public class AppController extends DrawingApp {
         stage.setScene(scene);
         stage.show();
 
+        // Resize the pixel buffer whenever the canvas changes size.
         imageView.layoutBoundsProperty().addListener((obs, oldBounds, newBounds) -> {
             int width = (int) newBounds.getWidth();
             int height = (int) newBounds.getHeight();
@@ -161,6 +177,14 @@ public class AppController extends DrawingApp {
         return superAffine;
     }
 
+    /**
+     * Returns the geographic bounding box currently visible on screen.
+     *
+     * The screen corners are inverse-transformed from pixel space back to world
+     * space, then the cosMeanLat projection is undone to recover real lat and lon.
+     * In viewport debug mode a smaller centre rectangle is used instead so the
+     * R-Tree culling boundary is visible.
+     */
     private BoundingBox getViewportBox() {
         int w = getWIDTH();
         int h = getHEIGHT();
@@ -187,6 +211,12 @@ public class AppController extends DrawingApp {
         return eventHandler;
     }
 
+    /**
+     * Queries the R-Tree for visible elements and draws one complete frame.
+     *
+     * Draw order matters: relations (large fills) first, then ways on top,
+     * then height curves, the pathfinding overlays.
+     */
     private void draw() {
         BoundingBox viewport = getViewportBox();
 
@@ -264,6 +294,9 @@ public class AppController extends DrawingApp {
         }
     }
 
+    /**
+     * Returns a circle of fixed screen size (8px radius) centred on the given node.
+     */
     private Ellipse2D.Double getNodeCircle(Node pathfindingObject) {
         Coordinate node = pathfindingObject.getCoordinate();
         double cosMeanLat = Math.cos(Math.toRadians(appData.getMeanLat()));
@@ -297,6 +330,13 @@ public class AppController extends DrawingApp {
         return new Coordinate(lat,lon);
     }
 
+    /**
+     * Handles node selection for pathfinding.
+     *
+     * First click sets the start node. Second click sets the end node
+     * and immediately triggers a path search. If a complete path already
+     * exists it is cleared before starting a new selection.
+     */
     private void handleMouseClick(MouseEvent event) {
         if (event.isStillSincePress()) {
             if (appSettings.getUserMode() == AppSettings.UserMode.select) {
@@ -455,6 +495,14 @@ public class AppController extends DrawingApp {
         handleDraw();
     }
 
+    /**
+     * Resets the world transform so the entire map fits centered in the window.
+     *
+     * The transform is built in three steps. First the map origin is shifted to
+     * (0,0) in world space. Then it is scaled so the larger dimension fills the
+     * window. Finally, an offset centers the map and pushes it down slightly to
+     * leave room for the toolbar.
+     */
     public void handleRecenter(BoundingBox mbr, double meanLat) {
         double cosMeanLat = Math.cos(Math.toRadians(meanLat));
         double dataWidth = (mbr.maxLon() - mbr.minLon()) * cosMeanLat;
@@ -483,6 +531,12 @@ public class AppController extends DrawingApp {
         getZoomLevel();
     }
 
+    /**
+     * Zooms in or out around a fixed screen point.
+     *
+     * Translating the pivot to the origin first, then scaling, then translating
+     * back ensures the point under the cursor stays in place after the zoom
+     */
     public void handleZoom(double factor, double x, double y) {
         superAffine
                 .prependTranslation(-x, -y)
@@ -491,6 +545,13 @@ public class AppController extends DrawingApp {
         handleDraw();
     }
 
+    /**
+     * Returns the current zoom level as a power of two.
+     *
+     * At zoom 0 one degree of longitude equals one pixel. Each increment
+     * doubles the number of pixels per degree, so zoom 10 means 1024 pixels
+     * per degree.
+     */
     public double getZoomLevel() {
         return Math.log(superAffine.getScaleX()) / Math.log(2);
     };

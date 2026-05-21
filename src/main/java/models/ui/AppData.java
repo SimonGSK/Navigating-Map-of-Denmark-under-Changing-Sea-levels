@@ -11,7 +11,6 @@ import models.rendering.NodeRenderer;
 import models.rendering.RelationRenderer;
 import models.rendering.WayRenderer;
 import models.pathfinding.GraphBuilder;
-import models.heightcurve.HeightCurve;
 import models.geometry.Coordinate;
 import java.util.*;
 
