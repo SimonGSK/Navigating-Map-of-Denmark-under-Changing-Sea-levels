@@ -91,7 +91,8 @@ public class Pathfinder {
             // A* comparator
             queue = new PriorityQueue<>(Comparator.comparingDouble(node -> gScore.getOrDefault(node,Double.POSITIVE_INFINITY) + UtilityTools.euclideanDistance(node.getCoordinate(), target.getCoordinate())));
         }
-        queue.add(source);*/
+        queue.add(source);
+        */
 
         while (!queue.isEmpty()) {
             QueueEntry entry = queue.poll();

@@ -10,21 +10,23 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Singleton that holds the current pathfinding state, including the start and
- * end nodes, the computed path, and the visited node set.
+ * Singleton that holds the current pathfinding state, including the start and end nodes, the computed path,
+ * and the visited node set.
  *
  * <p>Exposes JavaFX {@link ObjectProperty} fields so UI components can bind
  * directly to state changes without polling.
  */
 public class PathfindingObject {
+    /** The single instance of this class. */
     private static PathfindingObject INSTANCE;
+
+    // --- Object Properties ---
     private final ObjectProperty<Node> startNode = new SimpleObjectProperty<>(null);
     private final ObjectProperty<Node> endNode = new SimpleObjectProperty<>(null);
     private final ObjectProperty<List<Node>> path = new SimpleObjectProperty<>(null);
     private final ObjectProperty<Set<Node>> visited = new SimpleObjectProperty<>(null);
+
     private final Pathfinder pathfinder = new Pathfinder();
-
-
     private PathfindingObject() {};
 
     /**
@@ -39,34 +41,8 @@ public class PathfindingObject {
         return INSTANCE;
     }
 
-    public void setStartNode(Node startNode) {
-        this.startNode.set(startNode);
-    }
-
-    public void setEndNode(Node endNode) {
-        this.endNode.set(endNode);
-    }
-
-    public Node getStartNode() {
-        return startNode.get();
-    }
-
-    public Node getEndNode() {
-        return endNode.get();
-    }
-
-    public ObjectProperty<Node> getStartNodeProperty() {
-        return startNode;
-    }
-
-    public ObjectProperty<Node> getEndNodeProperty() {
-        return endNode;
-    }
-
     /**
-     * Returns {@code true} if both a start and end node are set and they are
-     * not the same node. If start and end are equal, the end node is cleared
-     * as a side effect.
+     * Returns {@code true} if both a start and end node are set and they are not the same node.
      *
      * @return {@code true} if pathfinding can proceed
      */
@@ -93,9 +69,8 @@ public class PathfindingObject {
     }
 
     /**
-     * Runs A* from the current start node to the end node and updates the
-     * path and visited set. Does nothing if {@link #isReady()} returns
-     * {@code false}.
+     * Runs A* from the current start node to the end node and updates the path and visited set.
+     * Does nothing if {@link #isReady()} returns {@code false}.
      */
     public void updatePath() {
         if(!isReady()){
@@ -106,30 +81,59 @@ public class PathfindingObject {
         setVisited(result.visitedNodes());
     }
 
+    // --- Start node ---
+    public Node getStartNode() {
+        return startNode.get();
+    }
+    public void setStartNode(Node startNode) {
+        this.startNode.set(startNode);
+    }
+
+    /** @return the property backing the start node, for UI binding */
+    public ObjectProperty<Node> getStartNodeProperty() {
+        return startNode;
+    }
+
+    // --- End node ---
+    public Node getEndNode() {
+        return endNode.get();
+    }
+    public void setEndNode(Node endNode) {
+        this.endNode.set(endNode);
+    }
+
+    /** @return the property backing the end node, for UI binding */
+    public ObjectProperty<Node> getEndNodeProperty() {
+        return endNode;
+    }
+
+    // --- Path ---
+    public List<Node> getPath() {
+        return path.get();
+    }
     public void setPath(List<Node> path) {
         System.out.println(Arrays.toString(path.toArray()));
         this.path.set(path);
     }
 
-    public List<Node> getPath() {
-        return path.get();
-    }
-
+    /** @return the property backing the path list, for UI binding */
     public ObjectProperty<List<Node>> getPathProperty() {
         return path;
     }
 
+    // --- Visited ---
     public Set<Node> getVisited() {
         return visited.get();
     }
-
     public void setVisited(Set<Node> visited) {
         this.visited.set(visited);
     }
 
+    /** @return the property backing the visited set, for UI binding */
     public ObjectProperty<Set<Node>> getVisitedProperty() {
         return visited;
     }
+
 
     @Override
     public String toString() {
