@@ -1,0 +1,7 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit"
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays10","avgt",1,20,165.184291,2.455691,"ms/op"
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays2","avgt",1,20,166.079516,2.264075,"ms/op"
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays4","avgt",1,20,173.450344,6.247216,"ms/op"
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays6","avgt",1,20,171.590567,4.093793,"ms/op"
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays8","avgt",1,20,171.928220,2.773694,"ms/op"
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderNormalWays","avgt",1,20,175.243076,2.009056,"ms/op"

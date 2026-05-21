@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 @Fork(2)
 @Warmup(iterations = 5, time = 1)
-@Measurement(iterations = 10, time = 1)
+@Measurement(iterations = 20, time = 1)
 public class AdaptivePathBenchmark extends AbstractAdaptivePathBenchmark {
     private static BufferedImage BUFFERED = new BufferedImage(1280, 720, BufferedImage.TYPE_INT_ARGB);
     private static Graphics2D GC = BUFFERED.createGraphics();
@@ -33,8 +33,10 @@ public class AdaptivePathBenchmark extends AbstractAdaptivePathBenchmark {
     private double altZoom;
     private double meanLat;
 
-    @Param({"11", "13", "16"})  // zoom levels where simplification actually differs
+    @Param({"9","10","11","12","13","14","15","16"})  // zoom levels where simplification actually differs
     public double ZOOM_LEVEL;
+
+    public int PIXEL_STEP = 10;
 
     private List<double[]> loadedPts;
     private List<Way> adaptiveWays;
@@ -57,7 +59,7 @@ public class AdaptivePathBenchmark extends AbstractAdaptivePathBenchmark {
         }
 
         for(Way w : adaptiveWays){
-            w.setShape(ShapeBuilder._buildWayForBenchmark(w, 4, meanLat));
+            w.setShape(ShapeBuilder._buildWayForBenchmark(w, PIXEL_STEP, meanLat));
         }
         adaptiveRenderer.set(adaptiveWays);
 

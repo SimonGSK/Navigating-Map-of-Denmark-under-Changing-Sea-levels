@@ -21,8 +21,8 @@ import java.util.concurrent.TimeUnit;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
-@Fork(0)
-@Warmup(iterations = 2, time = 1)
+@Fork(2)
+@Warmup(iterations = 5, time = 1)
 @Measurement(iterations = 10, time = 1)
 public class Multiple_AdaptivePathBenchmark extends AbstractAdaptivePathBenchmark {
     private static BufferedImage BUFFERED = new BufferedImage(1280, 720, BufferedImage.TYPE_INT_ARGB);
@@ -38,8 +38,8 @@ public class Multiple_AdaptivePathBenchmark extends AbstractAdaptivePathBenchmar
     private double meanLat;
 
     //@Param({"9", "9.5", "10", "10.5", "11", "11.5", "12", "12.5", "13", "13.5", "14.5", "15", "15.5", "16"})  // zoom levels where simplification actually differs
-    @Param({"11","13","15"})
-    public double ZOOM_LEVEL;
+    //@Param({"11","13","15"})
+    public double ZOOM_LEVEL = 11;
 
 
     private List<double[]> loadedPts;
