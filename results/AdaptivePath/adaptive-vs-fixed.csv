@@ -1,0 +1,19 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit","Param: ZOOM_LEVEL"
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays10","avgt",1,10,102.725790,1.537258,"ms/op",11
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays10","avgt",1,10,105.379687,0.966488,"ms/op",13
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays10","avgt",1,10,114.110096,2.147209,"ms/op",15
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays2","avgt",1,10,103.055632,1.057399,"ms/op",11
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays2","avgt",1,10,111.179975,1.176778,"ms/op",13
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays2","avgt",1,10,121.775543,1.076900,"ms/op",15
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays4","avgt",1,10,101.970914,3.352837,"ms/op",11
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays4","avgt",1,10,107.130581,0.671766,"ms/op",13
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays4","avgt",1,10,119.673526,1.254470,"ms/op",15
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays6","avgt",1,10,105.773223,1.219222,"ms/op",11
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays6","avgt",1,10,108.631297,1.318770,"ms/op",13
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays6","avgt",1,10,115.283513,0.628987,"ms/op",15
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays8","avgt",1,10,104.380865,1.423050,"ms/op",11
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays8","avgt",1,10,107.678807,0.701382,"ms/op",13
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderAdaptiveWays8","avgt",1,10,110.969330,1.590289,"ms/op",15
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderNormalWays","avgt",1,10,109.342270,1.087770,"ms/op",11
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderNormalWays","avgt",1,10,107.087935,1.189107,"ms/op",13
+"benchmark.AdaptivePathBenchmark.Multiple_AdaptivePathBenchmark.renderNormalWays","avgt",1,10,106.646944,1.078540,"ms/op",15

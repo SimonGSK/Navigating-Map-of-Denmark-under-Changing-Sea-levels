@@ -29,7 +29,7 @@ public class PixelStepBenchmark extends AbstractAdaptivePathBenchmark {
     WayRenderer wayRenderer;
     private double altZoom;
 
-    @Param({"11", "13", "15", "17"})  // zoom levels where simplification actually differs
+    @Param({ "13", "13", "13", "13", "13", "13"})  // zoom levels where simplification actually differs
     public double ZOOM_LEVEL;
 
     @Param({"1", "4", "8", "16", "32", "64"})

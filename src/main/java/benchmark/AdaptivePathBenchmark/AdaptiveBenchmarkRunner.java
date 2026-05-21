@@ -9,13 +9,13 @@ import java.io.File;
 
 public class AdaptiveBenchmarkRunner {
     public static void main(String[] args) throws Exception {
-        String label = "adaptive-vs-fixed";
+        String label = "adaptive-vs-fixed_multiple";
         String resultPath = "results/AdaptivePath";
 
         new File(resultPath).mkdirs();
 
         Options opt = new OptionsBuilder()
-                .include("benchmark\\.AdaptivePathBenchmark\\.Adaptive.*")
+                .include("benchmark\\.AdaptivePathBenchmark\\.Multiple_Adaptive*")
                 .result(resultPath + "/" + label + ".csv")
                 .resultFormat(ResultFormatType.CSV)
                 .build();
