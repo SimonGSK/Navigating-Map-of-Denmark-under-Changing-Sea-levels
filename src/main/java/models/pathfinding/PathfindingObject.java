@@ -9,6 +9,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Singleton that holds the current pathfinding state, including the start and
+ * end nodes, the computed path, and the visited node set.
+ *
+ * <p>Exposes JavaFX {@link ObjectProperty} fields so UI components can bind
+ * directly to state changes without polling.
+ */
 public class PathfindingObject {
     private static PathfindingObject INSTANCE;
     private final ObjectProperty<Node> startNode = new SimpleObjectProperty<>(null);
@@ -17,8 +24,14 @@ public class PathfindingObject {
     private final ObjectProperty<Set<Node>> visited = new SimpleObjectProperty<>(null);
     private final Pathfinder pathfinder = new Pathfinder();
 
+
     private PathfindingObject() {};
 
+    /**
+     * Returns the singleton instance, creating it on first call.
+     *
+     * @return the singleton {@link PathfindingObject}
+     */
     public static PathfindingObject getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new PathfindingObject();
@@ -50,6 +63,13 @@ public class PathfindingObject {
         return endNode;
     }
 
+    /**
+     * Returns {@code true} if both a start and end node are set and they are
+     * not the same node. If start and end are equal, the end node is cleared
+     * as a side effect.
+     *
+     * @return {@code true} if pathfinding can proceed
+     */
     public boolean isReady() {
         if (startNode.get() == null || endNode.get() == null) {
             return false;
@@ -63,12 +83,20 @@ public class PathfindingObject {
         return true;
     }
 
+    /**
+     * Clears the start node, end node, and current path.
+     */
     public void clear() {
         startNode.set(null);
         endNode.set(null);
         path.set(null);
     }
 
+    /**
+     * Runs A* from the current start node to the end node and updates the
+     * path and visited set. Does nothing if {@link #isReady()} returns
+     * {@code false}.
+     */
     public void updatePath() {
         if(!isReady()){
             return;
