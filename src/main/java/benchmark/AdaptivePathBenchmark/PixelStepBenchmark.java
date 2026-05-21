@@ -20,19 +20,19 @@ import java.util.concurrent.TimeUnit;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
-@Fork(1)
+@Fork(2)
 @Warmup(iterations = 5, time = 1)
 @Measurement(iterations = 10, time = 1)
-public class AdaptivePathBenchmarkRunner extends AbstractAdaptivePathBenchmark {
+public class PixelStepBenchmark extends AbstractAdaptivePathBenchmark {
     private static BufferedImage BUFFERED = new BufferedImage(1280, 720, BufferedImage.TYPE_INT_ARGB);
     private static Graphics2D GC = BUFFERED.createGraphics();
     WayRenderer wayRenderer;
     private double altZoom;
 
-    @Param({"13", "15", "17", "18"})  // zoom levels where simplification actually differs
+    @Param({"11", "13", "15", "17"})  // zoom levels where simplification actually differs
     public double ZOOM_LEVEL;
 
-    @Param({"0", "1", "2", "4", "8", "6", "32"})
+    @Param({"1", "4", "8", "16", "32", "64"})
     public double PIXEL_STEP;
 
     private AdaptivePath path;
@@ -94,7 +94,7 @@ public class AdaptivePathBenchmarkRunner extends AbstractAdaptivePathBenchmark {
 
     public static void main(String[] args) throws Exception {
         Options opt = new OptionsBuilder()
-                .include(AdaptivePathBenchmarkRunner.class.getSimpleName())
+                .include(PixelStepBenchmark.class.getSimpleName())
                 .build();
 
         new Runner(opt).run();
