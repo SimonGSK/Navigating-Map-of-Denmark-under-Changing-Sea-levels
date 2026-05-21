@@ -7,8 +7,7 @@ import models.geometry.SpatialElement;
 import java.awt.*;
 import java.awt.geom.Path2D;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Set;
+
 
 public abstract class Element implements SpatialElement, Serializable {
     private BoundingBox mbr;

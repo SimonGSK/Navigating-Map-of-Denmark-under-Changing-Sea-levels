@@ -11,7 +11,6 @@ import models.rendering.NodeRenderer;
 import models.rendering.RelationRenderer;
 import models.rendering.WayRenderer;
 import models.pathfinding.GraphBuilder;
-import models.heightcurve.HeightCurve;
 import models.geometry.Coordinate;
 import java.util.*;
 
@@ -22,6 +21,13 @@ import java.util.List;
 
 import static enums.ElementType.way;
 
+/**
+ * Holds all loaded map data and the renderers that draw it.
+ *
+ * Data can be loaded in two ways: from a pre-built binary file for fast startup,
+ * or by parsing OSM and height curve files from scratch. After a fresh parse the
+ * result is written to a binary so subsequent launches can use the fast path.
+ */
 public class AppData {
     private Tree tree;
     private double meanLat;
@@ -49,6 +55,15 @@ public class AppData {
         super();
     }
 
+    /**
+     * Loads map data from a binary file
+     *
+     * The adjacency graph for pathfinding is not stored in the binary and must
+     * be rebuilt from the way data every time.
+     *
+     * Sets state error if the binary cannot be read, which causes the caller
+     * to fall back to parsing the OSM file instead.
+     */
     public void loadFromBinary(String binPath) {
         try {
             long start = System.currentTimeMillis();
@@ -69,6 +84,8 @@ public class AppData {
             state = AppDataState.error;
         }
     }
+    // Rebuilds the pathfinding adjacency graph from highway ways.
+    // Separate from parsing because the graph is not serialized into the binary.
     private void buildAdjacencyGraph(OsmData osmData) {
         GraphBuilder graphBuilder = new GraphBuilder();
         for (Way way: osmData.wayMap().values()) {
@@ -86,6 +103,7 @@ public class AppData {
         }
     }
 
+    /** Parses an OSM file with no height curve data. */
     public void parse(String osmFilePath) {
         try {
             OsmData osmData = parseOsm(osmFilePath);
@@ -103,6 +121,12 @@ public class AppData {
         }
     }
 
+    /**
+     * Parses an OSM file together with a height curve file.
+     *
+     * After a successful parse the result is written to a binary so future
+     * launches can skip parsing and load from binary instead.
+     */
     public void parse(String osmFilePath, String heightCurveFilePath) {
         try {
             OsmData osmData = parseOsm(osmFilePath);
@@ -180,6 +204,17 @@ public class AppData {
         addCoastlineAsContour(osmData, heightCurveData);
         heightCurveRenderer = new HeightCurveRenderer(heightCurveData, meanLat);
     }
+
+    /**
+     * Adds closed coastline ways to the height curve dataset as sea-level contours.
+     *
+     * The flooding simulation works by checking whether an area is below sea level,
+     * but it only knows about height curves. Coastlines sit at elevation 0 and define
+     * the boundary between land and sea, so they need to be represented as height
+     * curves for the flooding overlay to render correctly at the coast.
+     *
+     * Only closed coastline ways that are not already in the dataset are added.
+     */
     private void addCoastlineAsContour(OsmData osmData, HeightCurveData hcData) {
         if (hcData == null || hcData.root == null) return;
 

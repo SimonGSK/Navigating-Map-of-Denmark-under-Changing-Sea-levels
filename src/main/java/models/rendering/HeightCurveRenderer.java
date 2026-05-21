@@ -11,7 +11,15 @@ import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO: Should extend AbstractRenderer and have HeightCurveData as the type
+/**
+ * Draws HeightCurve elements in three different modes depending on app state.
+ *
+ * In elevation map mode, each curve is drawn as a filled region with a color
+ * representing its height. In OSM mode, curves are drawn as contour lines at
+ * a zoom-dependent interval. In both modes, submerged curves are overlaid with
+ * a semi-transparent water color when sea levels is above zero.
+ */
+public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> {
     private final HeightCurveData data;
     private double seaLevel;
 
@@ -20,7 +28,6 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
         this.data = data;
     }
 
-    //Bruges til at tegne height curves
     @Override
     public void draws(Graphics2D gc) {
         if (appSettings.getMapState() == AppSettings.MapState.elevation) {
@@ -32,7 +39,7 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
         }
         drawSubmergedCurves(gc);
     }
-
+    // Returns how many meters apart contour lines should be at the current zoom.
     private int getHeightInterval() {
         if (currentZoomLevel < 9)  return 20;
         if (currentZoomLevel < 10) return 15;
@@ -78,8 +85,9 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
         this.seaLevel = level;
     }
 
-    //Bruges kun til OSM-kortet så hver height curve fyldes helt og ikke tager højde for children
-    //Ser bedre ud
+    // Draws each curve as a solid filled region sorted largest first, so smaller
+    // curves paint on top. Children are not treated as holes here, which gives a
+    // cleaner look on the elevation map compared to the EVEN_ODD approach.
     public void drawHeightCurveMap(Graphics2D gc) {
         List<HeightCurve> sorted = new ArrayList<>(data.curves);
         sorted.remove(data.root);
@@ -95,16 +103,16 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> { // TODO
     }
 
 
-    //Bruges til at farve oversvømmede height curves på OSM-kortet
+    // Draws a semi-transparent water overlay on any areas below sea level.
     public void drawSubmergedCurves(Graphics2D gc) {
         if (seaLevel <= 0) return;
 
         Composite originalComposite = gc.getComposite(); //Saves the original composite
 
-        //Farver området mellem havet og yderste height curve
+        // Flood the area between the sea and the outermost height curve.
         Path2D coastFill = buildAdaptiveFillPath(data.root);
         if (coastFill != null) {
-            gc.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // 60% uigennemsigtig (værdier mellem 0.0 og 1.0)
+            gc.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f)); // 60% transparent
             gc.setColor(Color.decode("#a9d3de"));
             gc.fill(coastFill);
         }

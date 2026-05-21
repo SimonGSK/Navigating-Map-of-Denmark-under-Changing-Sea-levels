@@ -17,6 +17,12 @@ import java.util.List;
 
 import static models.geometry.BoundingBox.computeMbr;
 
+/**
+ * Parses an OSM XML file into collections of nodes, ways and relations.
+ *
+ * After parsing, renderable shapes and minimum zoom levels are assigned
+ * to every way and relation so the renderer knows what to draw and when.
+ */
 public class OsmParser extends AbstractParser<OsmData> {
     private final GraphBuilder graphBuilder = new GraphBuilder();
 
@@ -26,10 +32,19 @@ public class OsmParser extends AbstractParser<OsmData> {
 
     private BoundingBox mbr;
 
+    /**
+     * Creates a new OsmParser and immediately parses the file at the given path.
+     */
     public OsmParser(String relativeFilePath) throws IOException {
         parse(relativeFilePath);
     }
 
+    /**
+     * Reads the OSM file line by line and populates the node, way and relation maps.
+     *
+     * If the file contains no bounds element, the bounding box is computed
+     * from all parsed nodes instead.
+     */
     public void parse(String filePath) throws IOException {
         this.filePath = filePath;
 
@@ -92,6 +107,12 @@ public class OsmParser extends AbstractParser<OsmData> {
         }
     }
 
+    /**
+     * Parses a relation element by reading lines until the closing tag is found.
+     *
+     * If a reference relation has not been parsed yet, a placeholder is
+     * inserted so the member can still be registered and filled in later.
+     */
     private Relation extractRelation(String line, BufferedReader br) throws IOException {
         List<Member> members = new ArrayList<>();
         HashMap<String, String> tags = new HashMap<>();
@@ -120,6 +141,8 @@ public class OsmParser extends AbstractParser<OsmData> {
                     }
                     case "relation" -> {
                         if (!relationMap.containsKey(ref)) {
+                            // Insert a placeholder so we can register the member now.
+                            // It will be fully populated when that relation is parsed later.
                             relationMap.put(ref, new Relation(ref, new HashMap<>(), new ArrayList<>()));
                         }
                         Member member = new Member(relationMap.get(ref), ElementType.relation, role);
@@ -134,6 +157,7 @@ public class OsmParser extends AbstractParser<OsmData> {
         }
 
         if (relationMap.containsKey(relationID)) {
+            // This relation was already inserted as a placeholder, fill it in now.
             Relation existing = relationMap.get(relationID);
             existing.setMembers(members);
             existing.setTags(tags);
@@ -143,6 +167,10 @@ public class OsmParser extends AbstractParser<OsmData> {
         return relation;
     }
 
+    /**
+     * Parses a way element and, if it has a highway tag, adds its edges to the
+     * pathfinding graph.
+     */
     private Way extractWay(String line, BufferedReader br) throws IOException {
         List<Node> nodes = new ArrayList<>();
         HashMap<String, String> tags = new HashMap<>(); // TODO: Can we use a HashSet instead of a HashMap here?
@@ -201,6 +229,10 @@ public class OsmParser extends AbstractParser<OsmData> {
         return new BoundingBox(minLat, minLon, maxLat, maxLon);
     }
 
+    /**
+     * Reads an attribute value from an XML tag and decodes any HTML entities
+     * in the result.
+     */
     @Override
     public String getAttribute(String str, String key) {
         String subStr = super.getAttribute(str,key);
@@ -211,6 +243,11 @@ public class OsmParser extends AbstractParser<OsmData> {
                 .replace("&quot;", "\"");
     }
 
+    /**
+     * Returns the minimum zoom level at which a feature with the given tags
+     * should appear. Larger or more important features appear at lower zoom
+     * levels than small details like footpaths and buildings.
+     */
     private double calculateZoomLevel(HashMap<String, String> tags) {
         if (tags == null) return 0;
 

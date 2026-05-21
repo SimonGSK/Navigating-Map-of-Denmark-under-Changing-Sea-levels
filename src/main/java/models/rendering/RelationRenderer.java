@@ -7,7 +7,12 @@ import java.awt.*;
 import java.awt.geom.Path2D;
 import java.util.List;
 
-
+/**
+ * Draws Relation elements onto the map.
+ *
+ * Only multipolygon and boundary relation types are drawn. Each relations rings are combined
+ * into a single EVEN_ODD path so that inner rings automatically become holes in the outer fill.
+ */
 public class RelationRenderer extends AbstractRenderer<Relation> {
     public RelationRenderer(double meanLat) {
         super(meanLat);
@@ -15,7 +20,8 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
 
     @Override
     protected void drawElement(Graphics2D gc, Relation relation) {
-        //Tilføjet for at undgå at lukkede paths, som f.eks. hiking routes, bliver til huller i multipolygons
+        // Skip non-area types such as hiking routes, which are closed paths
+        // that would otherwise accidentally punch holes into multipolygons.
         String relationType = relation.getTag("type");
         if (relationType == null) return;
         if (!"multipolygon".equals(relationType) && !"boundary".equals(relationType)) return;

@@ -7,6 +7,12 @@ import java.awt.*;
 import java.awt.geom.Path2D;
 import java.util.List;
 
+/**
+ * Draws Way element onto the map.
+ *
+ * Open ways (roads, paths) are stroked at a fixed screen width regardless of zoom.
+ * Closed ways (buildings, landuse areas) are filled with no outline.
+ */
 public class WayRenderer extends AbstractRenderer<Way> {
 
         /* Cached strokes: Rebuilt only when zoom changes to a new 0.5 step.
