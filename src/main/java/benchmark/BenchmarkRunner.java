@@ -6,17 +6,18 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
 import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 
-public class TreeBenchmarkRunner {
+public class BenchmarkRunner {
     public static void main(String[] args) throws Exception {
-        String label = "optimal-max-value_tree";
-        String resultPath = "results/Tree";
+        String label = "test";
 
-        new File(resultPath).mkdirs();
+        new File("results").mkdirs();
 
         Options opt = new OptionsBuilder()
-            .include("benchmark\\.TreeBenchmark\\.TreeMax.*")
-            .result(resultPath + "/" + label + ".csv")
+            .include("benchmark\\.TreeMax.*")
+            .result("results/" + label + ".csv")
             .resultFormat(ResultFormatType.CSV)
             .build();
 

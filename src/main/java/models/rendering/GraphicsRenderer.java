@@ -1,6 +1,5 @@
 package models.rendering;
 
-import Interfaces.Drawable;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.osm.Node;
@@ -14,7 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class GraphicsRenderer implements Drawable {
+public class GraphicsRenderer {
     private final AppController appController;
     private PathfindingObject pathfindingObject;
     private double cosMeanLat;
@@ -55,7 +54,6 @@ public class GraphicsRenderer implements Drawable {
         return path;
     }
 
-    @Override
     public void draws(Graphics2D gc) {
         // Draw pathfinding route
         if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {

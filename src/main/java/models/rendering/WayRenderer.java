@@ -7,6 +7,12 @@ import java.awt.*;
 import java.awt.geom.Path2D;
 import java.util.List;
 
+/**
+ * Draws Way element onto the map.
+ *
+ * Open ways (roads, paths) are stroked at a fixed screen width regardless of zoom.
+ * Closed ways (buildings, landuse areas) are filled with no outline.
+ */
 public class WayRenderer extends AbstractRenderer<Way> {
 
         /* Cached strokes: Rebuilt only when zoom changes to a new 0.5 step.
@@ -51,28 +57,24 @@ public class WayRenderer extends AbstractRenderer<Way> {
         }
 
     @Override
-    public void draws(Graphics2D gc) {
-        for (Way way : elements) {
-            List<Node> nodes = way.getNodes();
-            if (nodes == null || nodes.size() < 2) continue;
+    protected void drawElement(Graphics2D gc, Way way) {
+        List<Node> nodes = way.getNodes();
+        if (nodes == null || nodes.size() < 2) return;
 
-            boolean isClosed = nodes.getFirst().getId() == nodes.getLast().getId();
+        boolean isClosed = nodes.getFirst().getId() == nodes.getLast().getId();
 
-            if (!shouldDraw(way)) continue; //Funktion til at afgøre om noget skal tegnes
+        Path2D path = way.getShape();
+        if (path instanceof models.geometry.AdaptivePath ap) {
+            ap.updateForZoom(currentZoomLevel);
+        }
+        gc.setColor(way.getColor());
 
-            Path2D path = way.getShape();
-            if (path instanceof models.geometry.AdaptivePath ap) {
-                ap.updateForZoom(currentZoomLevel);
-            }
-            gc.setColor(way.getColor());
-
-            if (!isClosed) {
-                gc.setStroke(getRoadStroke());
-                gc.draw(path);
-            } else {
-                gc.setStroke(cachedFillStroke);
-                gc.fill(path);
-            }
+        if (!isClosed) {
+            gc.setStroke(getRoadStroke());
+            gc.draw(path);
+        } else {
+            gc.setStroke(cachedFillStroke);
+            gc.fill(path);
         }
     }
 }

@@ -42,7 +42,7 @@ public class LodAssigner {
     }
     /**
      * Some features are worth showing even when small. A tiny pond is a useful
-     * landmark; a tiny scrub patch is just clutter. This returns a lower pixel
+     * landmark, a tiny scrub patch is just clutter. This returns a lower pixel
      * requirement for features that deserve to appear earlier.
      *
      * Lower number = shows up sooner.

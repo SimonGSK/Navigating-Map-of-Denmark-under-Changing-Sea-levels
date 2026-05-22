@@ -4,7 +4,6 @@ import enums.ElementType;
 import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.heightcurve.HeightCurve;
-import models.parser.HeightCurveData;
 import models.pathfinding.Edge;
 
 import java.awt.*;
@@ -55,10 +54,6 @@ public class Node extends OsmElement implements Comparable<Node>, Serializable {
         return coord.getLon();
     }
 
-    @Override
-    public void draws(Graphics2D gc) {
-
-    }
     @Override
     public int compareTo(Node other) {
         return Long.compare(this.getId(), other.getId());

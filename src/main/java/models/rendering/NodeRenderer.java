@@ -10,8 +10,8 @@ public class NodeRenderer extends AbstractRenderer<Node> {
     }
 
     @Override
-    public void draws(Graphics2D gc) {
+    protected void drawElement(Graphics2D gc, Node node) {
         // TODO: Implement this function – should draw trees, etc. (read OSM documentation). Might need to remove some nodes from TreeData.nodes which are part of ways
-        throw new RuntimeException("NodeRenderer.draws() not implemented");
+        throw new RuntimeException("NodeRenderer.drawElement() not implemented");
     }
 }
