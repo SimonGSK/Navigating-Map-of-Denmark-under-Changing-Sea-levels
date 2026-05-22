@@ -2,6 +2,7 @@ package benchmark.binaryBenchmark;
 
 import models.parser.BinaryReader;
 import models.parser.OsmParser;
+import models.ui.AppData;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
@@ -13,31 +14,37 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 @Fork(2)
 @BenchmarkMode(Mode.AverageTime)
-@OutputTimeUnit(TimeUnit.MILLISECONDS)
+@OutputTimeUnit(TimeUnit.SECONDS)
 @Warmup(iterations = 3, time = 2)
 @Measurement(iterations = 5, time = 2)
 public class BinaryBenchmark {
-    String binPath = "src/main/resources/data/benchmarking/benchmark_bornholm.bin";
+    String fileSystemPath = "src/main/resources/data/bornholm/bornholm.bin";
+    String resourcePath = "/data/bornholm/bornholm.bin";
+    AppData appData;
 
     @Setup(Level.Trial)
     public void setup() throws Exception {
-        try {
-            BinaryReader.loadForBenchmark(binPath);
+        try{
+            BinaryReader.loadForBenchmark(fileSystemPath);
         } catch (Exception e) {
-            System.out.println("Binary layout not found. Writing binary file for benchmarking...");
-            OsmParser parser = new OsmParser("bornholm/bornholm.osm");
-            models.parser.BinaryWriter.writeForBenchmark(parser.getData(), binPath);
+            System.out.println("Binary layout not found. Writing binary file for benchmarking via AppData...");
+            appData = new AppData();
+            appData.parse("bornholm/bornholm.osm", "bornholm/bornholm.hc");
         }
     }
 
     @Benchmark
     public void loadFromOsm(Blackhole bh) throws Exception {
-        bh.consume(new OsmParser("bornholm/bornholm.osm"));
+        appData = new AppData();
+        appData.parse("bornholm/bornholm.osm", "bornholm/bornholm.hc");
+        bh.consume(appData);
     }
 
     @Benchmark
     public void loadFromBinary(Blackhole bh) throws Exception {
-        bh.consume(BinaryReader.loadForBenchmark(binPath));
+        appData = new AppData();
+        appData.loadFromBinary(resourcePath);
+        bh.consume(appData);
     }
 
     public static void main(String[] args) throws Exception {
