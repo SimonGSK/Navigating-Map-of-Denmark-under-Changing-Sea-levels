@@ -10,7 +10,7 @@ import java.io.File;
 public class AdaptiveBenchmarkRunner {
     public static void main(String[] args) throws Exception {
         String label = "adaptive-vs-fixed_simple_pixelstep-10";
-        String resultPath = "results/AdaptivePath";
+        String resultPath = "results/adaptivePath";
 
         new File(resultPath).mkdirs();
 
