@@ -12,6 +12,9 @@ import models.geometry.BoundingBox;
 import models.geometry.Coordinate;
 import models.osm.Element;
 
+/**
+ * 
+ */
 public class HeightCurve extends Element implements Serializable {
     private final double height;
     private final List<Coordinate> coords;

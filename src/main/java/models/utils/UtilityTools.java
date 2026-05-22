@@ -5,7 +5,7 @@ import models.osm.Node;
 
 public class UtilityTools {
     /**
-     * Haversine formula to calculate the distance between two coordniates.
+     * Haversine formula to calculate the distance between two coordinates.
      */
     public static double haversineDistance(Coordinate a, Coordinate b) {
         double earthRadius = 6371000; // Earth radius in metres
@@ -21,7 +21,7 @@ public class UtilityTools {
     }
 
     /**
-     * Calculates the euclidean distance between two coordinates
+     * Calculates the Euclidean distance between two coordinates
      */
     public static double euclideanDistance(Coordinate a, Coordinate b) {
         return Math.sqrt(Math.pow(b.getLat() - a.getLat(),2) + Math.pow(b.getLon() - a.getLon(),2));
