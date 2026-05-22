@@ -12,16 +12,37 @@ public class Way extends OsmElement implements Iterable<Node>, Serializable {
     private final List<Node> nodes;
     private final double area;
 
+    /**
+     * Constructs a Way with an ID, tags, and a list of nodes.
+     * Computes the bounding box and area of the way automatically.
+     *
+     * @param id The ID of the way.
+     * @param tags A set of key-value tags representing metadata (e.g. natural, highway).
+     * @param nodes A sequence of nodes specifying the geometry of the way.
+     */
     public Way(long id, HashMap<String, String> tags, List<Node> nodes) {
         super(id, ElementType.way, tags, computeMbr(nodes));
         this.nodes = nodes;
         this.area = getAreaShoelace(nodes);
     }
 
+    /**
+     * Computes the minimum bounding rectangle (MBR) corresponding to a list of nodes.
+     *
+     * @param nodes The target nodes.
+     * @return A calculated {@link BoundingBox} wrapping all provided nodes.
+     */
     static private BoundingBox computeMbr(List<Node> nodes) {
         return BoundingBox.computeMbr(nodes);
     }
 
+    /**
+     * Determines the total polygon area defined by the way's nodes
+     * using the Shoelace formula, if closed.
+     *
+     * @param nodes The points forming the geometry of the way.
+     * @return The absolute geographical area, or 0 if not forming a closed polygon.
+     */
     static private double getAreaShoelace(List<Node> nodes) {
         if (nodes == null || nodes.size() < 3) return 0; //If there are less than 3 nodes, area is 0
 
@@ -45,10 +66,20 @@ public class Way extends OsmElement implements Iterable<Node>, Serializable {
         return Math.abs(area) / 2.0;
     }
 
+    /**
+     * Retrieves the list of nodes the way consists of.
+     *
+     * @return A list of {@link Node} objects.
+     */
     public List<Node> getNodes() {
         return nodes;
     }
 
+    /**
+     * Provides an iterator sequentially accessing the nodes.
+     *
+     * @return An Iterator of {@link Node} references, or an empty iterator if nodes are unavailable.
+     */
     @Override
     public Iterator<Node> iterator() {
         if (nodes == null) {
@@ -57,6 +88,11 @@ public class Way extends OsmElement implements Iterable<Node>, Serializable {
         return nodes.iterator();
     }
 
+    /**
+     * Gets the total area of the way if it forms a closed polygon.
+     *
+     * @return The computed area.
+     */
     @Override
     public double getArea() {
         return area;

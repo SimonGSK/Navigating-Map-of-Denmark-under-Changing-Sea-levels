@@ -13,7 +13,7 @@ import models.geometry.Coordinate;
 import models.osm.Element;
 
 /**
- * 
+ *
  */
 public class HeightCurve extends Element implements Serializable {
     private final double height;
@@ -25,6 +25,13 @@ public class HeightCurve extends Element implements Serializable {
     private transient AdaptivePath adaptivePath = null;
     private double seaLevel = 0;
 
+    /**
+     *
+     * @param id
+     * @param height
+     * @param coords
+     * @param children
+     */
     public HeightCurve(long id, double height, List<Coordinate> coords, List<HeightCurve> children) {
         super(id, ElementType.heightCurve, new BoundingBox(0,0,0,0));
         this.height = height;
@@ -34,39 +41,77 @@ public class HeightCurve extends Element implements Serializable {
         this.parent = null;
     }
 
+    /**
+     *
+     * @param id
+     * @param height
+     * @param coords
+     */
     public HeightCurve(long id, double height, List<Coordinate> coords) {
         this(id, height, coords, new ArrayList<>());
     }
 
+    /**
+     *
+     * @param coords
+     * @return
+     */
     static private BoundingBox computeMbr(List<Coordinate> coords) {
         return BoundingBox.computeMbr(coords);
     }
 
+    /**
+     *
+     */
     public void updateMbr() {
         this.setMbr(computeMbr(coords));
     }
 
+    /**
+     *
+     * @return
+     */
     public double getHeight() {
         return height;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<Coordinate> getCoords() {
         return coords;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<HeightCurve> getChildren() {
         return children;
     }
 
+    /**
+     *
+     * @param child
+     */
     public void addChild(HeightCurve child) {
         this.children.add(child);
         child.setParent(this);
     }
 
+    /**
+     *
+     * @param seaLevel
+     */
     public void setSeaLevel(double seaLevel) {
         this.seaLevel = seaLevel;
     }
 
+    /**
+     *
+     * @return
+     */
     public Color getColor() {
         double altitude = height - seaLevel;
 
@@ -83,6 +128,9 @@ public class HeightCurve extends Element implements Serializable {
         return Color.decode("#8F3F2B");
     }
 
+    /**
+     *
+     */
     public void resetSubmerged() {
         this.submerged = false;
         for (HeightCurve child : this.children) {
@@ -90,6 +138,11 @@ public class HeightCurve extends Element implements Serializable {
         }
     }
 
+    /**
+     *
+     * @param seaLevel
+     * @param parentSubmerged
+     */
     public void updateSubmersion(double seaLevel, boolean parentSubmerged) {
         // This curve is submerged if parent is submerged AND this curve's height is below sea level
         this.submerged = parentSubmerged && this.height < seaLevel;
@@ -100,32 +153,70 @@ public class HeightCurve extends Element implements Serializable {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isSubmerged() {
         return submerged;
     }
 
+    /**
+     *
+     * @return
+     */
     public HeightCurve getParent() {
         return parent;
     }
 
+    /**
+     *
+     * @param parent
+     */
     public void setParent(HeightCurve parent) {
         this.parent = parent;
     }
+
+    /**
+     *
+     * @param seaLevel
+     */
     public void submerge(double seaLevel) {
         updateSubmersion(seaLevel, true);
     }
 
+    /**
+     *
+     * @param shape
+     */
     public void setShape(Path2D shape){
         this.shape = shape;
     }
 
+    /**
+     *
+     * @return
+     */
     public Path2D getShape(){
         return shape;
     }
 
+    /**
+     *
+     * @return
+     */
     public AdaptivePath getAdaptivePath() { return adaptivePath; }
+
+    /**
+     *
+     * @param path
+     */
     public void setAdaptivePath(AdaptivePath path) { this.adaptivePath = path; }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public double getArea() {
         return getMbr().area();

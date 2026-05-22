@@ -93,7 +93,6 @@ public class HeightCurveParser extends AbstractParser<HeightCurveData> {
 
         ShapeBuilder shapeBuilder = new ShapeBuilder(cosMeanLat);
 
-        System.out.println("Beginning to build heightCurves");
         for(HeightCurve heightCurve : allCurves){
             if (heightCurve.getCoords().isEmpty()) {
                 continue;
