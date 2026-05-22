@@ -1,6 +1,5 @@
 package models.parser;
 
-import Interfaces.Drawable;
 import models.osm.Element;
 import models.ui.AppSettings;
 
@@ -11,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractRenderer<T extends Element> implements Drawable {
+public abstract class AbstractRenderer<T extends Element>{
     protected final AppSettings appSettings = AppSettings.getInstance();
     protected final double cosMeanLat;
     protected List<T> elements = new ArrayList<>();

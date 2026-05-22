@@ -1,0 +1,3 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit"
+"benchmark.binaryBenchmark.BinaryBenchmark.loadFromBinary","avgt",1,10,9132.327642,459.290149,"ms/op"
+"benchmark.binaryBenchmark.BinaryBenchmark.loadFromOsm","avgt",1,10,742.875975,25.731724,"ms/op"
