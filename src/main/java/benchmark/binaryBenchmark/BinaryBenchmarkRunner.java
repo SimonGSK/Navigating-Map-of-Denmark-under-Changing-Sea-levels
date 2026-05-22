@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public class BinaryBenchmarkRunner {
     public static void main(String[] args) throws RunnerException {
-        String label = "loading-from-binary-vs-normal";
+        String label = "loading-from-binary-vs-osm";
         String resultPath = "results/Binary";
 
         new File(resultPath).mkdirs();
