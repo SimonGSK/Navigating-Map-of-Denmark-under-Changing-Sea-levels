@@ -1,0 +1,13 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit","Param: PIXEL_STEP","Param: ZOOM_LEVEL"
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderAdaptiveWays","avgt",1,5,12.138299,0.687212,"ms/op",4,11
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderAdaptiveWays","avgt",1,5,22.008705,1.216677,"ms/op",4,13
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderAdaptiveWays","avgt",1,5,173.131185,9.597270,"ms/op",4,16
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderAdaptiveWays","avgt",1,5,12.150416,1.394373,"ms/op",8,11
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderAdaptiveWays","avgt",1,5,22.058296,1.015855,"ms/op",8,13
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderAdaptiveWays","avgt",1,5,179.798644,15.965158,"ms/op",8,16
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderNormalWays","avgt",1,5,166.062338,14.574639,"ms/op",4,11
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderNormalWays","avgt",1,5,176.739251,16.092615,"ms/op",4,13
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderNormalWays","avgt",1,5,163.970054,8.473807,"ms/op",4,16
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderNormalWays","avgt",1,5,167.359191,13.387634,"ms/op",8,11
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderNormalWays","avgt",1,5,165.269479,8.492301,"ms/op",8,13
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderNormalWays","avgt",1,5,170.294856,13.306816,"ms/op",8,16

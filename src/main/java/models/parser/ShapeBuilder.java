@@ -50,6 +50,8 @@ public class ShapeBuilder {
      *
      * Returns null if the relation has no tags or no outer ways.
      */
+
+
     public Path2D buildRelation(Relation relation){
         var tags = relation.getTags();
         if (relation.getTags() == null || relation.getTags().isEmpty()) return null;
@@ -78,6 +80,19 @@ public class ShapeBuilder {
         }
 
         return path;
+    }
+
+    public static Path2D _buildWayForBenchmark(Way way, double pixelStep, double meanLat){
+        double cosMeanLat = Math.cos(Math.toRadians(meanLat));
+        List<Node> nodes = way.getNodes();
+        boolean isClosed = nodes.getFirst().getId() == nodes.getLast().getId();
+
+        List<double[]> points = new java.util.ArrayList<>(nodes.size());
+        for (Node node: nodes) {
+            if (node == null) continue;
+            points.add(new double[] { node.getLon() * cosMeanLat, -node.getCoordinate().getLat() });
+        }
+        return new models.geometry.AdaptivePath(points, isClosed, pixelStep);
     }
 
     /**

@@ -1,0 +1,17 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit","Param: ZOOM_LEVEL"
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderAdaptiveWays","avgt",1,40,9.648891,0.065404,"ms/op",9
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderAdaptiveWays","avgt",1,40,10.653293,0.306110,"ms/op",10
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderAdaptiveWays","avgt",1,40,11.173332,0.392882,"ms/op",11
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderAdaptiveWays","avgt",1,40,13.337647,0.499734,"ms/op",12
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderAdaptiveWays","avgt",1,40,23.629801,0.285419,"ms/op",13
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderAdaptiveWays","avgt",1,40,42.322407,0.979604,"ms/op",14
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderAdaptiveWays","avgt",1,40,75.713580,0.946546,"ms/op",15
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderAdaptiveWays","avgt",1,40,170.853471,3.035768,"ms/op",16
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderNormalWays","avgt",1,40,164.987595,1.983711,"ms/op",9
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderNormalWays","avgt",1,40,166.863228,1.609619,"ms/op",10
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderNormalWays","avgt",1,40,160.014998,2.595311,"ms/op",11
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderNormalWays","avgt",1,40,162.795038,3.216139,"ms/op",12
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderNormalWays","avgt",1,40,163.967848,2.801832,"ms/op",13
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderNormalWays","avgt",1,40,165.447832,1.157179,"ms/op",14
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderNormalWays","avgt",1,40,161.286284,2.699929,"ms/op",15
+"benchmark.AdaptivePathBenchmark.AdaptivePathBenchmark.renderNormalWays","avgt",1,40,164.026647,2.863728,"ms/op",16
