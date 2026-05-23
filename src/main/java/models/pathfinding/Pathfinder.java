@@ -83,17 +83,6 @@ public class Pathfinder {
                 UtilityTools.haversineDistance(source.getCoordinate(),target.getCoordinate());
         queue.add(new QueueEntry(source, hScore));
 
-        /*
-        if (isDijkstra) {
-            // Dijkstra comparator
-            queue = new PriorityQueue<>(Comparator.comparingDouble(node -> gScore.getOrDefault(node,Double.POSITIVE_INFINITY)));
-        } else {
-            // A* comparator
-            queue = new PriorityQueue<>(Comparator.comparingDouble(node -> gScore.getOrDefault(node,Double.POSITIVE_INFINITY) + UtilityTools.euclideanDistance(node.getCoordinate(), target.getCoordinate())));
-        }
-        queue.add(source);
-        */
-
         while (!queue.isEmpty()) {
             QueueEntry entry = queue.poll();
             Node current = entry.node();
