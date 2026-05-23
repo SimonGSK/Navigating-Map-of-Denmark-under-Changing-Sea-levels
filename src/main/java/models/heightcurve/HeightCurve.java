@@ -13,7 +13,7 @@ import models.geometry.Coordinate;
 import models.osm.Element;
 
 /**
- *
+ * Height contour with children, parent and cached drawing data.
  */
 public class HeightCurve extends Element implements Serializable {
     private final double height;
@@ -26,11 +26,11 @@ public class HeightCurve extends Element implements Serializable {
     private double seaLevel = 0;
 
     /**
-     *
-     * @param id
-     * @param height
-     * @param coords
-     * @param children
+     * Creates a new height curve with an ID, its children, coordinates and a parent.
+     * @param id OSM id
+     * @param height elevation in meters
+     * @param coords curve coordinates
+     * @param children nested curves inside this curve
      */
     public HeightCurve(long id, double height, List<Coordinate> coords, List<HeightCurve> children) {
         super(id, ElementType.heightCurve, new BoundingBox(0,0,0,0));
@@ -42,58 +42,53 @@ public class HeightCurve extends Element implements Serializable {
     }
 
     /**
-     *
-     * @param id
-     * @param height
-     * @param coords
+     * Creates a height curve without children.
+     * @param id OSM id
+     * @param height elevation in meters
+     * @param coords curve coordinates
      */
     public HeightCurve(long id, double height, List<Coordinate> coords) {
         this(id, height, coords, new ArrayList<>());
     }
 
     /**
-     *
-     * @param coords
-     * @return
+     * Computes the minimum bounding rectangle (MBR) for the coordinates.
      */
     static private BoundingBox computeMbr(List<Coordinate> coords) {
         return BoundingBox.computeMbr(coords);
     }
 
     /**
-     *
+     * Updates the cached bounding box from current coordinates.
      */
     public void updateMbr() {
         this.setMbr(computeMbr(coords));
     }
 
     /**
-     *
-     * @return
+     * @return elevation of the height curve in meters
      */
     public double getHeight() {
         return height;
     }
 
     /**
-     *
-     * @return
+     * @return curve coordinates
      */
     public List<Coordinate> getCoords() {
         return coords;
     }
 
     /**
-     *
-     * @return
+     * @return child curves nested inside this curve
      */
     public List<HeightCurve> getChildren() {
         return children;
     }
 
     /**
-     *
-     * @param child
+     * Adds a child curve and sets its parent.
+     * @param child The curve to be set as child of this curve
      */
     public void addChild(HeightCurve child) {
         this.children.add(child);
@@ -101,16 +96,15 @@ public class HeightCurve extends Element implements Serializable {
     }
 
     /**
-     *
-     * @param seaLevel
+     * Sets the sea level used for color calculation.
+     * @param seaLevel The sea level to be set.
      */
     public void setSeaLevel(double seaLevel) {
         this.seaLevel = seaLevel;
     }
 
     /**
-     *
-     * @return
+     * @return fill color based on height and submersion
      */
     public Color getColor() {
         double altitude = height - seaLevel;
@@ -129,7 +123,7 @@ public class HeightCurve extends Element implements Serializable {
     }
 
     /**
-     *
+     * Clears submerged flags for this curve and its children.
      */
     public void resetSubmerged() {
         this.submerged = false;
@@ -139,9 +133,7 @@ public class HeightCurve extends Element implements Serializable {
     }
 
     /**
-     *
-     * @param seaLevel
-     * @param parentSubmerged
+     * Updates submerged state based on sea level and parent state.
      */
     public void updateSubmersion(double seaLevel, boolean parentSubmerged) {
         // This curve is submerged if parent is submerged AND this curve's height is below sea level
@@ -154,68 +146,59 @@ public class HeightCurve extends Element implements Serializable {
     }
 
     /**
-     *
-     * @return
+     * @return true if this curve is submerged
      */
     public boolean isSubmerged() {
         return submerged;
     }
 
     /**
-     *
-     * @return
+     * @return parent curve or null
      */
     public HeightCurve getParent() {
         return parent;
     }
 
     /**
-     *
-     * @param parent
+     * Sets the parent curve reference.
      */
     public void setParent(HeightCurve parent) {
         this.parent = parent;
     }
 
     /**
-     *
-     * @param seaLevel
+     * Marks this curve and its children as submerged below sea level.
      */
     public void submerge(double seaLevel) {
         updateSubmersion(seaLevel, true);
     }
 
     /**
-     *
-     * @param shape
+     * Sets the cached shape used for drawing.
      */
     public void setShape(Path2D shape){
         this.shape = shape;
     }
 
     /**
-     *
-     * @return
+     * @return cached shape or null
      */
     public Path2D getShape(){
         return shape;
     }
 
     /**
-     *
-     * @return
+     * @return cached adaptive path or null
      */
     public AdaptivePath getAdaptivePath() { return adaptivePath; }
 
     /**
-     *
-     * @param path
+     * Sets the cached adaptive path.
      */
     public void setAdaptivePath(AdaptivePath path) { this.adaptivePath = path; }
 
     /**
-     *
-     * @return
+     * @return area based on bounding box
      */
     @Override
     public double getArea() {

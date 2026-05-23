@@ -13,15 +13,24 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Draws overlay graphics such as routes and debug layers.
+ */
 public class GraphicsRenderer {
     private final AppController appController;
     private PathfindingObject pathfindingObject;
     private double cosMeanLat;
 
+    /**
+     * @param appController controller with app state and data
+     */
     public GraphicsRenderer(AppController appController) {
         this.appController = appController;
     }
 
+    /**
+     * Initializes cached references used during drawing.
+     */
     public void init() {
         this.pathfindingObject = appController.getPathfindingObject();
         this.cosMeanLat = Math.cos(Math.toRadians(appController.getAppData().getMeanLat()));
@@ -54,6 +63,9 @@ public class GraphicsRenderer {
         return path;
     }
 
+    /**
+     * Draws overlays such as route and debug markers.
+     */
     public void draws(Graphics2D gc) {
         // Draw pathfinding route
         if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {

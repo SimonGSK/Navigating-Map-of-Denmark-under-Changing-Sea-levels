@@ -5,6 +5,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Immutable axis-aligned bounding box in latitude/longitude.
+ */
 public final class BoundingBox implements Serializable {
     @Serial
     private static final long serialVersionUID = 0L;
@@ -30,10 +33,9 @@ public final class BoundingBox implements Serializable {
     }
 
     /**
-     * Computes the minimum bounding rectangle (MBR) from the coordinates of the elements from a list.
-     *
-     * @param elements A list of elements that extends SpatialElement.
-     * @return Generated BoundingBox fully covering logical targets accurately.
+     * Computes the minimum bounding rectangle (MBR) for the given elements.
+     * @param elements elements with bounding boxes
+     * @return bounding box covering all elements
      */
     static public BoundingBox computeMbr(List<? extends SpatialElement> elements) {
         double minLat = Double.POSITIVE_INFINITY;
@@ -51,29 +53,21 @@ public final class BoundingBox implements Serializable {
     }
 
     /**
-     * Calculates center of the BoundingBox from its minimum and maximum coordinates.
-     *
-     * @return A coordinate representing the center of the BoundingBox.
+     * @return center point of the box
      */
     public Coordinate getCenter() {
         return new Coordinate((minLat + maxLat) / 2, (minLon + maxLon) / 2);
     }
 
     /**
-     * Checks if a given BoundingBox is fully inside another one by comparing minimum and maximum coordinates.
-     *
-     * @param other BoundingBox to be checked if it is inside.
-     * @return A boolean describing if the given BoundingBox is inside or not.
+     * @return true if this box is fully inside the other box
      */
     public boolean isInside(BoundingBox other) {
         return this.minLat >= other.minLat && this.minLon >= other.minLon && this.maxLat <= other.maxLat && this.maxLon <= other.maxLon;
     }
 
     /**
-     * Checks if a given BoundingBox is overlapping another one by comparing minimum and maximum coordinates.
-     *
-     * @param other The BoundingBox that needs to be checked if it is overlapping.
-     * @return A boolean describing if the given BoundingBox is overlapping or not.
+     * @return true if this box intersects the other box
      */
     public boolean isOverlappingOther(BoundingBox other) {
         boolean separated = this.maxLat < other.minLat || this.maxLon < other.minLon || this.minLat > other.maxLat || this.minLon > other.maxLon;
@@ -81,10 +75,7 @@ public final class BoundingBox implements Serializable {
     }
 
     /**
-     *
-     *
-     * @param mbr
-     * @return
+     * @return additional area needed to include the given box
      */
     public double areaIncreaseNeeded(BoundingBox mbr) {
         if (mbr.isInside(this)) {
@@ -118,10 +109,7 @@ public final class BoundingBox implements Serializable {
     }
 
     /**
-     * Creates a new BoundingBox object by combining the minimum and maximum coordinates of this BoundingBox and another BoundingBox.
-     *
-     * @param mbr A BoundingBox to be combined with this for the new combined BoundingBox.
-     * @return The new combined BoundingBox object.
+     * @return new box expanded to include the given box
      */
     public BoundingBox getExpanded(BoundingBox mbr) {
         return new BoundingBox(
@@ -133,36 +121,28 @@ public final class BoundingBox implements Serializable {
     }
 
     /**
-     * Gets the maximum latitude of the BoundingBox
-     *
-     * @return The maximum latitude as a double.
+     * @return minimum latitude
      */
     public double minLat() {
         return minLat;
     }
 
     /**
-     * Gets the minimum longitude of the BoundingBox
-     *
-     * @return The minimum longitude as a double.
+     * @return minimum longitude
      */
     public double minLon() {
         return minLon;
     }
 
     /**
-     * Gets the maximum latitude of the BoundingBox
-     *
-     * @return The maximum latitude as a double
+     * @return maximum latitude
      */
     public double maxLat() {
         return maxLat;
     }
 
     /**
-     * Gets the maximum longitude of the BoundingBox
-     *
-     * @return The maximum longitude as a double.
+     * @return maximum longitude
      */
     public double maxLon() {
         return maxLon;

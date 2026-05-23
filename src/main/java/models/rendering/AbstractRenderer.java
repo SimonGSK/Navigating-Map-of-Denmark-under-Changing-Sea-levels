@@ -8,11 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Base class for all map renderers.
- *
- * Subclasses either override drawElement() to handle one element at a time,
- * or override draws() directly for cases that need full control over the loop,
- * such as sorting or batching elements before drawing.
+ * Base class for renderers that draw map elements.
  */
 public abstract class AbstractRenderer<T extends Element> {
     protected final AppSettings appSettings = AppSettings.getInstance();
@@ -20,10 +16,17 @@ public abstract class AbstractRenderer<T extends Element> {
     protected List<T> elements = new ArrayList<>();
     protected double currentZoomLevel = 0;
 
+    /**
+     * @param meanLat mean latitude used for projection scaling
+     */
     public AbstractRenderer(double meanLat) {
         cosMeanLat = Math.cos(Math.toRadians(meanLat));
     }
 
+    /**
+     * @param meanLat mean latitude used for projection scaling
+     * @param elements initial elements to draw
+     */
     public AbstractRenderer(double meanLat, List<T> elements) {
         if (elements != null) {
             this.elements = elements;
@@ -31,6 +34,9 @@ public abstract class AbstractRenderer<T extends Element> {
         cosMeanLat = Math.cos(Math.toRadians(meanLat));
     }
 
+    /**
+     * Replaces the current element list.
+     */
     public void set(List<T> elements) {
         if (elements == null) {
             return;
@@ -38,14 +44,16 @@ public abstract class AbstractRenderer<T extends Element> {
         this.elements = elements;
     }
 
+    /**
+     * Sets the zoom level used for visibility and sizing.
+     */
     public void setCurrentZoomLevel(double zoomLevel) {
         this.currentZoomLevel = zoomLevel;
     }
 
-    protected boolean shouldDraw(T element) {
-        return element.isVisible(currentZoomLevel);
-    }
-
+    /**
+     * Draws all elements in the current list.
+     */
     public void draws(Graphics2D gc) {
         for (T element : elements) {
             if (!shouldDraw(element)) continue;
@@ -53,8 +61,15 @@ public abstract class AbstractRenderer<T extends Element> {
         }
     }
 
+    /**
+     * Draws a single element. Override when using the default loop in draws().
+     */
     protected void drawElement(Graphics2D gc, T element) {
         throw new UnsupportedOperationException(
             getClass().getSimpleName() + " must override either draws() or drawElement()");
+    }
+
+    protected boolean shouldDraw(T element) {
+        return element.isVisible(currentZoomLevel);
     }
 }
