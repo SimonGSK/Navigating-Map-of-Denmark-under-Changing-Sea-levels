@@ -11,16 +11,30 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Parses height curve files and builds HeightCurveData.
+ */
 public class HeightCurveParser extends AbstractParser<HeightCurveData> {
     private final double cosMeanLat;
     private final OsmData osmData;
 
+    /**
+     * Parses the given height curve file.
+     * @param relativeFilePath file path or resource name
+     * @param meanLat mean latitude for projection
+     * @param osmData parsed OSM data
+     * @throws IOException when reading fails
+     */
     public HeightCurveParser(String relativeFilePath, double meanLat, OsmData osmData) throws IOException {
         this.cosMeanLat = Math.cos(Math.toRadians(meanLat));
         this.osmData = osmData;
         parse(relativeFilePath);
     }
 
+    /**
+     * Reads a height curve file and builds curve objects.
+     * @param filePath file path or resource name
+     */
     public void parse(String filePath) {
         this.filePath = filePath;
         List<HeightCurve> allCurves = new ArrayList<>();

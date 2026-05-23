@@ -10,6 +10,9 @@ import models.geometry.BoundingBox;
 import java.io.Serializable;
 import java.util.*;
 
+/**
+ * Aggregated map data used by renderers and the tree.
+ */
 public class MapData implements Serializable {
     public final List<Way> standaloneWays;
     public final List<Relation> multiPolygons;
@@ -21,26 +24,38 @@ public class MapData implements Serializable {
     public final Map<Long, Relation> relationMap;
     public final Tree tree;
 
-    // Usen when parsing normally (no binary)
+    /**
+     * Creates map data from parsed ways and relations.
+     * @param wayMap ways by id
+     * @param relationMap relations by id
+     */
     public MapData(Map<Long, Way> wayMap, Map<Long, Relation> relationMap) {
         this(wayMap, relationMap, new HashMap<>(), null, null, null);
     }
 
     /**
-     * MapData constructor for benchmarking of Tree.java
-     * @param wayMap
-     * @param relationMap
-     * @param nodeMap
-     * @param mbr
+     * Creates map data for tree benchmarking.
+     * @param wayMap ways by id
+     * @param relationMap relations by id
+     * @param nodeMap nodes by id
+     * @param mbr bounding box
      */
     public MapData(Map<Long, Way> wayMap, Map<Long, Relation> relationMap, Map<Long,Node> nodeMap, BoundingBox mbr) {
         this(wayMap,relationMap,nodeMap,mbr,null,null);
     }
 
-    // Splits OSM data into two groups: multipolygon relations and standalone ways.
-   // Ways that are part of a relation are removed from the way list to avoid the same areas being drawn twice.
-   // Both lists are sorted from largest to smallest area, so large background areas are drawn first and don't cover smaller details.
-   // Used when loading from binary
+    /**
+     * Splits OSM data into two groups: multipolygon relations and standalone ways.
+     * Ways that are part of a relation are removed from the way list to avoid the same areas being drawn twice.
+     * Both lists are sorted from largest to smallest area, so large background areas are drawn first and don't cover smaller details.
+     * Used when loading from binary
+     * @param wayMap ways by id
+     * @param relationMap relations by id
+     * @param nodeMap nodes by id
+     * @param mbr bounding box
+     * @param hcData height curve data
+     * @param tree spatial index tree
+     */
     public MapData(Map<Long, Way> wayMap, Map<Long, Relation> relationMap, Map<Long,Node> nodeMap, BoundingBox mbr, HeightCurveData hcData, Tree tree) {
         this.nodeMap = nodeMap;
         this.mbr = mbr;

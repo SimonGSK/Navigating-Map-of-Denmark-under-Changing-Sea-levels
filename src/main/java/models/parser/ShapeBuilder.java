@@ -22,12 +22,17 @@ public class ShapeBuilder {
     double cosMeanLat;
     private static final double SNAP_THRESHOLD = 0.0001;
 
+    /**
+     * @param cosMeanLat projection scale for longitude
+     */
     public ShapeBuilder(double cosMeanLat){
         this.cosMeanLat = cosMeanLat;;
     }
 
     /**
-     * Builds an AdaptivePath for a single way.
+     * Builds a path for a way.
+     * @param way way to convert
+     * @return path for the way
      */
     public Path2D buildWay(Way way){
         List<Node> nodes = way.getNodes();
@@ -42,16 +47,10 @@ public class ShapeBuilder {
     }
 
     /**
-     * Builds a filled Path2D for a relation by stitching its member ways into
-     * closed outer and inner rings.
-     *
-     * EVEN_ODD winding is used so that inner rings act as holes, any pixel
-     * covered by an odd number of rings is filled, an even number is not.
-     *
-     * Returns null if the relation has no tags or no outer ways.
+     * Builds a filled path for a relation.
+     * @param relation relation to convert
+     * @return filled path or null
      */
-
-
     public Path2D buildRelation(Relation relation){
         var tags = relation.getTags();
         if (relation.getTags() == null || relation.getTags().isEmpty()) return null;
@@ -82,6 +81,13 @@ public class ShapeBuilder {
         return path;
     }
 
+    /**
+     * Builds a way path for benchmarks with a custom pixel step.
+     * @param way way to convert
+     * @param pixelStep minimum pixel deviation
+     * @param meanLat mean latitude
+     * @return adaptive path
+     */
     public static Path2D _buildWayForBenchmark(Way way, double pixelStep, double meanLat){
         double cosMeanLat = Math.cos(Math.toRadians(meanLat));
         List<Node> nodes = way.getNodes();
@@ -96,8 +102,9 @@ public class ShapeBuilder {
     }
 
     /**
-     * Appends a ring of nodes to an existing path as a closed sub-path.
-     * Silently skips the ring if it has fewer than 3 valid nodes or is not closed.
+     * Appends a closed node ring to a path.
+     * @param path target path
+     * @param nodes ring nodes
      */
     private void appendNodes(Path2D path, List<Node> nodes) {
         if (nodes == null || nodes.isEmpty()) return;
@@ -135,6 +142,8 @@ public class ShapeBuilder {
      * whose start or end connect to the current tail or head of the ring,
      * reversing the candidate if needed. A new ring is started whenever no
      * candidate connects, which handles disconnected or malformed data.
+     * @param ways way list
+     * @return stitched rings
      */
     private List<List<Node>> stitchWaysToRings(List<Way> ways) {
         if (ways.isEmpty()) return List.of();
@@ -300,3 +309,5 @@ public class ShapeBuilder {
     }
 
 }
+
+

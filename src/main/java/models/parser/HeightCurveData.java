@@ -33,6 +33,15 @@ public class HeightCurveData implements Serializable {
      */
     public List<HeightCurve> curves;
 
+    /**
+     * Creates a height curve dataset and builds the containment tree.
+     * @param minLat minimum latitude
+     * @param minLon minimum longitude
+     * @param maxLat maximum latitude
+     * @param maxLon maximum longitude
+     * @param root sea-level root curve
+     * @param curves list of curves
+     */
     public HeightCurveData(double minLat, double minLon, double maxLat, double maxLon, HeightCurve root, List<HeightCurve> curves) {
         this.minLat = minLat;
         this.minLon = minLon;
@@ -43,8 +52,11 @@ public class HeightCurveData implements Serializable {
         buildTree(root, curves);
     }
 
-    // Sorts all HeightCurves from largest to smallest so we get them in order, parents are larger than their children
-   // Then findParent() is called on all HeightCurves to find their parents
+    /**
+     * Builds the containment tree from the curve list.
+     * @param root root curve
+     * @param curves all curves
+     */
     private void buildTree(HeightCurve root, List<HeightCurve> curves) {
         List<HeightCurve> sorted = curves.stream()
                 .filter(c -> c.getId() != -1)
@@ -60,6 +72,11 @@ public class HeightCurveData implements Serializable {
         }
     }
 
+    /**
+     * Searches for curves overlapping the given area.
+     * @param searchArea bounding box to query
+     * @return matching curves
+     */
     public List<HeightCurve> search(BoundingBox searchArea) {
         List<HeightCurve> searchResults = new ArrayList<>();
         if (root != null) {
@@ -70,6 +87,12 @@ public class HeightCurveData implements Serializable {
         return searchResults;
     }
 
+    /**
+     * Recursively collects curves intersecting the search area.
+     * @param heightCurve current curve
+     * @param searchArea bounding box to query
+     * @param searchResults output list
+     */
     public void searchRecursive(HeightCurve heightCurve, BoundingBox searchArea, List<HeightCurve> searchResults) {
         if (!searchArea.isOverlappingOther(heightCurve.getMbr())) {
             return;
@@ -81,12 +104,14 @@ public class HeightCurveData implements Serializable {
         }
     }
 
-    // Finds the smallest HeightCurve that is larger than itself, i.e. its Parent
-    // Calls Contains() to check whether a larger HeightCurve contains the hc we want to find the parent of
-   // Returns the sea if there are no other HeightCurves as parent
+    /**
+     * Finds the parent curve for the given curve.
+     * @param hc curve to place
+     * @param sorted curves sorted by size
+     * @param sea sea-level root
+     * @return parent curve
+     */
     private HeightCurve findParent(HeightCurve hc, List<HeightCurve> sorted, HeightCurve sea) {
-        // TODO: Requires cleanup. bestArea is unused varibale. bestParent is initialized as sea, but variable is never reassigned. Could just return sea
-
         HeightCurve bestParent = sea;
         double bestArea = Double.MAX_VALUE;
 
@@ -101,6 +126,12 @@ public class HeightCurveData implements Serializable {
         return bestParent;
     }
 
+    /**
+     * Checks if one curve geometrically contains another.
+     * @param outer outer curve
+     * @param inner inner curve
+     * @return true if inner lies within outer
+     */
     private boolean contains(HeightCurve outer, HeightCurve inner) {
         if (inner.getCoords().isEmpty() || outer.getCoords().isEmpty()) return false;
 
@@ -113,6 +144,12 @@ public class HeightCurveData implements Serializable {
         return pointInPolygon(testPoint, outer.getCoords());
     }
 
+    /**
+     * Point-in-polygon test using ray casting.
+     * @param point point to test
+     * @param polygon polygon ring
+     * @return true if point is inside
+     */
     private boolean pointInPolygon(Coordinate point, List<Coordinate> polygon) {
         int intersections = 0;
         int n = polygon.size();
@@ -124,6 +161,13 @@ public class HeightCurveData implements Serializable {
         return intersections % 2 == 1;
     }
 
+    /**
+     * Tests if a horizontal ray intersects a polygon edge.
+     * @param point test point
+     * @param a segment start
+     * @param b segment end
+     * @return true if ray intersects segment
+     */
     private boolean rayIntersects(Coordinate point, Coordinate a, Coordinate b) {
         double py = point.getLat();
         double px = point.getLon();
@@ -135,6 +179,11 @@ public class HeightCurveData implements Serializable {
         return px < intersectX;
     }
 
+    /**
+     * Computes the bounding box area for a curve.
+     * @param hc curve to measure
+     * @return bounding box area
+     */
     private double boundingArea(HeightCurve hc) {
         double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
         double minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
@@ -148,6 +197,10 @@ public class HeightCurveData implements Serializable {
         return (maxLat - minLat) * (maxLon - minLon);
     }
 
+    /**
+     * Updates submerged flags based on sea level.
+     * @param seaLevel sea level in meters
+     */
     public void updateFlooding(double seaLevel) {
         resetAll(root); // Resets everything in order to recalculate the floods
 
@@ -157,6 +210,10 @@ public class HeightCurveData implements Serializable {
         }
     }
 
+    /**
+     * Resets submerged flags for a curve subtree.
+     * @param curve root curve
+     */
     private void resetAll(HeightCurve curve) {
         curve.resetSubmerged();
         for (HeightCurve child : curve.getChildren()) {
@@ -164,6 +221,9 @@ public class HeightCurveData implements Serializable {
         }
     }
 
+    /**
+     * @return maximum height value in the dataset
+     */
     public double getMaxHeight() {
         return curves.stream()
                 .mapToDouble(HeightCurve::getHeight)
@@ -175,9 +235,9 @@ public class HeightCurveData implements Serializable {
      * Checks if a coordinate is inside a submerged height curve.
      * This is independent of the height curves' drawing and can be used
      * to determine if OSM features should be rendered as submerged.
-     * 
-     * @param coordinate the coordinate to check
-     * @return true if the coordinate is inside a submerged height curve
+     *
+     * @param coordinate coordinate to test
+     * @return true if the coordinate lies within a submerged curve
      */
     public boolean isCoordinateSubmerged(Coordinate coordinate) {
         // Check each top-level height curve (children of sea)
@@ -191,6 +251,9 @@ public class HeightCurveData implements Serializable {
 
     /**
      * Recursively checks if a coordinate is in a submerged curve or its submerged children.
+     * @param coordinate coordinate to test
+     * @param curve current curve
+     * @return true if submerged
      */
     private boolean isCoordinateInSubmergedCurve(Coordinate coordinate, HeightCurve curve) {
         // If this curve is submerged and the coordinate is inside it, return true

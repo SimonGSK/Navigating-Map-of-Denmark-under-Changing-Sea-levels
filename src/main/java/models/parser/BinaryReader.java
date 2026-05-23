@@ -12,7 +12,17 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
 
+/**
+ * Reads serialized map data from binary files.
+ */
 public class BinaryReader {
+    /**
+     * Loads bundled binary data from resources.
+     * @param resourcePath classpath resource path
+     * @return loaded map data
+     * @throws IOException when resource is missing
+     * @throws ClassNotFoundException when classes are missing
+     */
     public static MapData load(String resourcePath) throws IOException, ClassNotFoundException {
         InputStream is = BinaryReader.class.getResourceAsStream(resourcePath);
         if (is == null) {
@@ -30,11 +40,11 @@ public class BinaryReader {
     }
 
     /**
-     * Loading binary file with OSM data for Tree Benchmarking
-     * @param filePath
-     * @return
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * Loads binary data from a file path for benchmarks.
+     * @param filePath file system path
+     * @return loaded map data
+     * @throws IOException when reading fails
+     * @throws ClassNotFoundException when classes are missing
      */
     public static MapData loadForBenchmark(String filePath) throws IOException, ClassNotFoundException {
         try(ObjectInputStream in = new ObjectInputStream(new FileInputStream(filePath))) {
