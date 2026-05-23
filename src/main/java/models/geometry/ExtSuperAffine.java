@@ -27,11 +27,4 @@ public class ExtSuperAffine extends SuperAffine {
     public DoubleProperty scaleX() {
         return scaleX;
     }
-
-    /**
-     * @return Y scale
-     */
-    public DoubleProperty scaleY() {
-        return scaleY;
-    }
 }

@@ -24,17 +24,6 @@ public abstract class AbstractRenderer<T extends Element> {
     }
 
     /**
-     * @param meanLat mean latitude used for projection scaling
-     * @param elements initial elements to draw
-     */
-    public AbstractRenderer(double meanLat, List<T> elements) {
-        if (elements != null) {
-            this.elements = elements;
-        }
-        cosMeanLat = Math.cos(Math.toRadians(meanLat));
-    }
-
-    /**
      * Replaces the current element list.
      * @param elements new elements
      */

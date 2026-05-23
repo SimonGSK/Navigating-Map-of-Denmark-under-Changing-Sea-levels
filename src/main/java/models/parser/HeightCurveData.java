@@ -2,7 +2,6 @@ package models.parser;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import models.geometry.BoundingBox;
@@ -112,9 +111,6 @@ public class HeightCurveData implements Serializable {
      * @return parent curve
      */
     private HeightCurve findParent(HeightCurve hc, List<HeightCurve> sorted, HeightCurve sea) {
-        HeightCurve bestParent = sea;
-        double bestArea = Double.MAX_VALUE;
-
         for (int i = sorted.size() -1 ; i >= 0 ; i--) {
             HeightCurve potentialParent = sorted.get(i);
             if (potentialParent == hc) continue;
@@ -123,7 +119,7 @@ public class HeightCurveData implements Serializable {
             }
         }
 
-        return bestParent;
+        return sea;
     }
 
     /**
@@ -229,24 +225,6 @@ public class HeightCurveData implements Serializable {
                 .mapToDouble(HeightCurve::getHeight)
                 .max()
                 .orElse(100);
-    }
-
-    /**
-     * Checks if a coordinate is inside a submerged height curve.
-     * This is independent of the height curves' drawing and can be used
-     * to determine if OSM features should be rendered as submerged.
-     *
-     * @param coordinate coordinate to test
-     * @return true if the coordinate lies within a submerged curve
-     */
-    public boolean isCoordinateSubmerged(Coordinate coordinate) {
-        // Check each top-level height curve (children of sea)
-        for (HeightCurve curve : root.getChildren()) {
-            if (isCoordinateInSubmergedCurve(coordinate, curve)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

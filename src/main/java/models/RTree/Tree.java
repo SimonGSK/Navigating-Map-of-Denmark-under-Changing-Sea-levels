@@ -24,14 +24,6 @@ public class Tree implements Serializable {
 
     /**
      * Used for benchmarking purposes.
-     * @return The number of elements in the TreeData that was used to build the Tree.
-     */
-    public int _getElementCountFromTreeData() {
-        return treeData.size();
-    };
-
-    /**
-     * Used for benchmarking purposes.
      * @return The number of elements in the R-Tree.
      */
     public int getElementCount() {
