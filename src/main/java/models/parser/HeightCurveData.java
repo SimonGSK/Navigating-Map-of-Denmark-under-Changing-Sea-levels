@@ -112,9 +112,6 @@ public class HeightCurveData implements Serializable {
      * @return parent curve
      */
     private HeightCurve findParent(HeightCurve hc, List<HeightCurve> sorted, HeightCurve sea) {
-        HeightCurve bestParent = sea;
-        double bestArea = Double.MAX_VALUE;
-
         for (int i = sorted.size() -1 ; i >= 0 ; i--) {
             HeightCurve potentialParent = sorted.get(i);
             if (potentialParent == hc) continue;
@@ -123,7 +120,7 @@ public class HeightCurveData implements Serializable {
             }
         }
 
-        return bestParent;
+        return sea;
     }
 
     /**

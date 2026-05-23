@@ -165,8 +165,7 @@ public class OsmParser extends AbstractParser<OsmData> {
             existing.setTags(tags);
             return relationMap.get(relationID);
         }
-        Relation relation = new Relation(relationID, tags, members);
-        return relation;
+        return new Relation(relationID, tags, members);
     }
 
     /**
