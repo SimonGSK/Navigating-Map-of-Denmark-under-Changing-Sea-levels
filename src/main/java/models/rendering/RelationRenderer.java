@@ -14,10 +14,18 @@ import java.util.List;
  * into a single EVEN_ODD path so that inner rings automatically become holes in the outer fill.
  */
 public class RelationRenderer extends AbstractRenderer<Relation> {
+    /**
+     * @param meanLat mean latitude used for projection scaling
+     */
     public RelationRenderer(double meanLat) {
         super(meanLat);
     }
 
+    /**
+     * Draws a single relation if it is a supported area type.
+     * @param gc graphics context
+     * @param relation relation to draw
+     */
     @Override
     protected void drawElement(Graphics2D gc, Relation relation) {
         // Skip non-area types such as hiking routes, which are closed paths

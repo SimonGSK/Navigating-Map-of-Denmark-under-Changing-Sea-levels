@@ -34,16 +34,17 @@ public class OsmParser extends AbstractParser<OsmData> {
 
     /**
      * Creates a new OsmParser and immediately parses the file at the given path.
+     * @param relativeFilePath file path or resource name
+     * @throws IOException when reading fails
      */
     public OsmParser(String relativeFilePath) throws IOException {
         parse(relativeFilePath);
     }
 
     /**
-     * Reads the OSM file line by line and populates the node, way and relation maps.
-     *
-     * If the file contains no bounds element, the bounding box is computed
-     * from all parsed nodes instead.
+     * Reads the OSM file and populates the data maps.
+     * @param filePath file path or resource name
+     * @throws IOException when reading fails
      */
     public void parse(String filePath) throws IOException {
         this.filePath = filePath;
@@ -108,10 +109,11 @@ public class OsmParser extends AbstractParser<OsmData> {
     }
 
     /**
-     * Parses a relation element by reading lines until the closing tag is found.
-     *
-     * If a reference relation has not been parsed yet, a placeholder is
-     * inserted so the member can still be registered and filled in later.
+     * Parses a relation element.
+     * @param line current line
+     * @param br reader positioned at the relation
+     * @return parsed relation
+     * @throws IOException when reading fails
      */
     private Relation extractRelation(String line, BufferedReader br) throws IOException {
         List<Member> members = new ArrayList<>();
@@ -168,8 +170,11 @@ public class OsmParser extends AbstractParser<OsmData> {
     }
 
     /**
-     * Parses a way element and, if it has a highway tag, adds its edges to the
-     * pathfinding graph.
+     * Parses a way element and adds pathfinding edges when needed.
+     * @param line current line
+     * @param br reader positioned at the way
+     * @return parsed way
+     * @throws IOException when reading fails
      */
     private Way extractWay(String line, BufferedReader br) throws IOException {
         List<Node> nodes = new ArrayList<>();
@@ -213,6 +218,11 @@ public class OsmParser extends AbstractParser<OsmData> {
         return way;
     }
 
+    /**
+     * Parses a node from a line.
+     * @param line current line
+     * @return parsed node
+     */
     private Node extractNode(String line) {
         double lat = getAttributeDouble(line, "lat");
         double lon = getAttributeDouble(line, "lon");
@@ -220,6 +230,11 @@ public class OsmParser extends AbstractParser<OsmData> {
         return new Node(id, lat, lon); // TODO: Parse tags for Node and add as input
     }
 
+    /**
+     * Parses bounds from a line.
+     * @param line current line
+     * @return parsed bounding box
+     */
     private BoundingBox extractBounds(String line) {
         double minLat = getAttributeDouble(line, "minlat");
         double minLon = getAttributeDouble(line, "minlon");
@@ -230,8 +245,10 @@ public class OsmParser extends AbstractParser<OsmData> {
     }
 
     /**
-     * Reads an attribute value from an XML tag and decodes any HTML entities
-     * in the result.
+     * Reads an attribute value from an XML tag and decodes entities.
+     * @param str tag line
+     * @param key attribute name
+     * @return decoded attribute value or null
      */
     @Override
     public String getAttribute(String str, String key) {
@@ -244,9 +261,9 @@ public class OsmParser extends AbstractParser<OsmData> {
     }
 
     /**
-     * Returns the minimum zoom level at which a feature with the given tags
-     * should appear. Larger or more important features appear at lower zoom
-     * levels than small details like footpaths and buildings.
+     * Returns the minimum zoom level for given tags.
+     * @param tags feature tags
+     * @return minimum zoom level
      */
     private double calculateZoomLevel(HashMap<String, String> tags) {
         if (tags == null) return 0;

@@ -38,7 +38,6 @@ import java.util.*;
  *    At zoom 15 (street level): 1 pixel ≈ 0.000031°, so epsilon ≈ 0.000015°.
  *    Almost nothing gets dropped. Every bend in the road is preserved.
  */
-
 public class AdaptivePath extends Path2D.Double {
     // A point must deviate more than this (in pixels) to be worth keeping.
     private double PIXEL_STEP = 4;
@@ -53,6 +52,9 @@ public class AdaptivePath extends Path2D.Double {
 
     private double lastBuiltZoom = java.lang.Double.NaN;
 
+    /**
+     * Clears the cached zoom so the path is rebuilt next update.
+     */
     public void resetZoomCache() {
         lastBuiltZoom = java.lang.Double.NaN;
     }
@@ -77,6 +79,12 @@ public class AdaptivePath extends Path2D.Double {
         rebuildFull();
     }
 
+    /**
+     * Builds from projected points with custom pixel step.
+     * @param points projected coordinates (x = lon * cosMeanLat, y = -lat)
+     * @param closed true for polygons, false for lines
+     * @param pixelStep minimum pixel deviation to keep a point
+     */
     public AdaptivePath(List<double[]> points, boolean closed, double pixelStep) {
         this(points, closed);
         this.PIXEL_STEP = pixelStep;
@@ -199,4 +207,3 @@ public class AdaptivePath extends Path2D.Double {
         }
     }
 }
-

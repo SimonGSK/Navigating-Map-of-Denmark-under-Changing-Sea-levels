@@ -64,6 +64,9 @@ public class AppController extends DrawingApp {
     private double prevMouseX = 0;
     private double prevMouseY = 0;
 
+    /**
+     * @return global app settings
+     */
     public AppSettings getAppSettings() {
         return appSettings;
     }
@@ -74,15 +77,12 @@ public class AppController extends DrawingApp {
         error
     }
 
-    public UserInterface getUserInterface() {
-        return userInterface;
-    }
-
     /**
      * Entry point called by JavaFX when the application starts.
      *
      * Shows the startup dialog, loads or parses map data, builds the scene
      * and wires up all input handlers. Starts the AnimationTimer render loop at the end
+     * @param stage primary stage
      */
     @Override
     public void start(Stage stage) {
@@ -174,6 +174,9 @@ public class AppController extends DrawingApp {
         animationTimer.start();
     }
 
+    /**
+     * @return world transform used for drawing
+     */
     public ExtSuperAffine getSuperAffine() {
         return superAffine;
     }
@@ -185,6 +188,7 @@ public class AppController extends DrawingApp {
      * space, then the cosMeanLat projection is undone to recover real lat and lon.
      * In viewport debug mode a smaller centre rectangle is used instead so the
      * R-Tree culling boundary is visible.
+     * @return viewport bounding box
      */
     private BoundingBox getViewportBox() {
         int w = getWIDTH();
@@ -204,10 +208,16 @@ public class AppController extends DrawingApp {
         return new BoundingBox(minLat, minLon, maxLat, maxLon);
     }
 
+    /**
+     * @return loaded app data
+     */
     public AppData getAppData() {
         return appData;
     }
 
+    /**
+     * @return shared event handler
+     */
     public EventHandler getEventHandler() {
         return eventHandler;
     }
@@ -296,7 +306,9 @@ public class AppController extends DrawingApp {
     }
 
     /**
-     * Returns a circle of fixed screen size (8px radius) centred on the given node.
+     * Returns a circle of fixed screen size centered on the given node.
+     * @param pathfindingObject node to draw
+     * @return screen-sized circle in world space
      */
     private Ellipse2D.Double getNodeCircle(Node pathfindingObject) {
         Coordinate node = pathfindingObject.getCoordinate();
@@ -316,11 +328,21 @@ public class AppController extends DrawingApp {
         );
     }
 
+    /**
+     * Stores the last mouse position for drag operations.
+     * @param event mouse event
+     */
     private void handleMousePress(MouseEvent event) {
         this.prevMouseX = event.getX();
         this.prevMouseY = event.getY();
     }
 
+    /**
+     * Converts a screen position to a map coordinate.
+     * @param screenX screen x
+     * @param screenY screen y
+     * @return geographic coordinate
+     */
     private Coordinate getCursorCoordinate(double screenX, double screenY) {
         Point2D world = superAffine.inverseTransform(screenX, screenY);
 
@@ -337,6 +359,7 @@ public class AppController extends DrawingApp {
      * First click sets the start node. Second click sets the end node
      * and immediately triggers a path search. If a complete path already
      * exists it is cleared before starting a new selection.
+     * @param event mouse event
      */
     private void handleMouseClick(MouseEvent event) {
         if (event.isStillSincePress()) {
@@ -383,10 +406,17 @@ public class AppController extends DrawingApp {
         }
     }
 
+    /**
+     * @return shared pathfinding object
+     */
     public PathfindingObject getPathfindingObject() {
         return pathfindingObject;
     }
 
+    /**
+     * Updates the nearest-node helper line while moving the mouse.
+     * @param event mouse event
+     */
     private void handleMouseMove(MouseEvent event) {
         if (!(appSettings.getUserMode() == AppSettings.UserMode.select)) {
             return;
@@ -414,6 +444,10 @@ public class AppController extends DrawingApp {
         handleDraw();
     }
 
+    /**
+     * Pans the view based on drag delta.
+     * @param event mouse event
+     */
     private void handleMouseDrag(MouseEvent event) {
         double dx = event.getX() - this.prevMouseX;
         double dy = event.getY() - this.prevMouseY;
@@ -426,11 +460,19 @@ public class AppController extends DrawingApp {
         handleDraw();
     }
 
+    /**
+     * Zooms in or out on scroll.
+     * @param event scroll event
+     */
     private void handleScroll(ScrollEvent event) {
         double factor = event.getDeltaY() > 0 ? 1.05 : 1 / 1.05;
         handleZoom(factor, event.getX(), event.getY());
     }
 
+    /**
+     * Handles keyboard shortcuts.
+     * @param event key event
+     */
     private void handleKeyPress(KeyEvent event) {
         System.out.println("Key pressed!");
         System.out.println(event.getCode());
@@ -480,15 +522,18 @@ public class AppController extends DrawingApp {
         handleDraw();
     }
 
+    /**
+     * Marks the view as needing redraw.
+     */
     public void handleDraw() {
         isDirty = true;
 
     }
 
-    public double getSeaLevel() {
-        return seaLevel;
-    }
-
+    /**
+     * Updates sea level and redraws.
+     * @param seaLevel new sea level
+     */
     public void updateSeaLevel(float seaLevel) {
         if (appData.getHeightCurveData() == null) {
             return;
@@ -508,6 +553,8 @@ public class AppController extends DrawingApp {
      * (0,0) in world space. Then it is scaled so the larger dimension fills the
      * window. Finally, an offset centers the map and pushes it down slightly to
      * leave room for the toolbar.
+     * @param mbr data bounds
+     * @param meanLat mean latitude
      */
     public void handleRecenter(BoundingBox mbr, double meanLat) {
         double cosMeanLat = Math.cos(Math.toRadians(meanLat));
@@ -542,6 +589,9 @@ public class AppController extends DrawingApp {
      *
      * Translating the pivot to the origin first, then scaling, then translating
      * back ensures the point under the cursor stays in place after the zoom
+     * @param factor zoom factor
+     * @param x screen x
+     * @param y screen y
      */
     public void handleZoom(double factor, double x, double y) {
         superAffine
@@ -557,6 +607,7 @@ public class AppController extends DrawingApp {
      * At zoom 0 one degree of longitude equals one pixel. Each increment
      * doubles the number of pixels per degree, so zoom 10 means 1024 pixels
      * per degree.
+     * @return current zoom level as a power of two
      */
     public double getZoomLevel() {
         return Math.log(superAffine.getScaleX()) / Math.log(2);

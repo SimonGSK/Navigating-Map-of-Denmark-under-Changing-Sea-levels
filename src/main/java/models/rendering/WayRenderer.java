@@ -8,10 +8,7 @@ import java.awt.geom.Path2D;
 import java.util.List;
 
 /**
- * Draws Way element onto the map.
- *
- * Open ways (roads, paths) are stroked at a fixed screen width regardless of zoom.
- * Closed ways (buildings, landuse areas) are filled with no outline.
+ * Draws Way elements as lines or filled polygons.
  */
 public class WayRenderer extends AbstractRenderer<Way> {
 
@@ -28,11 +25,17 @@ public class WayRenderer extends AbstractRenderer<Way> {
     private static final float MIN_ROAD_WIDTH_PX = 2.0f; // minimum screen pixels
     private static final float MAX_ROAD_WIDTH_PX = 10.0f; // maximum screen pixels
 
+    /**
+     * @param meanLat mean latitude used for projection scaling
+     */
     public WayRenderer( double meanLat){
             super(meanLat);
         }
 
-        // Returns a road stroke for the current zoom, reusing the cached one if zoom hasn't changed
+        /**
+         * Returns a road stroke for the current zoom.
+         * @return cached road stroke
+         */
         private BasicStroke getRoadStroke() {
             /* Round zoom to the nearest 0.5 step (e.g. 11.3 → 11.5, 12.1 → 12.0)
              so we don't rebuild the stroke on every tiny scroll movement
@@ -56,6 +59,11 @@ public class WayRenderer extends AbstractRenderer<Way> {
             return cachedRoadStroke;
         }
 
+    /**
+     * Draws a single way using stroke or fill based on closure.
+     * @param gc graphics context
+     * @param way way to draw
+     */
     @Override
     protected void drawElement(Graphics2D gc, Way way) {
         List<Node> nodes = way.getNodes();

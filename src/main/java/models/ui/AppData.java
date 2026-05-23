@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
-import static enums.ElementType.way;
-
 /**
  * Holds all loaded map data and the renderers that draw it.
  *
@@ -47,10 +45,16 @@ public class AppData {
         complete
     }
 
+    /**
+     * @return current load state
+     */
     public AppDataState getState() {
         return state;
     }
 
+    /**
+     * Creates an empty AppData container.
+     */
     public AppData() {
         super();
     }
@@ -63,6 +67,7 @@ public class AppData {
      *
      * Sets state error if the binary cannot be read, which causes the caller
      * to fall back to parsing the OSM file instead.
+     * @param binPath binary file path
      */
     public void loadFromBinary(String binPath) {
         try {
@@ -84,8 +89,11 @@ public class AppData {
             state = AppDataState.error;
         }
     }
-    // Rebuilds the pathfinding adjacency graph from highway ways.
-    // Separate from parsing because the graph is not serialized into the binary.
+
+    /**
+     * Rebuilds the pathfinding adjacency graph from highway ways.
+     * @param osmData parsed OSM data
+     */
     private void buildAdjacencyGraph(OsmData osmData) {
         GraphBuilder graphBuilder = new GraphBuilder();
         for (Way way: osmData.wayMap().values()) {
@@ -103,7 +111,10 @@ public class AppData {
         }
     }
 
-    /** Parses an OSM file with no height curve data. */
+    /**
+     * Parses OSM data without height curves.
+     * @param osmFilePath OSM file path
+     */
     public void parse(String osmFilePath) {
         try {
             OsmData osmData = parseOsm(osmFilePath);
@@ -122,10 +133,9 @@ public class AppData {
     }
 
     /**
-     * Parses an OSM file together with a height curve file.
-     *
-     * After a successful parse the result is written to a binary so future
-     * launches can skip parsing and load from binary instead.
+     * Parses OSM data with height curves.
+     * @param osmFilePath OSM file path
+     * @param heightCurveFilePath height curve file path
      */
     public void parse(String osmFilePath, String heightCurveFilePath) {
         try {
@@ -154,16 +164,32 @@ public class AppData {
         }
     }
 
+    /**
+     * Parses OSM data.
+     * @param osmFilePath OSM file path
+     * @return parsed OSM data
+     * @throws IOException when reading fails
+     */
     private OsmData parseOsm(String osmFilePath) throws IOException {
         OsmParser p = new OsmParser(osmFilePath);
         return p.getData();
     }
 
+    /**
+     * Parses height curve data.
+     * @param heightCurveFilePath height curve file path
+     * @param osmData parsed OSM data
+     * @return parsed height curve data
+     * @throws IOException when reading fails
+     */
     private HeightCurveData parseHeightCurves(String heightCurveFilePath, OsmData osmData) throws IOException {
         HeightCurveParser p = new HeightCurveParser(heightCurveFilePath, meanLat, osmData);
         return p.getData();
     }
 
+    /**
+     * Clears loaded data and renderers.
+     */
     private void resetAppData() {
         heightCurveData = null;
         heightCurveRenderer = null;
@@ -174,6 +200,10 @@ public class AppData {
     }
     private BoundingBox bounds;
 
+    /**
+     * Initializes renderers from OSM data.
+     * @param osmData parsed OSM data
+     */
     public void init(OsmData osmData) {
         this.bounds = osmData.bounds();
         long start = System.currentTimeMillis();
@@ -194,10 +224,19 @@ public class AppData {
         wayRenderer = new WayRenderer(meanLat);
         nodeRenderer = new NodeRenderer(meanLat);
     }
+
+    /**
+     * @return bounding box of loaded data
+     */
     public BoundingBox getBounds() {
         return bounds;
     }
 
+    /**
+     * Initializes renderers from OSM and height curve data.
+     * @param osmData parsed OSM data
+     * @param heightCurveData parsed height curve data
+     */
     public void init(OsmData osmData, HeightCurveData heightCurveData) {
         init(osmData);
         this.heightCurveData = heightCurveData;
@@ -214,6 +253,8 @@ public class AppData {
      * curves for the flooding overlay to render correctly at the coast.
      *
      * Only closed coastline ways that are not already in the dataset are added.
+     * @param osmData parsed OSM data
+     * @param hcData height curve data
      */
     private void addCoastlineAsContour(OsmData osmData, HeightCurveData hcData) {
         if (hcData == null || hcData.root == null) return;
@@ -247,33 +288,46 @@ public class AppData {
         hcData.curves = merged;
 
         for (HeightCurve c : toAdd) hcData.root.addChild(c);
-
     }
 
+    /**
+     * @return spatial index tree
+     */
     public Tree getTree() {
         return tree;
     }
 
+    /**
+     * @return mean latitude of the dataset
+     */
     public double getMeanLat() {
         return meanLat;
     }
 
-    public NodeRenderer getNodeRenderer() {
-        return nodeRenderer;
-    }
-
+    /**
+     * @return renderer for ways
+     */
     public WayRenderer getWayRenderer() {
         return wayRenderer;
     }
 
+    /**
+     * @return renderer for relations
+     */
     public RelationRenderer getRelationRenderer() {
         return relationRenderer;
     }
 
+    /**
+     * @return renderer for height curves
+     */
     public HeightCurveRenderer getHeightCurveRenderer() {
         return heightCurveRenderer;
     }
 
+    /**
+     * @return height curve dataset
+     */
     public HeightCurveData getHeightCurveData() {
         return heightCurveData;
     }

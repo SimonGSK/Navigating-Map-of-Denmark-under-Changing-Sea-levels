@@ -9,12 +9,22 @@ import java.util.List;
 
 import static java.awt.image.ImageObserver.HEIGHT;
 
+/**
+ * Utility helpers for legacy drawing code.
+ */
 public class DrawingUtils {
-    
+    /**
+     * Sorts elements by descending area.
+     * @param elements elements to sort
+     */
     public static void sortElementByArea(List<Element> elements) {
         elements.sort(Comparator.comparingDouble(o -> -o.getArea()));
     }
     
+    /**
+     * Applies a fixed transform to the graphics context.
+     * @param gc graphics context
+     */
     public static void applyTransformation(Graphics2D gc) {
         double sf = HEIGHT / 0.003;
 

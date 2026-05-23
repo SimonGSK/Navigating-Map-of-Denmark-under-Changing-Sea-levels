@@ -11,6 +11,9 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.nio.IntBuffer;
 
+/**
+ * JavaFX application base with a software-rendered buffer.
+ */
 public abstract class DrawingApp extends Application {
     private int WIDTH = 1280, HEIGHT = 720;
 
@@ -24,6 +27,9 @@ public abstract class DrawingApp extends Application {
 
     protected final ImageView imageView = new ImageView();
 
+    /**
+     * Initializes the drawing buffers.
+     */
     public DrawingApp() {
         createBuffers(WIDTH, HEIGHT);
     }
@@ -40,6 +46,11 @@ public abstract class DrawingApp extends Application {
         this.imageView.setImage(this.writableImage);
     }
 
+    /**
+     * Resizes the backing buffers.
+     * @param newWidth new width
+     * @param newHeight new height
+     */
     public void resize(int newWidth, int newHeight) {
         if (newWidth <= 0 || newHeight <= 0) return;
         WIDTH = newWidth;
@@ -49,6 +60,7 @@ public abstract class DrawingApp extends Application {
 
     /**
      * Returns a Graphics2D instance used to draw unto the screen.
+     * @return graphics context
      */
     public final Graphics2D getNewGraphicsContext() {
         Graphics2D g2d = bufferedImage.createGraphics();
@@ -59,10 +71,16 @@ public abstract class DrawingApp extends Application {
         return g2d;
     }
 
+    /**
+     * @return current buffer width
+     */
     public int getWIDTH() {
         return WIDTH;
     }
 
+    /**
+     * @return current buffer height
+     */
     public int getHEIGHT() {
         return HEIGHT;
     }

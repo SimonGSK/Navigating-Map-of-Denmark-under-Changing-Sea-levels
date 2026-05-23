@@ -11,20 +11,34 @@ import java.awt.geom.Path2D;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Draws overlay graphics such as routes and debug layers.
+ */
 public class GraphicsRenderer {
     private final AppController appController;
     private PathfindingObject pathfindingObject;
     private double cosMeanLat;
 
+    /**
+     * @param appController controller with app state and data
+     */
     public GraphicsRenderer(AppController appController) {
         this.appController = appController;
     }
 
+    /**
+     * Initializes cached references used during drawing.
+     */
     public void init() {
         this.pathfindingObject = appController.getPathfindingObject();
         this.cosMeanLat = Math.cos(Math.toRadians(appController.getAppData().getMeanLat()));
     }
 
+    /**
+     * Builds a path from the current pathfinding result.
+     * @param nodes ignored; uses pathfinding result
+     * @return path or null
+     */
     private Path2D buildPath(List<Node> nodes) {
         if (!pathfindingObject.isReady() || pathfindingObject.getPath() == null) {
             return null;
@@ -52,6 +66,10 @@ public class GraphicsRenderer {
         return path;
     }
 
+    /**
+     * Draws overlays such as route and debug markers.
+     * @param gc graphics context
+     */
     public void draws(Graphics2D gc) {
         // Draw pathfinding route
         if (pathfindingObject.isReady() && pathfindingObject.getPath() != null) {
@@ -85,6 +103,12 @@ public class GraphicsRenderer {
 
     }
 
+    /**
+     * Draws a bounding box for debug overlays.
+     * @param gc graphics context
+     * @param bbox bounding box
+     * @param color stroke color
+     */
     private void drawBoundingBoxDebug(Graphics2D gc, BoundingBox bbox, Color color) {
         if (bbox == null) {
             return;

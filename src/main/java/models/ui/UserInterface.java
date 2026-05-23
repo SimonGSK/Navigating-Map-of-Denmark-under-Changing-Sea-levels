@@ -13,18 +13,26 @@ import javafx.scene.control.*;
 import java.util.HashMap;
 import java.util.function.Function;
 
+/**
+ * Builds and manages the JavaFX UI layout.
+ */
 public class UserInterface {
     private boolean isInitialized = false;
     private final AppController appController;
     private final UserControlCollection controlCollection = new UserControlCollection(new HashMap<>(),new HashMap<>(),new HashMap<>());
     private final BorderPane appLayout = new BorderPane();
-    private boolean showHeightCurves = false;
     private final AppSettings appSettings = AppSettings.getInstance();
 
+    /**
+     * @param appController controller used for callbacks
+     */
     public UserInterface(AppController appController) {
         this.appController = appController;
     }
 
+    /**
+     * Initializes controls and layout.
+     */
     public void init() {
         if (isInitialized) {
             return;
@@ -118,6 +126,11 @@ public class UserInterface {
         isInitialized = true;
     }
 
+    /**
+     * Applies shared styling to hint labels.
+     * @param label label to style
+     * @return styled label
+     */
     private Label applyHintLabelStyle(Label label) {
         label.setStyle("""
         -fx-background-color: rgba(0,0,0,0.55);
@@ -129,14 +142,26 @@ public class UserInterface {
         return label;
     }
 
+    /**
+     * @return root layout node
+     */
     public BorderPane getLayout() {
         return appLayout;
     }
 
+    /**
+     * Holder for grouped UI controls.
+     * @param buttonList buttons by key
+     * @param buttonGroupList button groups by key
+     * @param sliderList sliders by key
+     */
     public record UserControlCollection(HashMap<String,Button> buttonList,
                                         HashMap<String,LabelledButtonGroup> buttonGroupList,
                                         HashMap<String,LabelledSlider> sliderList) { }
 
+    /**
+     * @return status label for current user mode
+     */
     private Label labelUserModeIndicator() {
         Function<AppSettings.UserMode, String> labelText = (userMode) -> switch (userMode) {
             case menu -> "Menu";
@@ -151,8 +176,11 @@ public class UserInterface {
         });
 
         return label;
-    };
+    }
 
+    /**
+     * @return label showing viewport debug state
+     */
     private Label labelViewportIndicator() {
         Function<Boolean, String> labelText = (Boolean isViewportDebug) -> {
             if (isViewportDebug) {
@@ -162,8 +190,11 @@ public class UserInterface {
         };
 
         return getLabel(labelText, appSettings.isViewportDebugProperty());
-    };
+    }
 
+    /**
+     * @return label showing bounding box debug state
+     */
     private Label labelBoundingBoxIndicator() {
 
         Function<Boolean, String> labelText = (Boolean isBoundingBox) -> {
@@ -174,8 +205,11 @@ public class UserInterface {
         };
 
         return getLabel(labelText, appSettings.isBoundingBoxDebugProperty());
-    };
+    }
 
+    /**
+     * @return label showing pathfinding debug state
+     */
     private Label labelPathfindingIndicator() {
 
         Function<Boolean, String> labelText = (Boolean isPathfindingDebug) -> {
@@ -186,8 +220,14 @@ public class UserInterface {
         };
 
         return getLabel(labelText, appSettings.isPathfindingDebugProperty());
-    };
+    }
 
+    /**
+     * Builds a label that follows a boolean setting.
+     * @param labelText mapping from value to label text
+     * @param isDebug property to observe
+     * @return bound label
+     */
     private Label getLabel(Function<Boolean, String> labelText, ObjectProperty<Boolean> isDebug) {
         Label label = new Label(labelText.apply(isDebug.get()));
         label.setStyle(isDebug.get() ? "-fx-font-weight: bold;" : "");
@@ -198,8 +238,11 @@ public class UserInterface {
         });
 
         return label;
-    };
+    }
 
+    /**
+     * @return label for pathfinding start node
+     */
     private Label labelPathfindingStartLocation() {
         Function<models.osm.Node, String> labelText = (node) -> {
             if (node == null) {
@@ -217,6 +260,9 @@ public class UserInterface {
         return label;
     }
 
+    /**
+     * @return label for pathfinding end node
+     */
     private Label labelPathfindingEndLocation() {
         Function<models.osm.Node, String> labelText = (node) -> {
             if (node == null) {
@@ -234,6 +280,9 @@ public class UserInterface {
         return label;
     }
 
+    /**
+     * @return button that toggles map state
+     */
     private Button buttonToggleMapState() {
         Function<AppSettings.MapState,String> buttonLabel = (AppSettings.MapState state) -> switch (state) {
             case osm -> "Show elevation map";
@@ -251,8 +300,11 @@ public class UserInterface {
         });
 
         return button;
-    };
+    }
 
+    /**
+     * @return button that toggles height curve visibility
+     */
     private Button buttonToggleHeightCurves() {
         Function<Boolean,String> buttonLabel = (Boolean showHeightCurve) -> {
             if (showHeightCurve) {
@@ -270,8 +322,12 @@ public class UserInterface {
         });
 
         return button;
-    };
+    }
 
+    /**
+     * @param maxHeight maximum height for the slider
+     * @return labeled slider for sea level
+     */
     private LabelledSlider sliderSeaLevel(double maxHeight) {
         if (maxHeight <= 0) maxHeight = 1.0; // prevent empty slider range
         Slider slider = new Slider(0,maxHeight,0);
@@ -292,6 +348,9 @@ public class UserInterface {
         return new LabelledSlider(label,slider);
     }
 
+    /**
+     * @return labeled zoom control buttons
+     */
     private LabelledButtonGroup buttonGroupZoomControl() {
         Label label = new Label();
         appController.getSuperAffine().scaleX().addListener((obs,oldVal,newVal) -> {
@@ -307,7 +366,15 @@ public class UserInterface {
         return new LabelledButtonGroup(label,buttonZoomOut,buttonZoomIn);
     }
 
+    /**
+     * Labeled slider tuple.
+     * @param label label node
+     * @param slider slider node
+     */
     private record LabelledSlider(Label label, Slider slider) {
+        /**
+         * @return nodes in display order
+         */
         public Node[] toNodes() {
             Node[] nodes = new Node[2];
             nodes[0] = label;
@@ -316,7 +383,15 @@ public class UserInterface {
         }
     };
 
+    /**
+     * Labeled button group tuple.
+     * @param label label node
+     * @param buttons button nodes
+     */
     private record LabelledButtonGroup(Label label, Button... buttons) {
+        /**
+         * @return nodes in display order
+         */
         public Node[] toNodes() {
             Node[] nodes = new Node[1 + (buttons == null ? 0 : buttons.length)];
             nodes[0] = label;
@@ -326,9 +401,5 @@ public class UserInterface {
             }
             return nodes;
         }
-    }
-
-    public UserControlCollection getControlCollection() {
-        return controlCollection;
     }
 }
