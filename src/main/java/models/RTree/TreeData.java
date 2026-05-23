@@ -62,6 +62,10 @@ public class TreeData implements Iterable<OsmElement>, Serializable {
         ).sorted(Comparator.comparingDouble(e -> e.getMbr().minLon())).iterator();
     }
 
+    public int size() {
+        return nodes.size() + ways.size() + relations.size();
+    }
+
     public Map<Long, Node> getNodes() {
         return nodes;
     }

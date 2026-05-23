@@ -1,0 +1,17 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit","Param: size"
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortParallel","ss",1,160,0.040529,0.001834,"ms/op",100
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortParallel","ss",1,160,0.138072,0.016852,"ms/op",500
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortParallel","ss",1,160,0.363181,0.005417,"ms/op",1000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortParallel","ss",1,160,1.341393,0.166249,"ms/op",5000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortParallel","ss",1,160,2.412039,0.341950,"ms/op",10000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortParallel","ss",1,160,2.210851,0.249111,"ms/op",25000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortParallel","ss",1,160,3.357200,0.168013,"ms/op",50000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortParallel","ss",1,160,6.594754,0.530033,"ms/op",100000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortSequential","ss",1,160,0.016184,0.001751,"ms/op",100
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortSequential","ss",1,160,0.065857,0.003109,"ms/op",500
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortSequential","ss",1,160,0.126142,0.007003,"ms/op",1000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortSequential","ss",1,160,0.675365,0.036264,"ms/op",5000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortSequential","ss",1,160,1.557748,0.078593,"ms/op",10000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortSequential","ss",1,160,4.682751,0.242714,"ms/op",25000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortSequential","ss",1,160,10.939739,0.344378,"ms/op",50000
+"benchmark.SearchResultsBenchmark.SearchResultsSortBenchmark.sortSequential","ss",1,160,29.575892,1.147129,"ms/op",100000

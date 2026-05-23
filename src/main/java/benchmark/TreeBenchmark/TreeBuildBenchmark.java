@@ -12,8 +12,8 @@ public class TreeBuildBenchmark extends AbstractTreeBenchmark {
     @Benchmark
     @BenchmarkMode(Mode.SingleShotTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
-    @Warmup(iterations = 3)
-    @Measurement(iterations = 5)
+    @Warmup(iterations = 10)
+    @Measurement(iterations = 30)
     public void BuildTree(Blackhole bh) {
         bh.consume(new Tree(mapData.mbr, mapData.nodeMap, mapData.wayMap, mapData.relationMap));
     }

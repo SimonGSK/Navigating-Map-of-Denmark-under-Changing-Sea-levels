@@ -1,0 +1,19 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit","Param: fraction"
+"benchmark.TreeBenchmark.TreeScalingBenchmark.getNearestNode_townCenter","avgt",1,20,0.527395,0.006861,"ms/op",0.05
+"benchmark.TreeBenchmark.TreeScalingBenchmark.getNearestNode_townCenter","avgt",1,20,1.259710,0.037677,"ms/op",0.10
+"benchmark.TreeBenchmark.TreeScalingBenchmark.getNearestNode_townCenter","avgt",1,20,7.101057,0.060165,"ms/op",0.25
+"benchmark.TreeBenchmark.TreeScalingBenchmark.getNearestNode_townCenter","avgt",1,20,16.875426,0.102266,"ms/op",0.50
+"benchmark.TreeBenchmark.TreeScalingBenchmark.getNearestNode_townCenter","avgt",1,20,25.462900,0.202074,"ms/op",0.75
+"benchmark.TreeBenchmark.TreeScalingBenchmark.getNearestNode_townCenter","avgt",1,20,35.601565,0.841201,"ms/op",1.00
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchHalfIsland","avgt",1,20,0.186764,0.004686,"ms/op",0.05
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchHalfIsland","avgt",1,20,0.428300,0.009913,"ms/op",0.10
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchHalfIsland","avgt",1,20,2.516667,0.136653,"ms/op",0.25
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchHalfIsland","avgt",1,20,7.666015,0.236362,"ms/op",0.50
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchHalfIsland","avgt",1,20,10.752128,0.332176,"ms/op",0.75
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchHalfIsland","avgt",1,20,15.316515,0.380992,"ms/op",1.00
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchSmall","avgt",1,20,0.000366,0.000031,"ms/op",0.05
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchSmall","avgt",1,20,0.000510,0.000003,"ms/op",0.10
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchSmall","avgt",1,20,0.000561,0.000035,"ms/op",0.25
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchSmall","avgt",1,20,0.000980,0.000002,"ms/op",0.50
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchSmall","avgt",1,20,0.001593,0.000009,"ms/op",0.75
+"benchmark.TreeBenchmark.TreeScalingBenchmark.searchSmall","avgt",1,20,0.001524,0.000007,"ms/op",1.00
