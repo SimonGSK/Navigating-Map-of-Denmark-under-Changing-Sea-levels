@@ -11,16 +11,16 @@ import java.util.concurrent.TimeUnit;
 
 
 @State(Scope.Benchmark)
-@Fork(0)
-@BenchmarkMode(Mode.AverageTime)
-@OutputTimeUnit(TimeUnit.MILLISECONDS)
-@Warmup(iterations = 10, time = 1)
-@Measurement(iterations = 30, time = 1)
+@Fork(1)
+@BenchmarkMode(Mode.SingleShotTime)
+@OutputTimeUnit(TimeUnit.SECONDS)
+@Warmup(iterations = 0)
+@Measurement(iterations = 3)
 /**
  * The goal of this benchmark is to find the most optimal max value for the Tree by measuring the performance of Tree.search() and Tree.getNearestNode()
  */
 public class TreeMaxBenchmarkBuild extends AbstractTreeBenchmark {
-    @Param({"5","15","30","60","90","120","150","180","210","240","270","300", "330","360", "390","420","450","480","510","540","570","600"})
+    @Param({"5","15","30","60","90","150","210","300"})
     private int max;
 
     @Setup(Level.Trial)
@@ -28,9 +28,21 @@ public class TreeMaxBenchmarkBuild extends AbstractTreeBenchmark {
         super.setup();
     }
 
+    @State(Scope.Thread)
+    @AuxCounters(AuxCounters.Type.EVENTS)
+    public static class TreeSpecs {
+        public double depth;
+        public double nodeCount;
+        public double elementCount;
+    }
+
     @Benchmark
-    public void buildTree(Blackhole bh) {
-        bh.consume(new Tree(max,mapData.mbr,mapData.nodeMap,mapData.wayMap,mapData.relationMap));
+    public void buildTree(TreeSpecs treeSpecs, Blackhole bh) {
+        Tree tree = new Tree(max,mapData.mbr,mapData.nodeMap,mapData.wayMap,mapData.relationMap);
+        treeSpecs.depth = tree.getDepth();
+        treeSpecs.nodeCount = tree.getNodeCount();
+        treeSpecs.elementCount = tree.getElementCount();
+        bh.consume(tree);
     }
 }
 

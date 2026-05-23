@@ -8,6 +8,10 @@ import models.utils.UtilityTools;
 import java.io.Serializable;
 import java.util.*;
 
+/**
+ * A spatial indexing R-Tree implementation for OSM datasets. Supports nodes, ways, and relations.
+ * Queries OSM dataset by 2-dimensional range queries (minimum and maximum values of latitude and longitude) using the search() method.
+ */
 public class Tree implements Serializable {
     static private final int min = 1; // Must be >= 1
     static private int max = 30;
@@ -16,6 +20,70 @@ public class Tree implements Serializable {
     private final TreeData treeData;
     private transient SearchResults searchResults;
     private double zoomLevel;
+    private int searchNodesVisited = 0;
+
+    /**
+     * Used for benchmarking purposes.
+     * @return The number of elements in the TreeData that was used to build the Tree.
+     */
+    public int _getElementCountFromTreeData() {
+        return treeData.size();
+    };
+
+    /**
+     * Used for benchmarking purposes.
+     * @return The number of elements in the R-Tree.
+     */
+    public int getElementCount() {
+        int count = 0;
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            TreeNode node = queue.poll();
+            for (TreeEntry treeEntry : node.entries) {
+                switch (treeEntry) {
+                    case NodeEntry nodeEntry -> queue.add(nodeEntry.child());
+                    case LeafEntry leafEntry -> count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * This getter finds the depth of the R-Tree by traversing the through the first child of all TreeNodes until it hits a TreeNode that's also a leaf.
+     * Doesn't traverse the entire tree since R-Trees have all leafs at the same depth.
+     * @return The depth of the R-Tree
+     */
+    public int getDepth() {
+        int depth = 1;
+        TreeNode current = root;
+        while (!current.isLeaf()) {
+            depth++;
+            current = ((NodeEntry) current.entries.getFirst()).child();
+        }
+        return depth;
+    }
+
+    /**
+     * Uses breadth-first-traversal to find the number of nodes in the R-Tree
+     * @return the number of nodes in the R-Tree
+     */
+    public int getNodeCount() {
+        int count = 0;
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            TreeNode node = queue.poll();
+            count++;
+            if (!node.isLeaf()) {
+                for (TreeEntry treeEntry : node.entries) {
+                    queue.add(((NodeEntry) treeEntry).child());
+                }
+            }
+        }
+        return count;
+    }
 
     /**
      * Updates the current zoomLevel of the application, which influences how many elements are filtered out during search queries.
@@ -96,8 +164,34 @@ public class Tree implements Serializable {
         if (root != null) {
             searchRecursive(root, searchArea, searchResults);
         }
-        //searchResults.sort();
+        searchResults.sort();
         return searchResults;
+    }
+
+    /**
+     * For benchmarking purposes. Identical to normal search but resets searchNodesVisited, and calls searchRecursiveWithBenchmark which increments searchNodesVisited for each visited TreeNode.
+     * @see Tree.search()
+     * @param searchArea
+     * @return An instance of @code{SearchResults} containing all nodes, ways, and relations, whose MBRs overlaps with the search query BoundingBox
+     */
+    public SearchResults searchWithBenchmark(BoundingBox searchArea) {
+        searchNodesVisited = 0;
+
+        /// Same as normal search()
+        if (searchResults == null) {
+            searchResults = new SearchResults();
+        }
+
+        searchResults.clear();
+        if (root != null) {
+            searchRecursiveWithBenchmark(root, searchArea, searchResults);
+        }
+        searchResults.sort();
+        return searchResults;
+    }
+
+    public int getSearchNodesVisited() {
+        return searchNodesVisited;
     }
 
     /**
@@ -122,6 +216,35 @@ public class Tree implements Serializable {
                             continue;
                         }
                         searchRecursive(nonLeaf.child(), searchArea, searchResults);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Identical to searchRecursive but increments searchNodesVisited for TreeNode that is visited
+     * @param node
+     * @param searchArea
+     * @param searchResults
+     */
+    private void searchRecursiveWithBenchmark(TreeNode node, BoundingBox searchArea, SearchResults searchResults) {
+        searchNodesVisited++;
+        for (TreeEntry entry : node.entries) {
+
+            if (entry.overlaps(searchArea)) {
+                switch (entry) {
+                    case LeafEntry leaf -> {
+                        if (!leaf.element().isVisibleOnZoom(zoomLevel)) {
+                            continue;
+                        }
+                        searchResults.add(leaf.element().getType(), leaf.element());
+                    }
+                    case NodeEntry nonLeaf -> {
+                        if (!nonLeaf.child().isVisibleOnZoom(zoomLevel)) {
+                            continue;
+                        }
+                        searchRecursiveWithBenchmark(nonLeaf.child(), searchArea, searchResults);
                     }
                 }
             }
@@ -303,6 +426,11 @@ public class Tree implements Serializable {
         }
     }
 
+    /**
+     * Updates the subtreeMinZoom for a given TreeNode, by finding the minimum zoom level from all its in the TreeNode.
+     * subtreeMinZoom is used to disregard whole subtrees if no elements inside it would be visible on the screen at the current zoom level.
+     * @param node The root of the subtree (the TreeNode) to update.
+     */
     private void updateSubtreeMinZoom(TreeNode node) {
         node.resetSubtreeMinZoom();
         for (TreeEntry entry : node.entries) {
@@ -313,6 +441,14 @@ public class Tree implements Serializable {
         }
     }
 
+    /**
+     * Finds the optimal TreeNode to insert a new element into. Determines optimal node by finding that which requires the smallest enlargement of its current minimum-bounding-rectangle to contain the element to be inserted.
+     * Used by Tree.insert() for the purpose of inserting new elements into the Tree, and therefore only considers leaf-TreeNodes.
+     * @param node The root of the subtree to insert an element into.
+     * @param mbr The minimum-bounding-rectangle of the element to be inserted.
+     * @param path A list of TreeNodes to track ancestors of the returned leaf-TreeNode
+     * @return A leaf-TreeNode.
+     */
     private TreeNode chooseLeaf(TreeNode node, BoundingBox mbr, List<TreeNode> path) {
         path.add(node);
 
@@ -340,6 +476,17 @@ public class Tree implements Serializable {
         return chooseLeaf(bestChild, mbr, path);
     }
 
+    /**
+     * Used by Tree.insert() if the inserted element caused a TreeNode A (child) to overflow and split.
+     * This method takes the new TreeNode B (sibling) that resulted from the split and inserts it into the parent of TreeNode A.
+     * If the parent overflows, the parent is split in the same fashion into a TreeNode A (child) and a TreeNode B (sibling),
+     * and the process continues until TreeNode A and B have been inserted into a parent without causing overflow.
+     * If all original ancestors of child (path) have been traversed and there's still a TreeNode B (sibling) to be inserted
+     * it means the root has been split and a new root will be created.
+     * @param path A list of TreeNodes; all original ancestors of child at time of method call
+     * @param child The original TreeNode; TreeNode A
+     * @param sibling The new TreeNode that resulted from a split; TreeNode B
+     */
     private void adjustTree(List<TreeNode> path, TreeNode child, TreeNode sibling) {
         for (int i = path.size() - 2; i >= 0; i--) {
             TreeNode parent = path.get(i);
@@ -380,6 +527,14 @@ public class Tree implements Serializable {
         }
     }
 
+    /**
+     * Used by Tree.insert() and Tree.adjustTree() when a new TreeEntry has been added into a TreeNode and caused the TreeNode to overflow.
+     * This method splits a TreeNode into two new TreeNodes, and distributes their collective entries (TreeEntry) between them in a way that optimizes for the smallest minimum-bounding-rectangles of the two resulting subtrees.
+     * This is achieved by first picking the two entries (two seeds) that are located furthest apart, and then distributing all other entries between two subtree seeds based on which subtree would require the smallest area enlargement of its minimum-bounding-rectangle to contain the new entry.
+     *
+     * @param node The TreeNode to split.
+     * @return The new TreeNode that resulted from the split.
+     */
     private TreeNode splitNode(TreeNode node) {
         List<TreeEntry> allEntries = new ArrayList<>(node.entries);
 
@@ -448,6 +603,12 @@ public class Tree implements Serializable {
         return newNode;
     }
 
+    /**
+     * Used by Tree.splitNode() to pick the two entries that are located with the longest distance from each other and would provide the best seeds for a node-split.
+     * @see SeedPack
+     * @param entries All collective entries of a TreeNode A and TreeNode B.
+     * @return An instance of SeedPack containing the two optimal entries for Tree.splitNode()
+     */
     private SeedPack pickSeeds(List<TreeEntry> entries) {
         if (entries == null || entries.size() < 2) {
             throw new IllegalArgumentException("pickSeeds needs at least 2 entries");
@@ -480,6 +641,15 @@ public class Tree implements Serializable {
         return seeds;
     }
 
+    /**
+     * Used by Tree.splitNode() to distribute entries between two new subtrees (or TreeNodes).
+     * Picks the next TreeEntry to be distributed into either subtree by finding the TreeEntry that would result in
+     * the smallest area-increase of either subtree's minimum-bounding-rectangles to contain it.
+     * @param entries All entries that are left to be distributed into the left and right subtree.
+     * @param left The left subtree (TreeNode)
+     * @param right The right subtree (TreeNode)
+     * @return The best LeafEntry to insert next into either subtree.
+     */
     private TreeEntry pickNext(List<TreeEntry> entries, List<TreeEntry> left, List<TreeEntry> right) {
         if (entries.size() == 1) {
             return entries.getFirst();
@@ -500,6 +670,11 @@ public class Tree implements Serializable {
         return next;
     }
 
+    /**
+     * A helper method to compute the minimum-bounding-rectangle required to contain all TreeEntrys in a list.
+     * @param entries A list of TreeEntrys
+     * @return The minimum-bounding-rectangle, BoundingBox, required to contain all entries.
+     */
     private BoundingBox computeMBR(List<TreeEntry> entries) {
         BoundingBox result = entries.getFirst().getMbr().copy();
         for (int i = 1; i < entries.size(); i++) {
@@ -508,6 +683,13 @@ public class Tree implements Serializable {
         return result;
     }
 
+    /**
+     * Another variant of computeMBR which takes a TreeNode as its arguement and calls Tree.computeMBR(List<TreeEntry> entries) using the entries of the TreeNode.
+     * Use to find the minimum-bounding-rectangle required for a TreeNode to contain all its entries.
+     * Use if you need to recompute a TreeNodes MBR.
+     * @param node A TreeNode with entries.
+     * @return The minimum-bounding-rectangle, BoundingBox, required to contain all entries of the TreeNode.
+     */
     private BoundingBox computeMBR(TreeNode node) {
         return computeMBR(node.entries);
     }

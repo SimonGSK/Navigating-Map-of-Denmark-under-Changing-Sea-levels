@@ -28,6 +28,10 @@ public record SearchResults(ArrayList<Node> nodeList, ArrayList<Way> wayList, Ar
         relationList.clear();
     }
 
+    public int size() {
+        return nodeList.size() + wayList().size() + relationList.size();
+    }
+
     public void add(ElementType type, Element element) {
         switch (element) {
             case Node node -> {

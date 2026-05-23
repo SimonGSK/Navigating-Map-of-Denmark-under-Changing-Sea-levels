@@ -9,13 +9,13 @@ import java.io.File;
 
 public class TreeBenchmarkRunner {
     public static void main(String[] args) throws Exception {
-        String label = "tree-area-scan_benchmark_no-sort";
+        String label = "tree-vs-linear-scan-w-specs_dynamic-viewports_benchmark";
         String resultPath = "results/Tree";
 
         new File(resultPath).mkdirs();
 
         Options opt = new OptionsBuilder()
-            .include("benchmark\\.TreeBenchmark\\.TreeScalingBenchmark")
+            .include("benchmark\\.TreeBenchmark\\.TreeVsLinearScanDynamicViewportsBenchmark")
             .result(resultPath + "/" + label + ".csv")
             .resultFormat(ResultFormatType.CSV)
             .build();
