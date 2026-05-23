@@ -1,0 +1,15 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit","Param: viewport"
+"benchmark.TreeBenchmark.TreeAreaScanBenchmark.searchSelectedViewport","avgt",1,60,0.003652,0.000094,"ms/op",small
+"benchmark.TreeBenchmark.TreeAreaScanBenchmark.searchSelectedViewport:areaKm2","avgt",1,60,9.644386,NaN,"#",small
+"benchmark.TreeBenchmark.TreeAreaScanBenchmark.searchSelectedViewport","avgt",1,60,0.010788,0.000081,"ms/op",medium5
+"benchmark.TreeBenchmark.TreeAreaScanBenchmark.searchSelectedViewport:areaKm2","avgt",1,60,48.826702,NaN,"#",medium5
+"benchmark.TreeBenchmark.TreeAreaScanBenchmark.searchSelectedViewport","avgt",1,60,0.038040,0.000266,"ms/op",medium4
+"benchmark.TreeBenchmark.TreeAreaScanBenchmark.searchSelectedViewport:areaKm2","avgt",1,60,247.207938,NaN,"#",medium4
+"benchmark.TreeBenchmark.TreeAreaScanBenchmark.searchSelectedViewport","avgt",1,60,0.235062,0.002665,"ms/op",medium3
+"benchmark.TreeBenchmark.TreeAreaScanBenchmark.searchSelectedViewport:areaKm2","avgt",1,60,1251.749383,NaN,"#",medium3
+"benchmark.TreeBenchmark.TreeAreaScanBenchmark.searchSelectedViewport","avgt",1,60,2.937444,0.069292,"ms/op",medium2
+"benchmark.TreeBenchmark.TreeAreaScanBenchmark.searchSelectedViewport:areaKm2","avgt",1,60,6339.931988,NaN,"#",medium2
+"benchmark.TreeBenchmark.TreeAreaScanBenchmark.searchSelectedViewport","avgt",1,60,28.665935,0.309472,"ms/op",medium1
+"benchmark.TreeBenchmark.TreeAreaScanBenchmark.searchSelectedViewport:areaKm2","avgt",1,60,32129.473302,NaN,"#",medium1
+"benchmark.TreeBenchmark.TreeAreaScanBenchmark.searchSelectedViewport","avgt",1,60,49.215033,0.381132,"ms/op",large
+"benchmark.TreeBenchmark.TreeAreaScanBenchmark.searchSelectedViewport:areaKm2","avgt",1,60,163036.708577,NaN,"#",large

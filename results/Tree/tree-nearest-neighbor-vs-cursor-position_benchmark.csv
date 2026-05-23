@@ -1,0 +1,5 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit","Param: ZOOM"
+"benchmark.TreeBenchmark.TreeNearestNeighborBenchmark.getNearestNode_pos1","avgt",1,10,16.964874,0.428728,"us/op",18.0
+"benchmark.TreeBenchmark.TreeNearestNeighborBenchmark.getNearestNode_pos2","avgt",1,10,8.927006,0.046873,"us/op",18.0
+"benchmark.TreeBenchmark.TreeNearestNeighborBenchmark.getNearestNode_pos3","avgt",1,10,980.716017,61.036867,"us/op",18.0
+"benchmark.TreeBenchmark.TreeNearestNeighborBenchmark.getNearestNode_pos4","avgt",1,10,34251.126940,233.506847,"us/op",18.0

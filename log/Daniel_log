@@ -1,0 +1,16 @@
+ I started by setting up the core parsing infrastructure, building the OSM parser and organising the package structure
+ so the project had a solid foundation to build on. Early on I also did most of the initial rendering work for Bornholm,
+ which involved getting the coastline fill working correctly, filtering out ferry routes, adding colour mapping for different
+ OSM tags like farmland and water, and making sure larger polygons like land and sea rendered before smaller details so
+ nothing got covered up. From there I built the height curve parser, which required handling the parent-child tree structure
+ of nested contour lines. I then wired this into the renderer and worked on the colour logic so elevation
+ bands were visually readable. This part took a fair amount of iteration to get right. I also implemented binary serialization,
+ meaning the app serializes the parsed map data to a binary file after the first load so subsequent launches skip
+ parsing entirely and start up much faster. I added the startup dialog that lets the user choose which map to load as part of this.
+ On the testing side I built out the parser test suite, the height curve tests, and later added tests for BoundingBox,
+ ShapeBuilder and AdaptivePath. I also wrote the DependsOn extension to stop cascading test failures from obscuring the
+ real cause of a breakage. Towards the end of the project I focused heavily on performance. I implemented the Ramer-Douglas-Peucker
+ line simplification algorithm and the LodAssigner class which controls at what zoom level each type of road or feature becomes visible.
+ I then did a round of rendering optimizations including adding a dirty flag so the app only redraws when something has actually changed,
+ caching stroke objects and height curve paths to avoid rebuilding them every frame, and reusing a single image buffer instead of
+ allocating a new one each render cycle. Finally I did a full JavaDoc pass across the core classes.

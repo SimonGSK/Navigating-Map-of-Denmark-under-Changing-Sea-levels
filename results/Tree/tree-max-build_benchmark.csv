@@ -1,0 +1,12 @@
+"Benchmark","Mode","Threads","Samples","Score","Score Error (99.9%)","Unit","Param: max"
+"benchmark.TreeBenchmark.TreeMaxBenchmarkBuild.buildTree","ss",1,3,2.753451,3.501982,"s/op",5
+"benchmark.TreeBenchmark.TreeMaxBenchmarkBuild.buildTree","ss",1,3,2.862225,3.027327,"s/op",15
+"benchmark.TreeBenchmark.TreeMaxBenchmarkBuild.buildTree","ss",1,3,4.764960,3.430612,"s/op",30
+"benchmark.TreeBenchmark.TreeMaxBenchmarkBuild.buildTree","ss",1,3,10.349253,1.765004,"s/op",60
+"benchmark.TreeBenchmark.TreeMaxBenchmarkBuild.buildTree","ss",1,3,18.882902,11.102273,"s/op",90
+"benchmark.TreeBenchmark.TreeMaxBenchmarkBuild.buildTree","ss",1,3,44.571776,2.867613,"s/op",150
+"benchmark.TreeBenchmark.TreeMaxBenchmarkBuild.buildTree","ss",1,3,94.204263,25.576038,"s/op",210
+"benchmark.TreeBenchmark.TreeMaxBenchmarkBuild.buildTree","ss",1,3,174.817173,33.791558,"s/op",300
+"benchmark.TreeBenchmark.TreeMaxBenchmarkBuild.buildTree","ss",1,3,293.235810,6.596849,"s/op",390
+"benchmark.TreeBenchmark.TreeMaxBenchmarkBuild.buildTree","ss",1,3,447.880299,83.607677,"s/op",480
+"benchmark.TreeBenchmark.TreeMaxBenchmarkBuild.buildTree","ss",1,3,813.041485,40.115685,"s/op",600

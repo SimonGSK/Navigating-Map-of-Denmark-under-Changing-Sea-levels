@@ -63,4 +63,9 @@ public class Coordinate implements SpatialElement, Serializable {
     public double getArea() {
         return 0;
     }
+
+    @Override
+    public String toString() {
+        return "Coordinate: ("+ lat + ", " + lon + ")";
+    }
 }

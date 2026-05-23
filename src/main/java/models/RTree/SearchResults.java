@@ -25,6 +25,10 @@ public record SearchResults(ArrayList<Node> nodeList, ArrayList<Way> wayList, Ar
         relationList.clear();
     }
 
+    public int size() {
+        return nodeList.size() + wayList().size() + relationList.size();
+    }
+
     public void add(ElementType type, Element element) {
         switch (element) {
             case Node node -> {
@@ -48,6 +52,20 @@ public record SearchResults(ArrayList<Node> nodeList, ArrayList<Way> wayList, Ar
             Arrays.parallelSort(sorted, Comparator.comparingDouble(w -> -w.getArea()));
             wayList.clear();
             Collections.addAll(wayList, sorted);
+        } else {
+            wayList.sort(Comparator.comparingDouble(w -> -w.getArea()));
+        }
+    }
+
+    public void _sortForBenchmark(int split) {
+        if (relationList.size() > split) {
+            Arrays.parallelSort(relationList.toArray(new Relation[0]), Comparator.comparingDouble(w -> -w.getArea()));
+        } else {
+            relationList.sort(Comparator.comparingDouble(r -> -r.getArea()));
+        }
+
+        if (wayList.size() > split) {
+            Arrays.parallelSort(wayList.toArray(new Way[0]), Comparator.comparingDouble(w -> -w.getArea()));
         } else {
             wayList.sort(Comparator.comparingDouble(w -> -w.getArea()));
         }
