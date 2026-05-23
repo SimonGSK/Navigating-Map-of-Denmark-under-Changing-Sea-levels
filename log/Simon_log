@@ -1,0 +1,39 @@
+
+// OSM PARSING AND RENDERING + JAVAFX SETUP
+I started working on the parsing of OSM data and on the Node, Way and Relation classes, before i added the rendering models for the osm elements.
+That included the wayRenderer and relationRenderer, with their own color-getter methods based on their tags.
+I used code from our previous exercises to make a basic javaFX scene setup, so we had our first visual representation of the map.
+When we had gotten our first view on the basic osm map, I implemented panning and zooming too.
+We then needed a small refactoring, so I created an abstract class Element, to be extended by the Node, Way and Relation classes. We also combined our getColor()
+and shouldNotDraw() methods, and moved that method to our new Element class.
+I spent time on fixing small bugs in our rendering. That included adding a coastlineRenderer, which we later removed again, and adding a class MapData.
+The relations/multipolygons were also tricky to get right. I then made everything look neat, before I moved on to height curves.
+
+// HEIGHT CURVE PARSING AND RENDERING
+I then went on to work on the parsing and rendering of height curves.
+I created a simple altitude map too, where each heightCurves is filled with a color based on their height above the sea level. The height curves were filled in decreasing order
+based on their approximate area. The normal height curves and the drawing of them was easy, but we also needed parent/child hierarchy for the submersion logic. I made every height curve element have a reference
+to their children and parent. When we got that right, we made a drawSubmergedHeightCurves() that checked the outermost heightCurve if its altitude was lower than the sea level, and recursively
+checking its children until meeting a heightCurve above sea level. The children of a height curve were appended to the height curve to create an area to be filled with the blue color of the water.
+
+// UI
+I added a button to toggle the drawing of heightCurves on top of our Osm-Map, as well as a button to switch between the altitude map and osm map. I also added a slider to change the sea level with,
+and a zoom level indicator with zoom-in and zoom-out buttons. After that, I made the viewport support expansion end contraction. We needed UI control panels to be fixed to the bottom while only the
+map view in the middle changed size.
+
+// LEVEL OF DETAIL
+Because of the height curves, our map was a bit laggy and need performance improvements. I added simple level of detail logic, where osm elements were assigned a minZoomLevel number, based on their tags, in the parsing process.
+Elements were skipped in the drawing process, if their area was smaller than a given number or if the current zoom level on the map was lower than their minZoomLevel.
+
+// PERFORMANCE
+Apart from the level of detail, I also made the osm elements and height curves cache their color and shapes. I made a shapeBuilder class, that was used in the parsing process, and created and set the shape of the different elements.
+Before, we would build the path2D for every element each time we redrew the map. Now, every path was only built once and then saved by the element. Instead of finding the color for each element every time, we also made the elements cache that.
+Those two things helped us improve the performance a bit. Another thing I did was, to make relations implement the new AdaptivePath, custom Path2D that Daniel had made. It had a pixelStep, that could be changed up or down for a tradeoff between
+details of the map and overall performance and smoothness. I made the Adaptive Path implement the setting of pixelStep individually for each element and found a level for the osm and another for height curves, that gave a nice balance between details and performance.
+
+// BENCHMARKING
+I made benchmarks on the AdaptivePath, to get data on the performance increase after using that instead of the normal Path2D.
+I also made benchmarks on the loading times of osm- and height curve-data from our binary files compared to the regular data files
+
+// JAVADOC
+The last thing I did was writing a whole lot of javadoc to almost all of our methods and classes.
