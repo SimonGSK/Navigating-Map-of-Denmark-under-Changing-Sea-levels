@@ -36,6 +36,11 @@ public class GraphicsRenderer {
         this.cosMeanLat = Math.cos(Math.toRadians(appController.getAppData().getMeanLat()));
     }
 
+    /**
+     * Builds a path from the current pathfinding result.
+     * @param nodes ignored; uses pathfinding result
+     * @return path or null
+     */
     private Path2D buildPath(List<Node> nodes) {
         if (!pathfindingObject.isReady() || pathfindingObject.getPath() == null) {
             return null;
@@ -65,6 +70,7 @@ public class GraphicsRenderer {
 
     /**
      * Draws overlays such as route and debug markers.
+     * @param gc graphics context
      */
     public void draws(Graphics2D gc) {
         // Draw pathfinding route
@@ -99,6 +105,12 @@ public class GraphicsRenderer {
 
     }
 
+    /**
+     * Draws a bounding box for debug overlays.
+     * @param gc graphics context
+     * @param bbox bounding box
+     * @param color stroke color
+     */
     private void drawBoundingBoxDebug(Graphics2D gc, BoundingBox bbox, Color color) {
         if (bbox == null) {
             return;

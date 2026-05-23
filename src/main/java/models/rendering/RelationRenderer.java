@@ -23,6 +23,8 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
 
     /**
      * Draws a single relation if it is a supported area type.
+     * @param gc graphics context
+     * @param relation relation to draw
      */
     @Override
     protected void drawElement(Graphics2D gc, Relation relation) {

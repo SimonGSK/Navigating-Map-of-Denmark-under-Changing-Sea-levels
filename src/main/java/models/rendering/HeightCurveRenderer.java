@@ -35,6 +35,7 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> {
 
     /**
      * Draws height curves based on current map state.
+     * @param gc graphics context
      */
     @Override
     public void draws(Graphics2D gc) {
@@ -47,7 +48,11 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> {
         }
         drawSubmergedCurves(gc);
     }
-    // Returns how many meters apart contour lines should be at the current zoom.
+
+    /**
+     * Returns contour interval for the current zoom level.
+     * @return contour interval in meters
+     */
     private int getHeightInterval() {
         if (currentZoomLevel < 9)  return 20;
         if (currentZoomLevel < 10) return 15;
@@ -56,6 +61,10 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> {
         return 5;
     }
 
+    /**
+     * Draws contour lines for visible curves.
+     * @param gc graphics context
+     */
     private void drawHeightCurveLines(Graphics2D gc) {
         float strokeWidth = (float)(1.0 / Math.pow(2, currentZoomLevel));
         gc.setStroke(new BasicStroke(strokeWidth));
@@ -89,14 +98,17 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> {
         }
     }
 
+    /**
+     * Sets the sea level used for submersion rendering.
+     * @param level sea level
+     */
     public void setSeaLevel(double level) {
         this.seaLevel = level;
     }
 
     /**
-     * Draws each curve as a solid filled region sorted largest first, so smaller
-     * curves paint on top. Children are not treated as holes here, which gives a
-     * cleaner look on the elevation map compared to the EVEN_ODD approach.
+     * Draws filled height regions for elevation map mode.
+     * @param gc graphics context
      */
     public void drawHeightCurveMap(Graphics2D gc) {
         List<HeightCurve> sorted = new ArrayList<>(data.curves);
@@ -114,6 +126,7 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> {
 
     /**
      * Draws water overlays for submerged curves.
+     * @param gc graphics context
      */
     public void drawSubmergedCurves(Graphics2D gc) {
         if (seaLevel <= 0) return;
@@ -155,6 +168,8 @@ public class HeightCurveRenderer extends AbstractRenderer<HeightCurve> {
      * so non-submerged children show the background through correctly.
      * Adaptive paths are cached on each HeightCurve, the EVEN_ODD composite is built
      * fresh each frame but is cheap because the rings are already simplified.
+     * @param curve height curve
+     * @return composite path or null
      */
     private Path2D buildAdaptiveFillPath(HeightCurve curve) {
         List<Coordinate> coords = curve.getCoords();

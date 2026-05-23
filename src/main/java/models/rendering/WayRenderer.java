@@ -32,7 +32,10 @@ public class WayRenderer extends AbstractRenderer<Way> {
             super(meanLat);
         }
 
-        // Returns a road stroke for the current zoom, reusing the cached one if zoom hasn't changed
+        /**
+         * Returns a road stroke for the current zoom.
+         * @return cached road stroke
+         */
         private BasicStroke getRoadStroke() {
             /* Round zoom to the nearest 0.5 step (e.g. 11.3 → 11.5, 12.1 → 12.0)
              so we don't rebuild the stroke on every tiny scroll movement
@@ -58,6 +61,8 @@ public class WayRenderer extends AbstractRenderer<Way> {
 
     /**
      * Draws a single way using stroke or fill based on closure.
+     * @param gc graphics context
+     * @param way way to draw
      */
     @Override
     protected void drawElement(Graphics2D gc, Way way) {

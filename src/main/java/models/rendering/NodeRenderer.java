@@ -17,6 +17,8 @@ public class NodeRenderer extends AbstractRenderer<Node> {
 
     /**
      * Draws a single node.
+     * @param gc graphics context
+     * @param node node to draw
      */
     @Override
     protected void drawElement(Graphics2D gc, Node node) {
