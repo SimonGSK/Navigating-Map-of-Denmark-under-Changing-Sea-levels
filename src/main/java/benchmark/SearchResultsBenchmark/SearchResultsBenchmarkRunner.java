@@ -9,7 +9,7 @@ import java.io.File;
 
 public class SearchResultsBenchmarkRunner {
     public static void main(String[] args) throws Exception {
-        String label = "optimal-split-value_sort_searchResults_optimum";
+        String label = "optimal-split-value_sort_searchResults_optimum_updated";
         String resultPath = "results/SearchResults";
 
         new File(resultPath).mkdirs();

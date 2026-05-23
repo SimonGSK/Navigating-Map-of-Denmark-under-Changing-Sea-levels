@@ -4,6 +4,7 @@ import enums.ElementType;
 import models.RTree.*;
 import models.geometry.BoundingBox;
 import models.osm.Node;
+import models.osm.OsmElement;
 import models.osm.Relation;
 import models.osm.Way;
 import org.junit.jupiter.api.DisplayName;
@@ -486,12 +487,12 @@ public class RTreeTest {
         @DisplayName("Interleaved node/way inserts — every element is searchable")
         void insert_interleavedTypes_allFound() {
             Tree tree = emptyTree();
-            List<models.osm.Element> inserted = new ArrayList<>();
+            List<OsmElement> inserted = new ArrayList<>();
 
             for (int i = 0; i < 20; i++) {
                 double lat = 55.00 + i * 0.01;
                 double lon = 14.70 + i * 0.01;
-                models.osm.Element e = (i % 2 == 0)
+                OsmElement e = (i % 2 == 0)
                         ? node(i, lat, lon)
                         : openWay(i, lat, lon, lat + 0.005, lon + 0.005);
                 inserted.add(e);

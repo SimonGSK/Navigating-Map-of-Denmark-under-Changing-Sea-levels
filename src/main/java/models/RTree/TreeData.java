@@ -63,7 +63,7 @@ public class TreeData implements Iterable<OsmElement>, Serializable {
     }
 
     public int size() {
-        return nodes.size() + ways.size() + relations.size();
+        return nodes.size() + (ways.size() - waysInRelations.size()) + relations.size();
     }
 
     public Map<Long, Node> getNodes() {

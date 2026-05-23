@@ -45,9 +45,16 @@ public record SearchResults(ArrayList<Node> nodeList, ArrayList<Way> wayList, Ar
     }
 
     public void sort() {
-        relationList.sort(Comparator.comparingDouble(r -> -r.getMbr().area()));
+        if (relationList.size() > 8192) {
+            Relation[] sorted = relationList.toArray(new Relation[0]);
+            Arrays.parallelSort(sorted, Comparator.comparingDouble(r -> -r.getArea()));
+            relationList.clear();
+            Collections.addAll(relationList, sorted);
+        } else {
+            relationList.sort(Comparator.comparingDouble(r -> -r.getMbr().area()));
+        }
 
-        if (wayList.size() > 1000) {
+        if (wayList.size() > 8192) {
             Way[] sorted = wayList.toArray(new Way[0]);
             Arrays.parallelSort(sorted, Comparator.comparingDouble(w -> -w.getArea()));
             wayList.clear();
