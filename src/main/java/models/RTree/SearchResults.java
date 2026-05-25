@@ -9,11 +9,16 @@ import models.osm.Way;
 import java.io.Serializable;
 import java.util.*;
 
+/**
+ * Accumulates the OSM elements returned by an R-Tree spatial query,
+ * bucketed by type for efficient rendering passes.
+ */
 public record SearchResults(ArrayList<Node> nodeList, ArrayList<Way> wayList, ArrayList<Relation> relationList) implements Serializable {
     public SearchResults() {
         this(new ArrayList<>(0),new ArrayList<>(0),new ArrayList<>(0));
     }
 
+    /** Trims and clears all lists, releasing excess capacity. */
     public void clear() {
         nodeList.trimToSize();
         wayList.trimToSize();
@@ -24,10 +29,12 @@ public record SearchResults(ArrayList<Node> nodeList, ArrayList<Way> wayList, Ar
         relationList.clear();
     }
 
+    /** Total count across all element types. */
     public int size() {
         return nodeList.size() + wayList().size() + relationList.size();
     }
 
+    /** Routes {@code element} into the correct typed list based on its runtime type. */
     public void add(ElementType type, Element element) {
         switch (element) {
             case Node node -> {
@@ -43,6 +50,10 @@ public record SearchResults(ArrayList<Node> nodeList, ArrayList<Way> wayList, Ar
         }
     }
 
+    /**
+     * Sorts relations and ways largest-first by area so they are drawn before smaller elements.
+     * Uses parallel sort for way lists exceeding 1000 elements.
+     */
     public void sort() {
         relationList.sort(Comparator.comparingDouble(r -> -r.getMbr().area()));
 

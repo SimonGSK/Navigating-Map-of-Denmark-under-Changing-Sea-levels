@@ -170,7 +170,7 @@ public class HeightCurveData implements Serializable {
         double ay = a.getLat(), ax = a.getLon();
         double by = b.getLat(), bx = b.getLon();
 
-        if ((ay > py) == (by > py)) return false; // Begge på samme side
+        if ((ay > py) == (by > py)) return false;
         double intersectX = ax + (py - ay) / (by - ay) * (bx - ax);
         return px < intersectX;
     }
