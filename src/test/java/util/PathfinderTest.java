@@ -2,6 +2,7 @@ package util;
 
 import models.heightcurve.HeightCurve;
 import models.osm.Node;
+import models.pathfinding.Algorithm;
 import models.pathfinding.Edge;
 import models.pathfinding.Pathfinder;
 import org.junit.jupiter.api.DisplayName;
@@ -51,7 +52,7 @@ public class PathfinderTest {
         void shortestPath_nullStart_throwsIAE() {
             Node target = node(2, 1.0, 0.0);
             assertThrows(IllegalArgumentException.class,
-                    () -> new Pathfinder()._shortestPath(null, target, true));
+                    () -> new Pathfinder()._shortestPath(null, target, Algorithm.DIJKSTRA));
         }
 
         @Test
@@ -59,15 +60,15 @@ public class PathfinderTest {
         void shortestPath_nullTarget_throwsIAE() {
             Node start = node(1, 0.0, 0.0);
             assertThrows(IllegalArgumentException.class,
-                    () -> new Pathfinder()._shortestPath(start, null, true));
+                    () -> new Pathfinder()._shortestPath(start, null, Algorithm.DIJKSTRA));
         }
 
         @Test
-        @DisplayName("Non-Dijkstra single-arg overload (no target) throws RuntimeException")
-        void shortestPath_nonDijkstraNoTarget_throwsRuntimeException() {
+        @DisplayName("A* single-arg overload (no target) throws RuntimeException")
+        void shortestPath_aStarNoTarget_throwsRuntimeException() {
             Node start = node(1, 0.0, 0.0);
             assertThrows(RuntimeException.class,
-                    () -> new Pathfinder()._shortestPath(start, false));
+                    () -> new Pathfinder()._shortestPath(start, Algorithm.A_STAR));
         }
     }
 
@@ -84,7 +85,7 @@ public class PathfinderTest {
             Node a = node(1, 0.0, 0.0);
             Node b = node(2, 1.0, 0.0);
             connect(a, b, 5.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, b, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, b, Algorithm.DIJKSTRA);
             assertEquals(0.0, r.distances().get(a), 1e-9);
         }
 
@@ -94,7 +95,7 @@ public class PathfinderTest {
             Node a = node(1, 0.0, 0.0);
             Node b = node(2, 1.0, 0.0);
             connect(a, b, 5.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, b, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, b, Algorithm.DIJKSTRA);
             assertTrue(r.visitedNodes().contains(a));
         }
     }
@@ -112,7 +113,7 @@ public class PathfinderTest {
             Node a = node(1, 0.0, 0.0);
             Node b = node(2, 1.0, 0.0);
             connect(a, b, 7.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, b, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, b, Algorithm.DIJKSTRA);
             assertEquals(7.0, r.distances().get(b), 1e-9);
         }
 
@@ -122,7 +123,7 @@ public class PathfinderTest {
             Node a = node(1, 0.0, 0.0);
             Node b = node(2, 1.0, 0.0);
             connect(a, b, 5.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, b, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, b, Algorithm.DIJKSTRA);
             assertSame(a, r.previousNodes().get(b));
         }
 
@@ -132,7 +133,7 @@ public class PathfinderTest {
             Node a = node(1, 0.0, 0.0);
             Node b = node(2, 1.0, 0.0);
             connect(a, b, 5.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, b, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, b, Algorithm.DIJKSTRA);
             assertTrue(r.distances().containsKey(b));
         }
     }
@@ -152,7 +153,7 @@ public class PathfinderTest {
             Node c = node(3, 2.0, 0.0);
             connect(a, b, 3.0);
             connect(b, c, 4.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, Algorithm.DIJKSTRA);
             assertEquals(7.0, r.distances().get(c), 1e-9);
         }
 
@@ -164,7 +165,7 @@ public class PathfinderTest {
             Node c = node(3, 2.0, 0.0);
             connect(a, b, 3.0);
             connect(b, c, 4.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, Algorithm.DIJKSTRA);
             assertSame(b, r.previousNodes().get(c), "prev[c] must be b");
             assertSame(a, r.previousNodes().get(b), "prev[b] must be a");
         }
@@ -186,7 +187,7 @@ public class PathfinderTest {
             connect(a, b, 5.0);
             connect(b, c, 5.0); // via b: total 10
             connect(a, c, 3.0); // direct: 3
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, Algorithm.DIJKSTRA);
             assertEquals(3.0, r.distances().get(c), 1e-9);
         }
 
@@ -199,7 +200,7 @@ public class PathfinderTest {
             connect(a, b, 2.0);
             connect(b, c, 2.0); // via b: total 4
             connect(a, c, 9.0); // direct: 9
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, Algorithm.DIJKSTRA);
             assertEquals(4.0, r.distances().get(c), 1e-9);
         }
 
@@ -212,7 +213,7 @@ public class PathfinderTest {
             connect(a, b, 2.0);
             connect(b, c, 2.0);
             connect(a, c, 9.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, Algorithm.DIJKSTRA);
             assertSame(b, r.previousNodes().get(c), "Winning route via b must set prev[c]=b");
         }
     }
@@ -232,7 +233,7 @@ public class PathfinderTest {
             Node c = node(3, 2.0, 0.0);
             connect(a, b, 1.0);
             connect(b, c, 1.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, Algorithm.DIJKSTRA);
             assertFalse(r.visitedNodes().contains(b), "Submerged node must not be visited");
         }
 
@@ -244,7 +245,7 @@ public class PathfinderTest {
             Node c = node(3, 2.0, 0.0);
             connect(a, b, 1.0);
             connect(b, c, 1.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, Algorithm.DIJKSTRA);
             assertFalse(r.distances().containsKey(c), "Target must not appear in distances when only route is blocked");
         }
 
@@ -259,7 +260,7 @@ public class PathfinderTest {
             connect(b, c, 1.0);  // blocked path
             connect(a, bypass, 5.0);
             connect(bypass, c, 5.0); // alternate route: total 10
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, c, Algorithm.DIJKSTRA);
             assertEquals(10.0, r.distances().get(c), 1e-9, "Bypass route must be found");
         }
     }
@@ -278,7 +279,7 @@ public class PathfinderTest {
             Node b = node(2, 1.0, 0.0);
             Node isolated = node(3, 9.0, 9.0);
             connect(a, b, 1.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, isolated, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, isolated, Algorithm.DIJKSTRA);
             assertFalse(r.distances().containsKey(isolated));
         }
 
@@ -289,7 +290,7 @@ public class PathfinderTest {
             Node b = node(2, 1.0, 0.0);
             Node isolated = node(3, 9.0, 9.0);
             connect(a, b, 1.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, isolated, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, isolated, Algorithm.DIJKSTRA);
             assertFalse(r.previousNodes().containsKey(isolated));
         }
 
@@ -300,7 +301,7 @@ public class PathfinderTest {
             Node b = node(2, 1.0, 0.0);
             Node isolated = node(3, 9.0, 9.0);
             connect(a, b, 4.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, isolated, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, isolated, Algorithm.DIJKSTRA);
             assertEquals(4.0, r.distances().get(b), 1e-9);
         }
     }
@@ -385,7 +386,7 @@ public class PathfinderTest {
         void noOutgoingEdges_onlyStartInDistances() {
             Node a = node(1, 0.0, 0.0);
             Node b = node(2, 1.0, 0.0); // no edge from a to b
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, b, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, b, Algorithm.DIJKSTRA);
             assertTrue(r.distances().containsKey(a));
             assertFalse(r.distances().containsKey(b));
         }
@@ -395,7 +396,7 @@ public class PathfinderTest {
         void noOutgoingEdges_visitedContainsOnlyStart() {
             Node a = node(1, 0.0, 0.0);
             Node b = node(2, 1.0, 0.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, b, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, b, Algorithm.DIJKSTRA);
             assertEquals(1, r.visitedNodes().size());
             assertTrue(r.visitedNodes().contains(a));
         }
@@ -411,7 +412,7 @@ public class PathfinderTest {
             connect(a, c, 2.0);
             connect(b, d, 2.0);
             connect(c, d, 2.0); // both A→B→D and A→C→D cost 4
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, d, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, d, Algorithm.DIJKSTRA);
             assertEquals(4.0, r.distances().get(d), 1e-9);
         }
 
@@ -423,8 +424,43 @@ public class PathfinderTest {
             Node target  = node(3, 0.0, 1.0);
             connect(a, deadEnd, 1.0);
             connect(a, target,  2.0);
-            Pathfinder.Result r = new Pathfinder()._shortestPath(a, target, true);
+            Pathfinder.Result r = new Pathfinder()._shortestPath(a, target, Algorithm.DIJKSTRA);
             assertEquals(2.0, r.distances().get(target), 1e-9);
+        }
+    }
+
+
+    //  A* efficiency
+
+    @Nested
+    @DisplayName("A* efficiency")
+    class AStarEfficiencyTests {
+
+        @Test
+        @DisplayName("A* visits fewer nodes than Dijkstra when a dead-end lies in the wrong direction")
+        void aStar_visitsFewer_deadEndInWrongDirection() {
+            // A(0,0) → B(0,1) → Target(0,2)  [correct path, heading east]
+            // A(0,0) → far(90,0)              [dead-end near north pole — maximally wrong direction]
+            //
+            // With equal edge weights, Dijkstra pops B and far at the same g-cost and
+            // visits both before reaching Target.  A* assigns far a much higher f-score
+            // (haversine to Target is enormous), so Target's f-score wins and far is
+            // never settled.
+            Node a      = node(1,  0.0, 0.0);
+            Node b      = node(2,  0.0, 1.0);
+            Node target = node(3,  0.0, 2.0);
+            Node far    = node(4, 90.0, 0.0); // near north pole — maximally far from target
+            connect(a, b,      1.0);
+            connect(b, target, 1.0);
+            connect(a, far,    1.0); // dead-end, no outgoing edges
+
+            Pathfinder.Result dijkstra = new Pathfinder()._shortestPath(a, target, Algorithm.DIJKSTRA);
+            Pathfinder.Result aStar    = new Pathfinder()._shortestPath(a, target, Algorithm.A_STAR);
+
+            assertTrue(
+                aStar.visitedNodes().size() < dijkstra.visitedNodes().size(),
+                "A* must settle fewer nodes than Dijkstra when a dead-end points the wrong way"
+            );
         }
     }
 }
