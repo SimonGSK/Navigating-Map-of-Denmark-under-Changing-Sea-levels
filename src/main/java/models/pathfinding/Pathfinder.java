@@ -73,9 +73,7 @@ public class Pathfinder {
         Map<Node, Double> gScore = new HashMap<>();
         Map<Node, Node> prev = new HashMap<>();
         Set<Node> visited = new HashSet<>();
-        PriorityQueue<QueueEntry> queue = new PriorityQueue<>(
-                Comparator.comparingDouble(QueueEntry::fScore)
-        );
+        PriorityQueue<QueueEntry> queue = new PriorityQueue<>(Comparator.comparingDouble(QueueEntry::fScore));
 
         gScore.put(source, 0.0);
         double hScore = isDijkstra ?
