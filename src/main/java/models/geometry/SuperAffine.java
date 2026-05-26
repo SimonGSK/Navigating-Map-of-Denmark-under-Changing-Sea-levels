@@ -41,14 +41,6 @@ public class SuperAffine extends AffineTransform {
     }
 
     /**
-     * Calculates the base stroke width used for when drawing
-     * @return The scale-adjusted width for strokes when drawing
-     */
-    public float getStrokeBaseWidth() {
-        return (float) (1/Math.sqrt(this.getDeterminant()));
-    }
-
-    /**
      * Transforms the specified point by the inverse of this transform.
      * @param x The X coordinate of the point to transform
      * @param y The Y coordinate of the point to transform

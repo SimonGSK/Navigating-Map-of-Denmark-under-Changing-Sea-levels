@@ -307,33 +307,35 @@ public class AdaptivePathTest {
         @Test
         @DisplayName("Apex above epsilon: apex is kept")
         void rdp_apexAboveEpsilon_apexKept() {
-            // (0,0)→(5,3)→(10,0): perp distance from (5,3) to line = 3.0
-            // zoom=0 → epsilon=2.0; 3.0 > 2.0 → apex kept
-            AdaptivePath path = open(p(0, 0), p(5, 3), p(10, 0));
+            // (0,0)→(5,5)→(10,0): perp distance from (5,5) to line = 5.0
+            // zoom=0 → epsilon=4.0; 5.0 > 4.0 → apex kept
+            AdaptivePath path = open(p(0, 0), p(5, 5), p(10, 0));
             path.updateForZoom(0.0);
             assertEquals(3, totalSegs(path),
-                    "Apex with perp distance 3.0 must be kept when epsilon=2.0 (1 moveTo + 2 lineTo)");
+                    "Apex with perp distance 5.0 must be kept when epsilon=4.0 (1 moveTo + 2 lineTo)");
         }
 
         @Test
         @DisplayName("Apex below epsilon: apex is dropped")
         void rdp_apexBelowEpsilon_apexDropped() {
             // (0,0)→(5,1)→(10,0): perp distance from (5,1) to line = 1.0
-            // zoom=0 → epsilon=2.0; 1.0 < 2.0 → apex dropped
+            // zoom=0 → epsilon=4.0; 1.0 < 4.0 → apex dropped
             AdaptivePath path = open(p(0, 0), p(5, 1), p(10, 0));
             path.updateForZoom(0.0);
             assertEquals(2, totalSegs(path),
-                    "Apex with perp distance 1.0 must be dropped when epsilon=2.0");
+                    "Apex with perp distance 1.0 must be dropped when epsilon=4.0");
         }
 
         @Test
         @DisplayName("Two significant peaks: both are retained")
         void rdp_twoSignificantPeaks_bothRetained() {
-            // Both peaks deviate by 5.0 from the baseline, clearly above epsilon=2.0
-            AdaptivePath path = open(p(0, 0), p(3, 5), p(6, 0), p(9, 5), p(12, 0));
-            path.updateForZoom(0.0); // epsilon=2.0; both peaks survive
+            // Peaks at y=10 ensure each point exceeds epsilon=4.0 in its recursive sub-segment.
+            // (3,10) deviates 10.0 from baseline; after it is kept, both (6,0) and (9,10)
+            // deviate ~4.46 from the sub-segment (3,10)→(12,0), still above epsilon=4.0.
+            AdaptivePath path = open(p(0, 0), p(3, 10), p(6, 0), p(9, 10), p(12, 0));
+            path.updateForZoom(0.0); // epsilon=4.0; all five points survive
             assertEquals(5, totalSegs(path),
-                    "All five points must be kept when both peaks deviate by 5.0 > epsilon=2.0");
+                    "All five points must be kept when both peaks deviate above epsilon=4.0");
         }
 
         @Test

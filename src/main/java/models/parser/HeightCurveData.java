@@ -2,7 +2,6 @@ package models.parser;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import models.geometry.BoundingBox;
@@ -112,9 +111,6 @@ public class HeightCurveData implements Serializable {
      * @return parent curve
      */
     private HeightCurve findParent(HeightCurve hc, List<HeightCurve> sorted, HeightCurve sea) {
-        HeightCurve bestParent = sea;
-        double bestArea = Double.MAX_VALUE;
-
         for (int i = sorted.size() -1 ; i >= 0 ; i--) {
             HeightCurve potentialParent = sorted.get(i);
             if (potentialParent == hc) continue;
@@ -123,7 +119,7 @@ public class HeightCurveData implements Serializable {
             }
         }
 
-        return bestParent;
+        return sea;
     }
 
     /**
@@ -174,7 +170,7 @@ public class HeightCurveData implements Serializable {
         double ay = a.getLat(), ax = a.getLon();
         double by = b.getLat(), bx = b.getLon();
 
-        if ((ay > py) == (by > py)) return false; // Begge på samme side
+        if ((ay > py) == (by > py)) return false;
         double intersectX = ax + (py - ay) / (by - ay) * (bx - ax);
         return px < intersectX;
     }
@@ -229,45 +225,5 @@ public class HeightCurveData implements Serializable {
                 .mapToDouble(HeightCurve::getHeight)
                 .max()
                 .orElse(100);
-    }
-
-    /**
-     * Checks if a coordinate is inside a submerged height curve.
-     * This is independent of the height curves' drawing and can be used
-     * to determine if OSM features should be rendered as submerged.
-     *
-     * @param coordinate coordinate to test
-     * @return true if the coordinate lies within a submerged curve
-     */
-    public boolean isCoordinateSubmerged(Coordinate coordinate) {
-        // Check each top-level height curve (children of sea)
-        for (HeightCurve curve : root.getChildren()) {
-            if (isCoordinateInSubmergedCurve(coordinate, curve)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Recursively checks if a coordinate is in a submerged curve or its submerged children.
-     * @param coordinate coordinate to test
-     * @param curve current curve
-     * @return true if submerged
-     */
-    private boolean isCoordinateInSubmergedCurve(Coordinate coordinate, HeightCurve curve) {
-        // If this curve is submerged and the coordinate is inside it, return true
-        if (curve.isSubmerged() && pointInPolygon(coordinate, curve.getCoords())) {
-            return true;
-        }
-        
-        // Check children recursively
-        for (HeightCurve child : curve.getChildren()) {
-            if (isCoordinateInSubmergedCurve(coordinate, child)) {
-                return true;
-            }
-        }
-        
-        return false;
     }
 }

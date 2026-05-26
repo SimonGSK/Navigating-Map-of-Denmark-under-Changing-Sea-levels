@@ -42,25 +42,40 @@ public class TreeNode implements SpatialElement, Serializable {
     }
 
     /**
-     * Used to get the value of subtreeMinZoom of this TreeNode. Used by parent TreeNodes to when they need to update the
-     * @return
+     * Used to get the value of subtreeMinZoom of this TreeNode.
+     * @return minimum zoom level for the subtree, or NaN if unset
      */
     public double getSubtreeMinZoom() {
         return subtreeMinZoom;
     }
 
+    /**
+     * Checks whether the subtree is visible at the given zoom level.
+     * @param currentZoomLevel current zoom level
+     * @return true if the subtree should be visible
+     */
     public boolean isVisibleOnZoom(double currentZoomLevel) {
         return currentZoomLevel >= subtreeMinZoom;
     }
 
+    /**
+     * @param isLeaf whether the node is a leaf
+     */
     public TreeNode(boolean isLeaf) {
         this.isLeaf = isLeaf;
     }
 
+    /**
+     * @return true if this node is a leaf
+     */
     public boolean isLeaf() {
         return isLeaf;
     }
 
+    /**
+     * @param max maximum allowed entries
+     * @return true if entries exceed the max
+     */
     public boolean isOverflowing(int max) {
         return entries.size() > max;
     }
@@ -70,6 +85,9 @@ public class TreeNode implements SpatialElement, Serializable {
         return mbr;
     }
 
+    /**
+     * @param mbr new minimum bounding rectangle
+     */
     public void setMbr(BoundingBox mbr) {
         this.mbr = mbr;
     }
@@ -79,6 +97,10 @@ public class TreeNode implements SpatialElement, Serializable {
         return area;
     }
 
+    /**
+     * Collects MBRs from this node and its entries.
+     * @param mbrList target list to append MBRs to
+     */
     public void _getMBR(List<BoundingBox> mbrList) {
         mbrList.add(this.getMbr());
         for (TreeEntry entry : entries) {

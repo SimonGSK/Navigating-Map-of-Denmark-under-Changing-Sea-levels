@@ -8,12 +8,12 @@ public interface SpatialElement extends Serializable {
      *
      * @return The BoundingBox representing the spatial area covered by this element.
      */
-    public BoundingBox getMbr();
+    BoundingBox getMbr();
 
     /**
      * Calculates or retrieves the logical geographic area covered by this spatial element.
      *
      * @return The computed area.
      */
-    public double getArea();
+    double getArea();
 }

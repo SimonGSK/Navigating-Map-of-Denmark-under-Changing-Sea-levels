@@ -3,6 +3,7 @@ package benchmark.pathfinderbenchmark;
 import models.osm.Node;
 import models.parser.OsmData;
 import models.parser.OsmParser;
+import models.pathfinding.Algorithm;
 import models.pathfinding.Pathfinder;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -29,11 +30,10 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public class PathfinderBenchmark {
     /**
-     * Selects the algorithm: {@code true} for Dijkstra, {@code false} for A*.
-     * JMH runs the full benchmark suite once per value.
+     * Selects the algorithm. JMH runs the full benchmark suite once per value.
      */
-    @Param({"true", "false"})
-    boolean isDijkstra;
+    @Param({"DIJKSTRA", "A_STAR"})
+    Algorithm algorithm;
 
     private Pathfinder pathfinder;
 
@@ -67,7 +67,7 @@ public class PathfinderBenchmark {
      */
     @Benchmark
     public int longPath() {
-        Pathfinder.Result r = pathfinder._shortestPath(longStart, longTarget, isDijkstra);
+        Pathfinder.Result r = pathfinder._shortestPath(longStart, longTarget, algorithm);
         return r.visitedNodes().size() + r.previousNodes().size() + r.distances().size();
     }
 
@@ -79,7 +79,7 @@ public class PathfinderBenchmark {
      */
     @Benchmark
     public int mediumPath() {
-        Pathfinder.Result r = pathfinder._shortestPath(mediumStart, mediumTarget, isDijkstra);
+        Pathfinder.Result r = pathfinder._shortestPath(mediumStart, mediumTarget, algorithm);
         return r.visitedNodes().size() + r.previousNodes().size() + r.distances().size();
     }
 
@@ -91,7 +91,7 @@ public class PathfinderBenchmark {
      */
     @Benchmark
     public int shortPath() {
-        Pathfinder.Result r = pathfinder._shortestPath(shortStart, shortTarget, isDijkstra);
+        Pathfinder.Result r = pathfinder._shortestPath(shortStart, shortTarget, algorithm);
         return r.visitedNodes().size() + r.previousNodes().size() + r.distances().size();
     }
 

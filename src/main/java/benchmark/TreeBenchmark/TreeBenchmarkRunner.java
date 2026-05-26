@@ -1,4 +1,4 @@
-package benchmark;
+package benchmark.TreeBenchmark;
 
 import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
@@ -9,7 +9,7 @@ import java.io.File;
 
 public class TreeBenchmarkRunner {
     public static void main(String[] args) throws Exception {
-        String label = "tree-vs-linear-scan-w-specs_dynamic-viewports_benchmark";
+        String label = "tree-vs-linear-scan-w-specs_dynamic-viewports_benchmark_4";
         String resultPath = "results/Tree";
 
         new File(resultPath).mkdirs();

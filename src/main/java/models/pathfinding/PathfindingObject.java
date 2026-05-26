@@ -129,12 +129,6 @@ public class PathfindingObject {
         this.visited.set(visited);
     }
 
-    /** @return the property backing the visited set, for UI binding */
-    public ObjectProperty<Set<Node>> getVisitedProperty() {
-        return visited;
-    }
-
-
     @Override
     public String toString() {
         return super.toString() + "\nStart node: " + startNode + "\nEnd node: " + endNode + (isReady() && path != null ? "\nPath: " + path.toString() : "");

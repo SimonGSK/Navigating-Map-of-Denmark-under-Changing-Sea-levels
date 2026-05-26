@@ -24,14 +24,6 @@ public class Tree implements Serializable {
 
     /**
      * Used for benchmarking purposes.
-     * @return The number of elements in the TreeData that was used to build the Tree.
-     */
-    public int _getElementCountFromTreeData() {
-        return treeData.size();
-    };
-
-    /**
-     * Used for benchmarking purposes.
      * @return The number of elements in the R-Tree.
      */
     public int getElementCount() {
@@ -170,7 +162,6 @@ public class Tree implements Serializable {
 
     /**
      * For benchmarking purposes. Identical to normal search but resets searchNodesVisited, and calls searchRecursiveWithBenchmark which increments searchNodesVisited for each visited TreeNode.
-     * @see Tree.search()
      * @param searchArea
      * @return An instance of @code{SearchResults} containing all nodes, ways, and relations, whose MBRs overlaps with the search query BoundingBox
      */
@@ -273,7 +264,6 @@ public class Tree implements Serializable {
      * If no nodes are found, there are no candidates for nearest-neighbor search – returns null – else, the distance from cursor to node is calculated and used as radius to compute the outer square for a new search query.
      * Again, all nodes are filtered to only consider nodes from "highway" Way-elements, and the node with the shortest distance to cursor is returned.
      *
-     * @see models.ui.AppController.getCursorCoordinate()
      * @param cursor The coordinate of the cursor (cursor's relative position in longitude and latitude)
      * @return The node with the shortest distance to cursor, that's part of a Way-element with the "highway"-tag
      */
@@ -370,10 +360,6 @@ public class Tree implements Serializable {
      * After insertion, the methods calls updateSubtreeMinZoom() for efficient filtering of the subtree on Tree.search(), then updates the minimum-bounding-rectangle of the TreeNode to accomodate the inserted element.
      * If the TreeNode overflows (has more entries than allowed by the max-value of the Tree), the TreeNode is split into to new TreeNodes.
      *
-     * @see updateSubtreeMinZoom
-     * @see chooseLeaf
-     * @see updateTreeNodeMbr
-     * @see splitNode
      * @param element The OSM-element to be inserted into the R-Tree.
      */
     public void insert(OsmElement element) {
@@ -681,17 +667,6 @@ public class Tree implements Serializable {
             result = result.getExpanded(entries.get(i).getMbr());
         }
         return result;
-    }
-
-    /**
-     * Another variant of computeMBR which takes a TreeNode as its arguement and calls Tree.computeMBR(List<TreeEntry> entries) using the entries of the TreeNode.
-     * Use to find the minimum-bounding-rectangle required for a TreeNode to contain all its entries.
-     * Use if you need to recompute a TreeNodes MBR.
-     * @param node A TreeNode with entries.
-     * @return The minimum-bounding-rectangle, BoundingBox, required to contain all entries of the TreeNode.
-     */
-    private BoundingBox computeMBR(TreeNode node) {
-        return computeMBR(node.entries);
     }
 
     record SeedPack(TreeEntry left, TreeEntry right) {

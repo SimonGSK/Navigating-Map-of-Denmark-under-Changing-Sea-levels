@@ -3,14 +3,11 @@ package util;
 import enums.ElementType;
 import models.RTree.*;
 import models.geometry.BoundingBox;
-import models.osm.Node;
-import models.osm.Relation;
-import models.osm.Way;
+import models.osm.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -337,8 +334,8 @@ public class RTreeTest {
         }
 
         @Test
-        @DisplayName("clear() – backing-array capacity equals pre-clear size")
-        void searchResults_clear_preservesCapacity() throws Exception {
+        @DisplayName("clear() – all lists are empty and size() returns 0")
+        void searchResults_clear_emptiesAllLists() {
             SearchResults sr = new SearchResults();
 
             int n = 3000;
@@ -348,25 +345,29 @@ public class RTreeTest {
 
             sr.clear();
 
-            // elements are gone
-            assertEquals(0, sr.nodeList().size(),
-                "nodeList size should be 0 after clear()");
-
-            // backing array was trimmed to n before clear(), so capacity must still be n
-            assertEquals(n, getCapacity(sr.nodeList()),
-                "nodeList backing-array capacity should equal the pre-clear element count");
-
-            // lists that were never populated should stay at capacity 0
-            assertEquals(0, getCapacity(sr.wayList()),
-                "wayList backing-array capacity should be 0 (never populated)");
-            assertEquals(0, getCapacity(sr.relationList()),
-                "relationList backing-array capacity should be 0 (never populated)");
+            assertEquals(0, sr.nodeList().size(),     "nodeList must be empty after clear()");
+            assertEquals(0, sr.wayList().size(),      "wayList must be empty after clear()");
+            assertEquals(0, sr.relationList().size(), "relationList must be empty after clear()");
+            assertEquals(0, sr.size(),                "total size() must be 0 after clear()");
         }
 
-        private static int getCapacity(ArrayList<?> list) throws Exception {
-            Field f = ArrayList.class.getDeclaredField("elementData");
-            f.setAccessible(true);
-            return ((Object[]) f.get(list)).length;
+        @Test
+        @DisplayName("clear() – can be refilled after clearing")
+        void searchResults_clear_allowsRefill() {
+            SearchResults sr = new SearchResults();
+
+            int n = 500;
+            for (int i = 0; i < n; i++) {
+                sr.add(ElementType.node, new Node((long) i, 0, 0));
+            }
+            sr.clear();
+
+            for (int i = 0; i < n; i++) {
+                sr.add(ElementType.node, new Node((long) i, 1, 1));
+            }
+
+            assertEquals(n, sr.nodeList().size(), "nodeList must hold n elements after refill");
+            assertEquals(n, sr.size(),            "total size() must equal n after refill");
         }
 
     }
@@ -452,7 +453,7 @@ public class RTreeTest {
             Way w = openWay(1, 55.0, 14.7, 55.2, 15.0);
             TreeData data = new TreeData(new HashMap<>(), Map.of(1L, w), new HashMap<>());
 
-            List<models.osm.Element> elements = new ArrayList<>();
+            List<Element> elements = new ArrayList<>();
             data.forEach(elements::add);
 
             assertTrue(elements.contains(w));
@@ -486,12 +487,12 @@ public class RTreeTest {
         @DisplayName("Interleaved node/way inserts — every element is searchable")
         void insert_interleavedTypes_allFound() {
             Tree tree = emptyTree();
-            List<models.osm.Element> inserted = new ArrayList<>();
+            List<Element> inserted = new ArrayList<>();
 
             for (int i = 0; i < 20; i++) {
                 double lat = 55.00 + i * 0.01;
                 double lon = 14.70 + i * 0.01;
-                models.osm.Element e = (i % 2 == 0)
+                models.osm.OsmElement e = (i % 2 == 0)
                         ? node(i, lat, lon)
                         : openWay(i, lat, lon, lat + 0.005, lon + 0.005);
                 inserted.add(e);
@@ -499,11 +500,11 @@ public class RTreeTest {
             }
 
             SearchResults sr = tree.search(BORNHOLM);
-            List<models.osm.Element> allFound = new ArrayList<>();
+            List<Element> allFound = new ArrayList<>();
             allFound.addAll(sr.nodeList());
             allFound.addAll(sr.wayList());
 
-            for (models.osm.Element e : inserted) {
+            for (Element e : inserted) {
                 assertTrue(allFound.contains(e), "Element should survive interleaved inserts");
             }
         }

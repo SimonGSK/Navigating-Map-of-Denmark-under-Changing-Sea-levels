@@ -117,7 +117,7 @@ public abstract class OsmElement extends Element {
             if ("wetland".equals(natural)) return Color.decode("#B9C5B2"); // Swamp
             if ("beach".equals(natural)) return Color.decode("#E5DCC6"); // Sand
             if ("shoal".equals(natural)) return Color.decode("#7c9ea6");
-            return Color.decode("#D3DFC5"); // Standard natur-grøn
+            return Color.decode("#D3DFC5"); // Standard nature-green
         }
 
         //HIGHWAY
