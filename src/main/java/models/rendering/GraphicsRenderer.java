@@ -36,10 +36,9 @@ public class GraphicsRenderer {
 
     /**
      * Builds a path from the current pathfinding result.
-     * @param nodes ignored; uses pathfinding result
      * @return path or null
      */
-    private Path2D buildPath(List<Node> nodes) {
+    private Path2D buildPath() {
         if (!pathfindingObject.isReady() || pathfindingObject.getPath() == null) {
             return null;
         }
@@ -77,12 +76,12 @@ public class GraphicsRenderer {
             float strokeWidth = (float)(3.0 / zoomScale); // 3px on screen at all zoom levels
             gc.setColor(Color.decode("#FF1DCE"));
             gc.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            gc.draw(buildPath(pathfindingObject.getPath()));
+            gc.draw(buildPath());
         }
         if(appController.getAppSettings().isBoundingBoxDebug()) {
             List<BoundingBox> allBoundingBoxes = appController.getAppData().getTree().getMBRList();
             for (BoundingBox bbox : allBoundingBoxes) {
-                drawBoundingBoxDebug(gc, bbox, Color.RED);
+                drawBoundingBoxDebug(gc, bbox);
             }
         }
         if(appController.getAppSettings().isPathfindingDebug()) {
@@ -107,14 +106,13 @@ public class GraphicsRenderer {
      * Draws a bounding box for debug overlays.
      * @param gc graphics context
      * @param bbox bounding box
-     * @param color stroke color
      */
-    private void drawBoundingBoxDebug(Graphics2D gc, BoundingBox bbox, Color color) {
+    private void drawBoundingBoxDebug(Graphics2D gc, BoundingBox bbox) {
         if (bbox == null) {
             return;
         }
 
-        gc.setColor(color);
+        gc.setColor(Color.RED);
         gc.setStroke(new BasicStroke(0.0001f));
 
         Path2D path = new Path2D.Double();
