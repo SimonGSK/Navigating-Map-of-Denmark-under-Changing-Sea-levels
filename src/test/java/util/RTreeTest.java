@@ -3,10 +3,7 @@ package util;
 import enums.ElementType;
 import models.RTree.*;
 import models.geometry.BoundingBox;
-import models.osm.Node;
-import models.osm.OsmElement;
-import models.osm.Relation;
-import models.osm.Way;
+import models.osm.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -456,7 +453,7 @@ public class RTreeTest {
             Way w = openWay(1, 55.0, 14.7, 55.2, 15.0);
             TreeData data = new TreeData(new HashMap<>(), Map.of(1L, w), new HashMap<>());
 
-            List<models.osm.Element> elements = new ArrayList<>();
+            List<Element> elements = new ArrayList<>();
             data.forEach(elements::add);
 
             assertTrue(elements.contains(w));
@@ -490,7 +487,7 @@ public class RTreeTest {
         @DisplayName("Interleaved node/way inserts — every element is searchable")
         void insert_interleavedTypes_allFound() {
             Tree tree = emptyTree();
-            List<models.osm.Element> inserted = new ArrayList<>();
+            List<Element> inserted = new ArrayList<>();
 
             for (int i = 0; i < 20; i++) {
                 double lat = 55.00 + i * 0.01;
@@ -503,11 +500,11 @@ public class RTreeTest {
             }
 
             SearchResults sr = tree.search(BORNHOLM);
-            List<models.osm.Element> allFound = new ArrayList<>();
+            List<Element> allFound = new ArrayList<>();
             allFound.addAll(sr.nodeList());
             allFound.addAll(sr.wayList());
 
-            for (models.osm.Element e : inserted) {
+            for (Element e : inserted) {
                 assertTrue(allFound.contains(e), "Element should survive interleaved inserts");
             }
         }
