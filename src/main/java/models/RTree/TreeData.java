@@ -19,6 +19,9 @@ public class TreeData implements Iterable<OsmElement>, Serializable {
     private Set<Way> waysInRelations;
 
     /**
+     * @param nodes map of nodes by id
+     * @param ways map of ways by id
+     * @param relations map of relations by id
      * @throws RuntimeException if any map argument is null
      */
     public TreeData(Map<Long, Node> nodes, Map<Long, Way> ways, Map<Long, Relation> relations) {
@@ -64,7 +67,7 @@ public class TreeData implements Iterable<OsmElement>, Serializable {
     }
 
     /**
-     * Iterates all elements sorted by minLon, skipping ways already covered by a multipolygon relation.
+     * @return an iterator over elements sorted by minLon
      */
     @Override
     public Iterator<OsmElement> iterator() {
@@ -74,19 +77,30 @@ public class TreeData implements Iterable<OsmElement>, Serializable {
         ).sorted(Comparator.comparingDouble(e -> e.getMbr().minLon())).iterator();
     }
 
-    /** Total count of nodes, ways, and relations. */
+    /**
+     * @return total count of nodes, ways, and relations
+     */
     public int size() {
         return nodes.size() + ways.size() + relations.size();
     }
 
+    /**
+     * @return node map keyed by id
+     */
     public Map<Long, Node> getNodes() {
         return nodes;
     }
 
+    /**
+     * @return way map keyed by id
+     */
     public Map<Long, Way> getWays() {
         return ways;
     }
 
+    /**
+     * @return relation map keyed by id
+     */
     public Map<Long, Relation> getRelations() {
         return relations;
     }
