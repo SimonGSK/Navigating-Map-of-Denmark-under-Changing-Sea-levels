@@ -10,11 +10,24 @@ public abstract class OsmElement extends Element {
     protected HashMap<String, String> tags;
     private Color color = null;
 
+    /**
+     * Constructs a core OSM element with an ID, a type, tags and a minimum bounding rectangle (MBR).
+     *
+     * @param id The ID of the element.
+     * @param type The type of the element.
+     * @param tags Detailed metadata characteristics mapping textual associations globally.
+     * @param mbr The minimum bounding rectangle of the element.
+     */
     public OsmElement(long id, ElementType type, HashMap<String, String> tags, BoundingBox mbr) {
         super(id, type, mbr);
         this.tags = tags;
     }
 
+    /**
+     * Replicates and returns the tags in a hashmap.
+     *
+     * @return The hashmap with the tags of the element.
+     */
     public HashMap<String, String> getTags() {
         if (tags == null) {
             return null;
@@ -22,27 +35,21 @@ public abstract class OsmElement extends Element {
         return new HashMap<>(tags);
     }
 
+    /**
+     * Sets the tags of the element.
+     *
+     * @param tags A hashmap with all the tags of the element.
+     */
     public void setTags(HashMap<String, String> tags) {
         this.tags = tags;
     }
 
-    protected String addTag(String key, String value) {
-        if (tags == null) {
-            tags = new HashMap<>();
-        }
-
-        return tags.putIfAbsent(key, value);
-    }
-
-    protected boolean modifyTag(String key, String value) {
-        if (tags == null || !tags.containsKey(key)) {
-            return false;
-        }
-
-        tags.put(key, value);
-        return true;
-    }
-
+    /**
+     * Gets the value mapped to a given key in the 'tags' hashmap.
+     *
+     * @param key A string to find the associated value of.
+     * @return Returned linked descriptive strings.
+     */
     public String getTag(String key) {
         if (tags == null) {
             return null;
@@ -51,14 +58,11 @@ public abstract class OsmElement extends Element {
         return tags.get(key);
     }
 
-    protected boolean containsTag(String key) {
-        if (tags == null) {
-            return false;
-        }
-
-        return tags.containsKey(key);
-    }
-
+    /**
+     * Gets the color of the element or finds and sets it if {color} is null.
+     *
+     * @return The color.
+     */
     public Color getColor() {
         if (color == null) {
             color = findColor();
@@ -66,6 +70,11 @@ public abstract class OsmElement extends Element {
         return color;
     }
 
+    /**
+     * Finds the color to be used in the rendering of the OsmElement, based on its tags.
+     *
+     * @return The color.
+     */
     private Color findColor() {
         var tags = getTags();
         if (tags == null) return Color.BLACK;
@@ -108,7 +117,7 @@ public abstract class OsmElement extends Element {
             if ("wetland".equals(natural)) return Color.decode("#B9C5B2"); // Swamp
             if ("beach".equals(natural)) return Color.decode("#E5DCC6"); // Sand
             if ("shoal".equals(natural)) return Color.decode("#7c9ea6");
-            return Color.decode("#D3DFC5"); // Standard natur-grøn
+            return Color.decode("#D3DFC5"); // Standard nature-green
         }
 
         //HIGHWAY

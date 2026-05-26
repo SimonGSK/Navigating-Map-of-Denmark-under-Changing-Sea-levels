@@ -44,22 +44,6 @@ public class TreeMaxBenchmark extends AbstractTreeBenchmark {
         );
     }
 
-/*    @Benchmark
-    public void getNearestNode_fullIslandViewport(Blackhole bh) {
-        tree.setZoomLevel(zoom);
-        bh.consume(
-            tree.getNearestNode(fullIslandViewport.getCenter())
-        );
-    }
-
-    @Benchmark
-    public void getNearestNode_halfIslandViewport(Blackhole bh) {
-        tree.setZoomLevel(zoom);
-        bh.consume(
-            tree.getNearestNode(halfIslandViewport.getCenter())
-        );
-    }*/
-
     @Benchmark
     public void getNearestNode_townViewport(Blackhole bh) {
         tree.setZoomLevel(zoom);

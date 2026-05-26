@@ -7,7 +7,6 @@ import models.osm.Node;
 import models.osm.Relation;
 import models.osm.Way;
 import models.pathfinding.GraphBuilder;
-import models.ui.AppData;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -34,16 +33,17 @@ public class OsmParser extends AbstractParser<OsmData> {
 
     /**
      * Creates a new OsmParser and immediately parses the file at the given path.
+     * @param relativeFilePath file path or resource name
+     * @throws IOException when reading fails
      */
     public OsmParser(String relativeFilePath) throws IOException {
         parse(relativeFilePath);
     }
 
     /**
-     * Reads the OSM file line by line and populates the node, way and relation maps.
-     *
-     * If the file contains no bounds element, the bounding box is computed
-     * from all parsed nodes instead.
+     * Reads the OSM file and populates the data maps.
+     * @param filePath file path or resource name
+     * @throws IOException when reading fails
      */
     public void parse(String filePath) throws IOException {
         this.filePath = filePath;
@@ -108,10 +108,11 @@ public class OsmParser extends AbstractParser<OsmData> {
     }
 
     /**
-     * Parses a relation element by reading lines until the closing tag is found.
-     *
-     * If a reference relation has not been parsed yet, a placeholder is
-     * inserted so the member can still be registered and filled in later.
+     * Parses a relation element.
+     * @param line current line
+     * @param br reader positioned at the relation
+     * @return parsed relation
+     * @throws IOException when reading fails
      */
     private Relation extractRelation(String line, BufferedReader br) throws IOException {
         List<Member> members = new ArrayList<>();
@@ -163,13 +164,15 @@ public class OsmParser extends AbstractParser<OsmData> {
             existing.setTags(tags);
             return relationMap.get(relationID);
         }
-        Relation relation = new Relation(relationID, tags, members);
-        return relation;
+        return new Relation(relationID, tags, members);
     }
 
     /**
-     * Parses a way element and, if it has a highway tag, adds its edges to the
-     * pathfinding graph.
+     * Parses a way element and adds pathfinding edges when needed.
+     * @param line current line
+     * @param br reader positioned at the way
+     * @return parsed way
+     * @throws IOException when reading fails
      */
     private Way extractWay(String line, BufferedReader br) throws IOException {
         List<Node> nodes = new ArrayList<>();
@@ -213,6 +216,11 @@ public class OsmParser extends AbstractParser<OsmData> {
         return way;
     }
 
+    /**
+     * Parses a node from a line.
+     * @param line current line
+     * @return parsed node
+     */
     private Node extractNode(String line) {
         double lat = getAttributeDouble(line, "lat");
         double lon = getAttributeDouble(line, "lon");
@@ -220,6 +228,11 @@ public class OsmParser extends AbstractParser<OsmData> {
         return new Node(id, lat, lon); // TODO: Parse tags for Node and add as input
     }
 
+    /**
+     * Parses bounds from a line.
+     * @param line current line
+     * @return parsed bounding box
+     */
     private BoundingBox extractBounds(String line) {
         double minLat = getAttributeDouble(line, "minlat");
         double minLon = getAttributeDouble(line, "minlon");
@@ -230,8 +243,10 @@ public class OsmParser extends AbstractParser<OsmData> {
     }
 
     /**
-     * Reads an attribute value from an XML tag and decodes any HTML entities
-     * in the result.
+     * Reads an attribute value from an XML tag and decodes entities.
+     * @param str tag line
+     * @param key attribute name
+     * @return decoded attribute value or null
      */
     @Override
     public String getAttribute(String str, String key) {
@@ -241,63 +256,5 @@ public class OsmParser extends AbstractParser<OsmData> {
                 .replace("&lt;", "<")
                 .replace("&gt;", ">")
                 .replace("&quot;", "\"");
-    }
-
-    /**
-     * Returns the minimum zoom level at which a feature with the given tags
-     * should appear. Larger or more important features appear at lower zoom
-     * levels than small details like footpaths and buildings.
-     */
-    private double calculateZoomLevel(HashMap<String, String> tags) {
-        if (tags == null) return 0;
-
-        String highway = tags.get("highway");
-        if (highway != null) {
-            return switch (highway) {
-                case "motorway", "motorway_link",
-                     "trunk",    "trunk_link"       -> 8.0;
-                case "primary",   "primary_link"    -> 10.0;
-                case "secondary", "secondary_link"  -> 11.0;
-                case "tertiary",  "tertiary_link"   -> 12.0;
-                case "residential", "unclassified",
-                     "living_street"                -> 13.0;
-                case "service", "track"             -> 14.0;
-                case "path", "footway", "cycleway",
-                     "steps", "bridleway"           -> 14.5;
-                default -> 13.0;
-            };
-        }
-
-        if (tags.containsKey("building") || tags.containsKey("building:part")) return 14.0;
-
-        String waterway = tags.get("waterway");
-        if (waterway != null) {
-            return switch (waterway) {
-                case "river", "canal" -> 14.0;
-                case "stream"         -> 12.0;
-                default               -> 13.0;
-            };
-        }
-
-        String landuse = tags.get("landuse");
-        if (landuse != null) {
-            return switch (landuse) {
-                case "forest" -> 0.0;
-                case "grass" -> 15.0;
-                case "farmland", "farmyard" -> 13.0;
-                case "residential", "commercial",
-                     "retail"                    -> 10.0;
-                case "industrial"                -> 10.0;
-                default                          -> 0.0;
-            };
-        }
-
-        if (tags.containsKey("natural")) return 0.0;
-        if (tags.containsKey("aeroway")) return 10.0;
-        if (tags.containsKey("amenity") || tags.containsKey("leisure")) return 11.0;
-        if (tags.containsKey("man_made")) return 13.0;
-        if (tags.containsKey("tourism") || tags.containsKey("historic")) return 13.0;
-        if (tags.containsKey("barrier")) return 14.0;
-        return 0.0;
     }
 }

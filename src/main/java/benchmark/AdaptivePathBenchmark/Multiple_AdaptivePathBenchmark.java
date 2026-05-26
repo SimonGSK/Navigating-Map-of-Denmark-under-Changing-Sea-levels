@@ -41,8 +41,6 @@ public class Multiple_AdaptivePathBenchmark extends AbstractAdaptivePathBenchmar
     //@Param({"11","13","15"})
     public double ZOOM_LEVEL = 11;
 
-
-    private List<double[]> loadedPts;
     private List<Way> adaptiveWays2;
     private List<Way> adaptiveWays4;
     private List<Way> adaptiveWays6;

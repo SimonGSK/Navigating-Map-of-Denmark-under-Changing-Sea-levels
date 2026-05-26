@@ -8,11 +8,24 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.io.File;
 
+/**
+ * Simple startup dialog for choosing map data sources.
+ */
 public class StartupDialog {
+    /**
+     * Selected map file paths.
+     * @param osmPath OSM file path
+     * @param hcPath height curve file path
+     * @param binPath binary file path
+     */
     public record MapChoice(String osmPath, String hcPath, String binPath) {}
 
     private MapChoice result = null;
 
+    /**
+     * Shows the dialog and returns the selected map choice.
+     * @return selected map choice or null
+     */
     public MapChoice show() {
         Stage dialog = new Stage();
         dialog.setTitle("Select a map");

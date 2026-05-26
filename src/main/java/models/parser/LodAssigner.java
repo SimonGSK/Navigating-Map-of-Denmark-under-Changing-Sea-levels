@@ -10,6 +10,7 @@ import java.util.*;
  *    2. How big is it? A large forest shows earlier than a tiny one.
  */
 public class LodAssigner {
+
     /**
      * An element must cover at least this many screen pixels before it gets drawn.
      * 4096 = 64x64 pixels
@@ -19,17 +20,10 @@ public class LodAssigner {
 
     /**
      * Returns the minimum zoom level for this element.
-     *
-     * Buildings get a fixed zoom level because they're physically tiny (10-15m),
-     * which would otherwise push them to an impossibly high zoom via the size formula.
-     *
-     * Everything else gets max(typeZoom, sizeZoom) — both must be satisfied.
-     *
-     * @param tags       what kind of feature is this (highway=motorway, natural=wood, etc.)
-     * @param geoArea    how big it is in square degrees. 0 for roads (open lines have no area).
-     * @param cosMeanLat corrects for the map projection — longitude degrees are shorter
-     *                   than latitude degrees at Bornholm's latitude, so we need this
-     *                   to get accurate pixel sizes
+     * @param tags feature tags
+     * @param geoArea area in square degrees
+     * @param cosMeanLat projection correction
+     * @return minimum zoom level
      */
     public static double compute(HashMap<String, String> tags, double geoArea, double cosMeanLat) {
         if (tags != null && (tags.containsKey("building") || tags.containsKey("building:part"))) {
@@ -41,11 +35,9 @@ public class LodAssigner {
         return Math.max(tagZoom, areaZoom);
     }
     /**
-     * Some features are worth showing even when small. A tiny pond is a useful
-     * landmark, a tiny scrub patch is just clutter. This returns a lower pixel
-     * requirement for features that deserve to appear earlier.
-     *
-     * Lower number = shows up sooner.
+     * Returns a pixel threshold based on feature type.
+     * @param tags feature tags
+     * @return pixel threshold
      */
     private static double pixelThreshold(HashMap<String, String> tags) {
         if (tags == null) return PIXEL_THRESHOLD;
@@ -58,18 +50,27 @@ public class LodAssigner {
 
         return PIXEL_THRESHOLD;
     }
+
     /**
      * Calculates at what zoom level this element becomes big enough to be worth drawing.
      *
      * The bigger the element, the earlier it shows up. A large forest might appear
      * at zoom 5, a tiny pond only at zoom 12. Roads have no area so this always
      * returns 0 for them, only their road type decides when they appear.
+     * @param geoArea area in square degrees
+     * @param cosMeanLat projection correction
+     * @param threshold pixel threshold
+     * @return minimum zoom level
      */
     private static double areaBasedMinZoom(double geoArea, double cosMeanLat, double threshold) {
         if (geoArea <= 0 || cosMeanLat <= 0) return 0.0;
         return Math.log(threshold/ (geoArea * cosMeanLat)) / Math.log(4.0);
     }
-    /** Returns the minimum zoom based purely on what type of feature it is, regardless of size */
+
+    /** Returns the minimum zoom based on feature type only.
+     * @param tags feature tags
+     * @return minimum zoom level
+     */
     private static double tagBasedMinZoom(HashMap<String, String> tags) {
         if (tags == null) return 0.0;
 
