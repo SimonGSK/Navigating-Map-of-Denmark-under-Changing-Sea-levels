@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class SearchResultsSortBenchmark_Optimum {
     public static volatile MapData mapData;
 
-    @Param({"5000","7500","10000","12500","15000","17500","20000","22500","25000","27500","30000"})
+    @Param({"16","32","64","128","256","512","1024","2048","4096","8192","16384","32768","65536","73728","81920","90112","98304","114688","131072"})
     private int size;
 
     private ArrayList<Way> ways;

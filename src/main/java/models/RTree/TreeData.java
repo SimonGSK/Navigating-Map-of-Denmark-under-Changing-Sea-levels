@@ -81,7 +81,7 @@ public class TreeData implements Iterable<OsmElement>, Serializable {
      * @return total count of nodes, ways, and relations
      */
     public int size() {
-        return nodes.size() + ways.size() + relations.size();
+        return nodes.size() + (ways.size() - waysInRelations.size()) + relations.size();
     }
 
     /**
