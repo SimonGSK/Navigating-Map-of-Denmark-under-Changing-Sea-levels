@@ -227,6 +227,8 @@ public class ShapeBuilder {
     /**
      * Same as buildRelation but returns a list of AdaptivePaths instead of a single Path2D.
      * Each ring can be simplified individually at render time.
+     * @param relation relation to get an AdaptivePath built
+     * @return list of adaptive paths for outer and inner rings
      */
     public List<AdaptivePath> buildRelationAdaptive(Relation relation) {
         List<AdaptivePath> result = new ArrayList<>();
@@ -249,7 +251,9 @@ public class ShapeBuilder {
     }
 
     /**
-     * Converts a ring of nodes into an AdaptivePath
+     * Converts a ring of nodes into an AdaptivePath.
+     * @param ring closed ring of nodes
+     * @return adaptive path for the ring
      */
     private AdaptivePath ringToAdaptivePath(List<Node> ring) {
         List<double[]> points = new ArrayList<>(ring.size());
@@ -259,17 +263,29 @@ public class ShapeBuilder {
         }
         return new AdaptivePath(points, true);
     }
-    // Two nodes are considered connected if they share an id or
-    // are withing SNAP_THRESHOLD of each other.
+    /**
+     * Checks whether two nodes are connected by id or proximity.
+     * @param a first node
+     * @param b second node
+     * @return true if connected by id or within snap threshold
+     */
     private boolean isConnected(Node a, Node b) {
         return a.getId() == b.getId() || UtilityTools.euclideanDistance(a.getCoordinate(), b.getCoordinate()) < SNAP_THRESHOLD; // TODO: Test with haversineFormula
     }
-    // Builds a filled Path2D for a height curve region, with its children appended as holes.
+    /**
+     * Builds a filled Path2D for a height curve region, with its children appended as holes.
+     * @param heightCurve height curve to convert
+     * @return filled path for the height curve region
+     */
     public Path2D buildHeightCurve(HeightCurve heightCurve){
         return getRegionPath(heightCurve);
     }
 
-    // Builds the outline of a single height curve as a closed Path2D.
+    /**
+     * Builds the outline of a single height curve as a closed Path2D.
+     * @param heightCurve height curve to convert
+     * @return boundary path for the height curve
+     */
     public Path2D getBoundaryPath(HeightCurve heightCurve) {
         Path2D.Double p = new Path2D.Double();
         List<Coordinate> coords = heightCurve.getCoords();
@@ -295,6 +311,8 @@ public class ShapeBuilder {
      * EVEN_ODD winding makes each child curve a hole in its parent,
      * matching how elevation bands nest inside each other on a
      * topographic map.
+     * @param heightCurve height curve to convert
+     * @return filled path for the height curve region
      */
     public Path2D getRegionPath(HeightCurve heightCurve) {
         Path2D.Double p = new Path2D.Double(Path2D.WIND_EVEN_ODD);
@@ -309,5 +327,3 @@ public class ShapeBuilder {
     }
 
 }
-
-
