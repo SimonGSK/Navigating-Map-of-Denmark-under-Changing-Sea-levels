@@ -226,26 +226,4 @@ public class HeightCurveData implements Serializable {
                 .max()
                 .orElse(100);
     }
-
-    /**
-     * Recursively checks if a coordinate is in a submerged curve or its submerged children.
-     * @param coordinate coordinate to test
-     * @param curve current curve
-     * @return true if submerged
-     */
-    private boolean isCoordinateInSubmergedCurve(Coordinate coordinate, HeightCurve curve) {
-        // If this curve is submerged and the coordinate is inside it, return true
-        if (curve.isSubmerged() && pointInPolygon(coordinate, curve.getCoords())) {
-            return true;
-        }
-        
-        // Check children recursively
-        for (HeightCurve child : curve.getChildren()) {
-            if (isCoordinateInSubmergedCurve(coordinate, child)) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
 }

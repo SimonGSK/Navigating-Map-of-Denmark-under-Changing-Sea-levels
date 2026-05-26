@@ -35,8 +35,6 @@ public class PixelStepBenchmark extends AbstractAdaptivePathBenchmark {
     @Param({"1", "4", "8", "16", "32", "64"})
     public double PIXEL_STEP;
 
-    private AdaptivePath path;
-    private List<double[]> loadedPts;
     private List<Way> ways;
 
     @Setup(Level.Trial)

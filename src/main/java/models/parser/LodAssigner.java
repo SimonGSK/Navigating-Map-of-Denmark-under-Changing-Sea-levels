@@ -10,6 +10,7 @@ import java.util.*;
  *    2. How big is it? A large forest shows earlier than a tiny one.
  */
 public class LodAssigner {
+
     /**
      * An element must cover at least this many screen pixels before it gets drawn.
      * 4096 = 64x64 pixels
@@ -49,6 +50,7 @@ public class LodAssigner {
 
         return PIXEL_THRESHOLD;
     }
+
     /**
      * Calculates at what zoom level this element becomes big enough to be worth drawing.
      *
@@ -64,6 +66,7 @@ public class LodAssigner {
         if (geoArea <= 0 || cosMeanLat <= 0) return 0.0;
         return Math.log(threshold/ (geoArea * cosMeanLat)) / Math.log(4.0);
     }
+
     /** Returns the minimum zoom based on feature type only.
      * @param tags feature tags
      * @return minimum zoom level

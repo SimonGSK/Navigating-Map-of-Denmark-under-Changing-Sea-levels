@@ -59,8 +59,6 @@ public class AppController extends DrawingApp {
 
     private final GraphicsRenderer graphicsRenderer = new GraphicsRenderer(this);
 
-    private double seaLevel = 0;
-
     private double prevMouseX = 0;
     private double prevMouseY = 0;
 
@@ -539,7 +537,6 @@ public class AppController extends DrawingApp {
             return;
         }
 
-        this.seaLevel = seaLevel;
         appData.getHeightCurveData().updateFlooding(seaLevel);
         appData.getHeightCurveRenderer().setSeaLevel(seaLevel);
         pathfindingObject.updatePath();

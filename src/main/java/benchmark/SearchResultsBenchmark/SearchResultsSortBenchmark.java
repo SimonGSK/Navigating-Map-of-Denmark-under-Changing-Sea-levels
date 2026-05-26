@@ -1,10 +1,6 @@
 package benchmark.SearchResultsBenchmark;
 
 import benchmark.BenchmarkUtils;
-import benchmark.TreeBenchmark.AbstractTreeBenchmark;
-import models.RTree.SearchResults;
-import models.osm.Node;
-import models.osm.Relation;
 import models.osm.Way;
 import models.parser.MapData;
 import org.openjdk.jmh.annotations.*;
