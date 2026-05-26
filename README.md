@@ -68,9 +68,10 @@ dataset and reused on subsequent launches for faster startup (~27.8× speedup).
 | Action | How |
 |---|---|
 | Pan the map | Click and drag |
-| Zoom | Scroll wheel |
+| Zoom | Scroll wheel and the `+`/`-` buttons in the toolbar  |
 | Adjust sea level | Use the slider in the toolbar |
 | Set route start/end | Press `S` to enter selection mode, then click once for start and once for end |
+| Reset interface | Press `esc` to reset the interface and enter exploration mode |
 | Load a different map | Use the file menu to open new `.osm` and `.hc` files |
 
 ---
