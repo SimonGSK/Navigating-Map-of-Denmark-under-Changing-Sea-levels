@@ -105,7 +105,7 @@ public class Pathfinder {
                     continue;
                 }
 
-                // Skip unavailable nodes
+                // Skip submerged nodes
                 if (neighbour.isSubmerged()) {
                     continue;
                 }
