@@ -14,3 +14,7 @@
  I then did a round of rendering optimizations including adding a dirty flag so the app only redraws when something has actually changed,
  caching stroke objects and height curve paths to avoid rebuilding them every frame, and reusing a single image buffer instead of
  allocating a new one each render cycle. Finally I did a full JavaDoc pass across the core classes.
+
+ The test suite ended up being more extensive than the above suggests. Beyond the parser, height curve, BoundingBox, ShapeBuilder, and AdaptivePath tests, I also wrote PathfinderTest, EdgeTest, GraphBuilderTest, OsmElementTest, RelationTest, and UtilityToolsTest — over 1200 lines of tests in total, covering haversine distance calculations, adjacency list construction, edge weights, element tag handling, and coordinate transforms.
+
+ I also replaced the boolean isDijkstra flag in the pathfinding API with a proper Algorithm enum with DIJKSTRA and A_STAR values. Using an enum makes the callsites readable and also worked cleanly as a JMH @Param for running parameterized benchmarks across both algorithms. On the rendering side I removed the Drawable interface that had been sitting as an empty abstraction — I deleted the interface and removed the draws(Graphics2D) implementations from Node, Way, Relation, and HeightCurve, so all drawing logic now lives exclusively in the dedicated renderer classes where it belongs.

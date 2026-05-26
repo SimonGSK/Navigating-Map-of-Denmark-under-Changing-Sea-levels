@@ -9,6 +9,9 @@ and shouldNotDraw() methods, and moved that method to our new Element class.
 I spent time on fixing small bugs in our rendering. That included adding a coastlineRenderer, which we later removed again, and adding a class MapData.
 The relations/multipolygons were also tricky to get right. I then made everything look neat, before I moved on to height curves.
 
+// COORDINATE PROJECTION
+At some point I noticed that the map looked slightly stretched horizontally. The reason was that we were treating a degree of longitude the same as a degree of latitude, but that is only correct at the equator — at higher latitudes a degree of longitude covers a shorter distance on the ground. I fixed this by computing the mean latitude from the map bounding box and scaling all node longitudes by cos(meanLat) in the renderer. That one correction made the map look geographically accurate.
+
 // HEIGHT CURVE PARSING AND RENDERING
 I then went on to work on the parsing and rendering of height curves.
 I created a simple altitude map too, where each heightCurves is filled with a color based on their height above the sea level. The height curves were filled in decreasing order

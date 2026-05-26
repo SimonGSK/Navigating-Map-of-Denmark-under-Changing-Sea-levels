@@ -20,6 +20,11 @@ to more accurately calculate the distance between the nodes.
 When the A* algorithm was working, I added a boolean parameter to make it possible to turn on and off the heuristics.
 This way we can use both Dijkstra and A*. This is only used for testing purposes.
 
+Later in the project I upgraded the heuristic from a simple Euclidean approximation to a proper haversine calculation via
+a shared UtilityTools class, which made the estimates much more accurate for geographic coordinates. I also tracked down
+a critical bug where the source node was never added to the priority queue — it had been accidentally commented out,
+which silently caused A* to return wrong results. Fixing that one line made everything work correctly.
+
 // DEBUGGING HOTKEYS
 After the A* algorithm was working, I started working on a way to find the nearest node the to cursor on the map. It
 works by finding the Bounding Box that the cursor is in and then finding the nearest node to that bounding box. When
@@ -28,6 +33,12 @@ cursor and the node and making a Bounding Box around the cursor. The Bounding Bo
 and finding the minimum and maximum latitudes and longitudes around that position.
 It then finds the true nearest node to the cursor.
 If the search area doesn't include any nodes it expands the area until a node is found.
+
+The nearest-node search actually works in two phases. The first pass computes the initial nearest distance from leaf
+entries in the R-tree, and the second pass runs a refined search within that radius to confirm the true closest node.
+This avoids returning a node that was only nearest in the first coarse bounding-box expansion. I also exposed the
+R-tree MBR data through helper methods so that the bounding-box debug visualization could draw the actual tree node
+rectangles on screen, not just the viewport box.
 
 I then started working on the UI of our application. I started by creating a hotkey to toggle on and off the
 viewport debugging mode. After that was working I made another hotkey to toggle on and off the bounding boxes. When
@@ -44,3 +55,16 @@ zoom level but I couldn't get it to work as I wanted.
 // BENCHMARKING
 After that was done I benchmarked the performance of the A* algorithm and the Dijkstra algorithm using the Mark8
 solution. I later found a way to make better microbenchmarking and spent a lot of time learning how to do that properly.
+
+The better approach was JMH, the Java Microbenchmark Harness. I set up a PathfinderBenchmark with proper @Benchmark
+annotations, a PathfinderBenchmarkRunner to execute it and write CSV output, and a PathfinderBenchmarkUtils class to
+load real map data for the benchmarks. I also contributed to the shared tree benchmarking infrastructure with
+TreeBuildBenchmark, TreeSearchBenchmark, and AbstractTreeBenchmark as a common base class. Running real OSM data
+through JMH gave much more reliable numbers than the custom timing approach, and the results were exported to
+spreadsheets for comparison across algorithms and configurations.
+
+// TESTS
+I wrote unit tests throughout the project to validate the pathfinding logic. TestAdjacency covers the graph construction
+side — checking that addEdge, connectTwoWay, and the adjacency-list structure behave correctly. TestPathfinder validates
+the actual shortest-path results on small graphs where the correct answer can be verified by hand, including cases
+with direct edges, alternative routes, and weighted path selection.
