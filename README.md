@@ -38,7 +38,7 @@ at ITU Copenhagen, Spring 2026.
 
 **1. Clone the repository**
 
-    git clone https://github.itu.dk/SWU-FYP-Spring2026/BFST2026GroupNo20.git
+    git clone https://github.com/SimonGSK/Navigating-Map-of-Denmark-under-Changing-Sea-levels.git
     cd BFST2026GroupNo20
 
 **2. Build the project**
