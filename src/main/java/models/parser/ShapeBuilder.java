@@ -26,7 +26,7 @@ public class ShapeBuilder {
      * @param cosMeanLat projection scale for longitude
      */
     public ShapeBuilder(double cosMeanLat){
-        this.cosMeanLat = cosMeanLat;;
+        this.cosMeanLat = cosMeanLat;
     }
 
     /**
@@ -34,7 +34,7 @@ public class ShapeBuilder {
      * @param way way to convert
      * @return path for the way
      */
-    public Path2D buildWay(Way way){
+    public AdaptivePath buildWay(Way way){
         List<Node> nodes = way.getNodes();
         boolean isClosed = nodes.getFirst().getId() == nodes.getLast().getId();
 
@@ -52,17 +52,21 @@ public class ShapeBuilder {
      * @return filled path or null
      */
     public Path2D buildRelation(Relation relation){
-        var tags = relation.getTags();
         if (relation.getTags() == null || relation.getTags().isEmpty()) return null;
 
         List<Way> outerWays = new ArrayList<>();
         List<Way> innerWays = new ArrayList<>();
+        List<Way> otherWays = new ArrayList<>();
 
         for (Member member : relation.getMembers()) {
             if (!(member.getElement() instanceof Way way)) continue;
-            if ("outer".equals(member.getRole()) || "".equals(member.getRole()) || member.getRole() == null) {
+            if ("outer".equals(member.getRole())) {
                 outerWays.add(way);
-            } else if ("inner".equals(member.getRole())) innerWays.add(way);
+            } else if ("inner".equals(member.getRole())) {
+                innerWays.add(way);
+            } else {
+                otherWays.add(way);
+            }
         }
 
         if (outerWays.isEmpty()) return null;
@@ -76,6 +80,10 @@ public class ShapeBuilder {
 
         for (List<Node> ring : stitchWaysToRings(innerWays)) {
             appendNodes(path, ring);
+        }
+
+        for (Way way : otherWays) {
+            path.append(buildWay(way), false);
         }
 
         return path;
@@ -235,10 +243,17 @@ public class ShapeBuilder {
 
         List<Way> outerWays = new ArrayList<>();
         List<Way> innerWays = new ArrayList<>();
+        List<Way> otherWays = new ArrayList<>();
+
         for (Member member : relation.getMembers()) {
             if (!(member.getElement() instanceof Way way)) continue;
-            if ("inner".equals(member.getRole())) innerWays.add(way);
-            else outerWays.add(way);  // outer, "", or null
+            if ("outer".equals(member.getRole())) {
+                outerWays.add(way);
+            } else if ("inner".equals(member.getRole())) {
+                innerWays.add(way);
+            } else {
+                otherWays.add(way);
+            }
         }
 
         for (List<Node> ring : stitchWaysToRings(outerWays)) {
@@ -246,6 +261,9 @@ public class ShapeBuilder {
         }
         for (List<Node> ring : stitchWaysToRings(innerWays)) {
             result.add(ringToAdaptivePath(ring));  // inner rings become holes via EVEN_ODD
+        }
+        for (Way way : otherWays) {
+            result.add(buildWay(way));
         }
         return result;
     }
