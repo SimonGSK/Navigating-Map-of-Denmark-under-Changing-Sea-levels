@@ -42,3 +42,6 @@ build/
 /.idea
 *.bin
 src/test/resources/jsonData/Bornholm.json
+src/main/Resources/data/bornholm/
+src/main/Resources/data/bornholm/
+src/test/resources/jsonData/Bornholm.json
