@@ -69,8 +69,11 @@ public class MapData implements Serializable {
 
         // Add all ways that are part of a relation to a set, to filter them out later
         for (Relation r : relationMap.values()) {
+            String name = r.getTag("name");
             String type = r.getTag("type");
             if (!"multipolygon".equals(type)) continue;
+            if ("Region Hovedstaden".equals(name)) continue;
+
             polys.add(r);
             for (Member m : r.getMembers()) {
                 if (m.getElement() instanceof Way w) {
