@@ -39,7 +39,7 @@ at ITU Copenhagen, Spring 2026.
 **1. Clone the repository**
 
     git clone https://github.com/SimonGSK/Navigating-Map-of-Denmark-under-Changing-Sea-levels.git
-    cd BFST2026GroupNo20
+    cd Navigating-Map-of-Denmark-under-Changing-Sea-levels
 
 **2. Build the project**
 
