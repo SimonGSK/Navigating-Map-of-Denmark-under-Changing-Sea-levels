@@ -219,7 +219,13 @@ public class UserInterface {
             return "Pathfinding Debug OFF [P]";
         };
 
-        return getLabel(labelText, appSettings.isPathfindingDebugProperty());
+        Label label = getLabel(labelText, appSettings.isPathfindingDebugProperty());
+
+        // Only show in selection mode
+        label.visibleProperty().bind(appSettings.userModeProperty().isEqualTo(AppSettings.UserMode.select));
+        label.managedProperty().bind(label.visibleProperty());
+
+        return label;
     }
 
     /**
