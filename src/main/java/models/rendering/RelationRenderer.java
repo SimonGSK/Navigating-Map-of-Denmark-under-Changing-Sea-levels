@@ -44,7 +44,9 @@ public class RelationRenderer extends AbstractRenderer<Relation> {
             combined.append(ring, false);  // false = don't connect subpaths
         }
 
-        gc.setColor(relation.getColor());
+        Color color = relation.getColor();
+        if (color == null) return;
+        gc.setColor(color);
         gc.fill(combined);
     }
 }

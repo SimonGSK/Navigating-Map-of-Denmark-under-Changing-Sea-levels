@@ -84,6 +84,7 @@ public abstract class OsmElement extends Element {
         if (tags.containsKey("power")) return null;
         if (tags.containsKey("boundary")) return null;
         if (tags.containsValue("boundary")) return null;
+        if (tags.containsValue("administrative")) return null;
         if (tags.containsKey("region")) return null;
         if (tags.containsValue("region")) return null;
         if (tags.containsValue("ferry")) return null;
