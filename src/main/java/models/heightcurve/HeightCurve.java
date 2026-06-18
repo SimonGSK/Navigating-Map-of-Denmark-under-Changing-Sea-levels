@@ -139,6 +139,9 @@ public class HeightCurve extends Element implements Serializable {
         // This curve is submerged if parent is submerged AND this curve's height is below sea level
         this.submerged = parentSubmerged && this.height < seaLevel;
 
+        //Early return if this curve is not submerged, since none of its descendants can then be
+        if (!this.submerged) return; 
+
         // Recursively update children
         for (HeightCurve child : this.children) {
             child.updateSubmersion(seaLevel, this.submerged);
